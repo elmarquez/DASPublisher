@@ -1,0 +1,376 @@
+html {
+    border:0;
+    margin:0;
+    padding:0;
+}
+body {
+    border:0;
+    font-family: 'PT Sans',Helvetica Neue,Helvetica,Arial,sans-serif;
+    font-size:10pt;
+    margin:0;
+    padding:0;
+}
+h1, h2, h3, h4, h5, h6 {
+    /* text-shadow:0 1px 1px #B3B3B3; */
+}
+h1 {
+    border-bottom:2px dotted #ccc;
+    font-size:250%;
+    margin-top:15px;
+    margin-bottom:30px;
+    padding:0;
+    padding-bottom:15px;
+}
+h2 {
+    font-size:150%;
+    margin:0;
+    margin-bottom:7px;
+    margin-top:20px;
+    padding:0;
+}
+h3 {
+    color:#444;
+    font-size:120%;
+    font-style:italic;
+    font-weight:normal;
+    margin:0;
+    margin-bottom:7px;
+    margin-top:20px;
+    padding:0;
+
+}
+hr {
+    border:none;
+    border-bottom:1px dotted #ccc;
+    margin:0
+        margin-bottom:15px;
+    margin-top:15px;
+    padding:0;
+}
+p {
+    margin:0;
+    margin-bottom:.75em;
+    padding:0;
+}
+
+#login-box {
+    border:1px solid #aaa;
+    border-radius:7px;
+    height:300px;
+    margin-left:auto;
+    margin-right:auto;
+    margin-top:100px;
+    padding:15px;
+    width:300px;
+}
+#login-box h1 {
+    border:none;
+    color:#AE432E;
+}
+#left {
+    background:#e6e6e6;
+    /* border-right:1px solid #c2c2c2; */
+    height:100%;
+    position:fixed;
+    width:270px;
+}
+#left #banner {
+    border-bottom:1px solid #ddd;
+    color:#666;
+    height:200px;
+    padding-left:25px;
+    padding-right:20px;
+    padding-top:20px;
+}
+#left #banner h1 {
+    border:none;
+    font-size:25px;
+    margin:0;
+    padding:0
+        text-shadow:none;
+}
+#left a {
+    text-decoration:none;
+}
+#left a:hover {
+    text-decoration:underline;
+}
+#left #menu {
+    border-bottom:1px solid #ddd;
+    color: #666;
+}
+#left #menu ul {
+    list-style: none;
+    margin:0;
+    padding:0;
+}
+#left #menu ul li {
+    border-bottom:1px solid #ddd;
+    border-top:1px solid #f2f0f0;
+    padding-bottom: 10px;
+    padding-top: 10px;
+    width:100%;
+}
+#left #menu ul li:hover {
+    border-top:1px solid #c2c2c2;
+    background:#eee;
+}
+#left #menu ul li:last-child {
+    border-bottom:1px solid #e6e6e6;
+}
+#left #menu ul li a {
+    color:#666;
+    font-size:110%;
+    font-weight:bold;
+    margin:0;
+    padding-left:25px;
+    padding-right:20px;
+    text-decoration:none;
+}
+#left #menu ul li a:hover {
+    color:#333;
+}
+#right {
+    background:white;
+    height:100%;
+    left: 300px;
+    overflow:scroll;
+    padding-bottom:40px;
+    padding-right:20px;
+    position:fixed;
+    right:0;
+}
+
+/* ------------------------------------------------------------------------- */
+/* Dashboard */
+
+#publish-status {
+    margin-bottom:50px;
+    margin-top:30px;
+    width:100%;
+}
+#publish-status ul {
+    list-style:none;
+    margin:0;
+    padding:0;
+}
+#publish-status ul li {
+    border-curve:7px;
+    display:inline;
+    margin-right:15px;
+    padding:15px;
+    padding-left:40px;
+}
+#publish-status ul li:last-child {
+    margin-right:none;
+}
+
+#legend {
+    border:0;
+    border-collapse:collapse;
+    border-spacing:0;
+    list-style:none;
+    margin:0;
+    margin-top:15px;
+    padding:0;
+}
+#legend li {
+    border:0;
+    display:inline;
+    margin:0;
+    padding:0;
+    padding:5px;
+}
+#legend .complete {
+    background: #58FA58;
+}
+#legend .partial {
+    background: yellow;
+}
+#legend .incomplete {
+    background: orange;
+}
+#legend .error {
+    background: red;
+}
+
+#report {
+    /* border:1px solid #ccc; */
+    margin-bottom:40px;
+    margin-top:20px;
+    width:100%;
+}
+#report .course {
+    background:#F5F6CE;
+    margin:0;
+    margin-bottom:1px;
+    padding:0;
+}
+#report .course .title {
+    /*
+    border-bottom:1px solid #ddd;
+    border-left:1px solid #f2f0f0;
+    border-right:1px solid #ddd;
+    border-top:1px solid #f2f0f0;
+    */
+    display:table;
+    padding:5px 5px 5px 15px;
+    width:100%;
+}
+#report .course .title h1 {
+    border:none;
+    float:left;
+    font-size:125%;
+    font-weight:bold;
+    margin:0;
+    padding:0;
+}
+#report .course .title a {
+    float:right;
+    text-align:left;
+}
+#report .metadata {
+    font-family:Courier,'Courier New',fixed;
+    padding:10px;
+    margin:0;
+}
+#report .assignment {
+    font-family:Courier,'Courier New',fixed;
+    margin:0;
+    padding:0;
+    padding-bottom:10px;
+    padding-left:10px;
+}
+#report .assignment h1 {
+    border:none;
+    font-size:100%;
+    font-weight:bold;
+    margin:0;
+    padding:0;
+    padding-left:10px;
+}
+#report .files {
+    display:none;
+}
+#report .complete {
+    background:#dedede;
+}
+#report .complete:hover {
+    background:#eee;
+}
+#report .partial {
+    background:#F4FA58;
+}
+#report .partial:hover {
+    background:#F2F5A9;
+}
+#report .incomplete {
+    background:#FACC2E;
+}
+#report .incomplete:hover {
+    background:#FE9A2E;
+}
+#report .error {
+    background:#FF4000;
+}
+#report .error:hover {
+    background:red;
+}
+ul.marked {
+    list-style:none;
+    margin:0;
+    padding:0;
+    padding-left:10px;
+}
+ul li.checkmark:before {
+    content:"\2713\0020";
+}
+ul li.cross:before {
+    content:"\2717\0020";
+}
+
+/* ------------------------------------------------------------------------- */
+/* Configure */
+
+input {
+    font-family:Courier,'Courier New',fixed;
+    margin:0;
+    padding:5px;
+}
+.configuration {
+    border-collapse:collapse;
+    border-spacing:0;
+}
+.configuration tr {
+    /* background:#eee; */
+}
+.configuration tr td {
+    padding-bottom:10px;
+}
+.configuration tr td:first-child {
+    border-bottom: 1px solid white;
+    padding-right:15px;
+    width:250px;
+}
+#action-bar {
+    border-top:2px dotted #ccc;
+    margin-bottom:30px;
+    margin-top:30px;
+    padding-top:30px;
+}
+
+/* ------------------------------------------------------------------------- */
+/* Publish */
+
+#warning {
+    background:#F5F6CE;
+    /* border:1px solid #e2e2e2; */
+    border-radius:3px;
+    margin-bottom:30px;
+    padding:0;
+    padding-left:15px;
+    padding-bottom:15px;
+}
+#warning h2 {
+    background:#F3F781;
+    margin-left:-15px;
+    margin-top:0;
+    padding-bottom:5px;
+    padding-left:15px;
+    padding-top:5px;
+    width:100%;
+}
+#warning p {
+    font-family:Courier,'Courier New',fixed;
+    margin:15px 15px 15px 0;
+}
+
+/* ------------------------------------------------------------------------- */
+/* Help */
+
+#formats {
+    border-collapse:collapse;
+    border-spacing:0;
+    width:100%;
+}
+#formats tr {
+    border-bottom:1px solid #eee;
+    vertical-align:top;
+}
+#formats tr:last-child {
+    border-bottom:1px solid #aaa;
+}
+#formats tr th {
+    border-bottom:1px solid #aaa;
+    font-style:italic;
+    font-weight:normal;
+    text-align:left;
+}
+#formats tr td {
+    margin:0;
+    padding:5px;
+    text-align:left;
+}
+#formats tr td:first-child {
+    padding-left:0;
+}
