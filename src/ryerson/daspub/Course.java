@@ -22,6 +22,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.Iterator;
 import java.util.List;
 import java.util.logging.Logger;
 import org.apache.commons.io.FileUtils;
@@ -49,9 +50,9 @@ public class Course {
     //--------------------------------------------------------------------------
     
     /**
-     * Get list of assignments
+     * Get assignment iterator.
      */
-    public List<Assignment> getAssignments() {
+    public Iterator<Assignment> getAssignments() {
         File dir = new File(path);
         ArrayList<Assignment> items = new ArrayList<>();
         File[] files = dir.listFiles(new FolderFileFilter());
@@ -59,7 +60,7 @@ public class Course {
             Assignment a = new Assignment(files[i]);
             items.add(a);
         }
-        return items;
+        return items.iterator();
     }
 
     /**

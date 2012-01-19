@@ -37,6 +37,7 @@ import org.jpedal.exception.PdfException;
 import ryerson.daspub.Assignment;
 import ryerson.daspub.Config;
 import ryerson.daspub.Course;
+import ryerson.daspub.Submission;
 import ryerson.daspub.utility.FolderFileFilter;
 import ryerson.daspub.utility.ImageUtils;
 
@@ -134,14 +135,13 @@ public class ArtifactPublisher implements Runnable {
             File[] dirs = archive.listFiles(new FolderFileFilter());
             for (int i = 0; i < dirs.length; i++) {
                 Course c = new Course(dirs[i].getAbsolutePath());
-                List<Assignment> assignments = c.getAssignments();
-                Iterator<Assignment> ait = assignments.iterator();
-                while (ait.hasNext()) {
-                    Assignment a = ait.next();
-                    List<File> files = a.getMedia();
-                    Iterator<File> fit = files.iterator();
-                    while (fit.hasNext()) {
-                        File file = fit.next();
+                Iterator<Assignment> assignments = c.getAssignments();
+                while (assignments.hasNext()) {
+                    Assignment a = assignments.next();
+                    Iterator<Submission> submissions = a.getSubmissions();
+                    while (submissions.hasNext()) {
+                        Submission sub = submissions.next();
+                        File file = sub.getFile();
                         _logger.log(Level.FINE, "Generating artifact record for {0}", file.getAbsolutePath());
                         try {
                             // generate id for artifact
@@ -173,7 +173,7 @@ public class ArtifactPublisher implements Runnable {
         }
         // generate tag sheet
         try {
-            TagSheet ts = new TagSheet(new File(_output,"artifact"));
+            QRCodeSheetPublisher ts = new QRCodeSheetPublisher(new File(_output,"artifact"));
             ts.writeTagSheet(_output);
         } catch (IOException | DocumentException ex) {
             String stack = ExceptionUtils.getStackTrace(ex);

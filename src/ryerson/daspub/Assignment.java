@@ -21,21 +21,24 @@ package ryerson.daspub;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Iterator;
-import java.util.List;
+import java.util.Locale;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import jxl.Cell;
+import jxl.Sheet;
+import jxl.Workbook;
 import jxl.WorkbookSettings;
+import jxl.read.biff.BiffException;
 import jxl.read.biff.WorkbookParser;
 import org.apache.commons.io.FileUtils;
 import ryerson.daspub.utility.AssignmentDescriptionTextFileFilter;
-import ryerson.daspub.utility.AssignmentFileMetadataFileFilter;
+import ryerson.daspub.utility.AssignmentMetadataFileFilter;
 import ryerson.daspub.utility.ImageFileFilter;
 import ryerson.daspub.utility.MetadataFileFilter;
 import ryerson.daspub.utility.NonImageFileFilter;
-import ryerson.daspub.utility.ProcessableImageFileFilter;
 
 /**
  * Assignment entity. Lazy loads data from the file system.
@@ -45,9 +48,9 @@ public class Assignment {
 
     public static enum STATUS {COMPLETE, INCOMPLETE, ERROR};
 
-    private File dir;
+    private File path;
 
-    private static final Logger _logger = Logger.getLogger(Assignment.class.getName());
+    private static final Logger logger = Logger.getLogger(Assignment.class.getName());
     
     //--------------------------------------------------------------------------
 
@@ -56,7 +59,15 @@ public class Assignment {
      * @param D Directory
      */
     public Assignment(File D) {
-        dir = D;
+        path = D;
+    }
+
+    /**
+     * Assignment constructor
+     * @param Path 
+     */
+    public Assignment(String Path) {
+        path = new File(Path);
     }
 
     //--------------------------------------------------------------------------
@@ -66,7 +77,7 @@ public class Assignment {
      * @return 
      */
     public String getAssignmentDescriptionPDF() {
-        File file = new File(dir.getAbsolutePath(),Config.ASSIGNMENT_DESCRIPTION_PDF_FILE);
+        File file = new File(path.getAbsolutePath(),Config.ASSIGNMENT_DESCRIPTION_PDF_FILE);
         if (file.exists()) {
             return Config.ASSIGNMENT_DESCRIPTION_PDF_FILE;
         } else {
@@ -90,58 +101,29 @@ public class Assignment {
      * @return
      */
     private String getHTMLSafeID() {
-        String name = dir.getName();
+        String name = path.getName();
         return name.replace(" ", "_");
     }
-
-    /**
-     * Get list of files
-     * @return List of image files
-     */
-    public List<File> getMedia() {
-        ArrayList<File> items = new ArrayList<>();
-        File[] files = dir.listFiles(new ProcessableImageFileFilter());
-        items.addAll(Arrays.asList(files));
-        return items;
-    }
-
-    /**
-     * Get assignment metadata
-     */
-    private void getMetadata() {
-        File metadata = getMetadataFile();
-        if (metadata != null) {
-            try {
-                WorkbookSettings wbs = new WorkbookSettings();
-                FileInputStream fis = new FileInputStream(metadata);
-                jxl.read.biff.File f = new jxl.read.biff.File(null, wbs);
-                WorkbookParser wbp = new WorkbookParser(f,wbs);
-            } catch (Exception ex) {
-                _logger.log(Level.SEVERE,"Could not load metadata file {0}",metadata.getAbsolutePath());
-            }
-        } else {
-            _logger.log(Level.SEVERE,"Assignment {0} metadata file {1} could not be loaded.",
-                    new Object[]{dir.getAbsolutePath(),metadata.getAbsolutePath()});
-        }
-    }
     
     /**
-     * Get metadata file
-     * @return 
+     * Get submission metadata file.
+     * @return Metadata file. Null if no file is found.
      */
     private File getMetadataFile() {
-        File[] files = dir.listFiles(new MetadataFileFilter());
+        File[] files = path.listFiles(new MetadataFileFilter());
         File file = null;
+        if (files.length>0) {
+            file = files[0];
+        }
         return file;
     }
-    
+
     /**
-     * Get list of metadata files.
-     * TODO: do we need this method? seems useless
-     * @return List of files.
+     * Get assignment name from folder name.
+     * @return Assignment name
      */
-    private File[] getMetadataFileList() {
-        return dir.listFiles(new MetadataFileFilter());
+    public String getName() {
+        return path.getName();
     }
 
     /**
@@ -149,7 +131,7 @@ public class Assignment {
      * @return List of files
      */
     private File[] getNonProcessableFileList() {
-        return dir.listFiles(new NonImageFileFilter());
+        return path.listFiles(new NonImageFileFilter());
     }
 
     /**
@@ -157,7 +139,7 @@ public class Assignment {
      * @return 
      */
     public File getPath() {
-       return dir; 
+       return path; 
     }
 
     /**
@@ -165,7 +147,7 @@ public class Assignment {
      * @return List of files
      */
     private File[] getProcessableFileList() {
-        return dir.listFiles(new ImageFileFilter());
+        return path.listFiles(new ImageFileFilter());
     }
 
     /**
@@ -193,7 +175,7 @@ public class Assignment {
         sb.append("'>");
         // item title
         sb.append("\n\t\t<h1>");
-        sb.append(getTitle());
+        sb.append(getName());
         sb.append("</h1>");
         // description and metadata files
         sb.append("\n\t\t<ul class='marked'>");
@@ -210,14 +192,14 @@ public class Assignment {
         sb.append("\n\t\t</ul>");
         // student work files
         sb.append("\n\t\t<div class='files'>");
-        File[] files = dir.listFiles();
+        File[] files = path.listFiles();
         int count = files.length;
         sb.append("\n\t\t\t<p>There are ");
         sb.append(count);
         sb.append(" files in the assignment folder.");
         sb.append("</p>");
         sb.append("\n\t\t\t<ul>");
-        files = dir.listFiles(new NonImageFileFilter());
+        files = path.listFiles(new NonImageFileFilter());
         for (int i=0;i<files.length;i++) {
             // if description or metadata file then pass
             sb.append("\n\t\t\t\t<li>");
@@ -232,34 +214,69 @@ public class Assignment {
     }
 
     /**
-     * Get assignment title
-     * @return
+     * Get list of files.
+     * @return List of image files
      */
-    public String getTitle() {
-        return dir.getName();
+    public Iterator<Submission> getSubmissions() {
+        ArrayList<Submission> items = new ArrayList<>();
+        // load the metadata file
+        File metadata = getMetadataFile();
+        // 
+        try {
+            WorkbookSettings ws = new WorkbookSettings();
+            ws.setLocale(new Locale("en","EN"));
+            FileInputStream fis = new FileInputStream(metadata);
+            Workbook workbook = Workbook.getWorkbook(fis,ws);
+            Sheet sheet = workbook.getSheet(0);
+            // Cell[] headCells = sheet.getRow(0);
+            for (int row=1;row<sheet.getRows();row++) {
+                String errorStr = "";
+                Cell[] cells = sheet.getRow(row);
+                // get the cell values
+                String course = cells[0].getContents();
+                String filename = cells[1].getContents();
+                String author = cells[2].getContents();
+                String instructor = cells[3].getContents();
+                String grade = cells[4].getContents();
+                // if the cells are not empty, add the submission
+                if (course != null && filename != null && author != null && 
+                    instructor != null && grade != null) 
+                {
+                    // create a new submission from cell data
+                    File f = new File(path,filename);
+                    Submission s = new Submission(course,f.getAbsolutePath(),author,instructor,grade);
+                    // add the submission to the list
+                    items.add(s);
+                }
+            }            
+        } catch (IOException | BiffException | IndexOutOfBoundsException ex) {
+            logger.log(Level.SEVERE,"Metadata for assignment {0} could not be loaded. Caught exception:\n\n{1}",
+                    new Object[]{path.getAbsolutePath(),ex.getStackTrace()});
+        }
+        return items.iterator();
     }
 
     /**
      * A map of fullsize, thumbnail file paths?
      * @return 
      */
-    public String getWorkIndex() {
+    public String getSubmissionIndex() {
         StringBuilder sb = new StringBuilder();
-        List<File> work = getMedia();
-        Iterator<File> it = work.iterator();
+        Iterator<Submission> submissions = getSubmissions();
         sb.append("\n<ul id='Gallery' class='gallery'>");
-        while (it.hasNext()) {
-            String filename = it.next().getName();
+        while (submissions.hasNext()) {
+            Submission sub = submissions.next();
             sb.append("\n\t<li>");
             sb.append("<a href='");
-            sb.append(filename);
+            sb.append(sub.getFileName());
             sb.append("' rel='external'>");
             sb.append("<img src='");
-            sb.append(filename);
-            // TODO get the description, etc. from the spreadsheet file
+            sb.append(sub.getFileName());
             sb.append("' alt='");
-            sb.append("Description of the work, authors, date, instructors");
             sb.append("' />");
+            String author = sub.getAuthor();
+            sb.append(sub);// TODO get the description, etc. from the spreadsheet file
+            sb.append("Description of the work, authors, date, instructors");
             sb.append("</a>");
             sb.append("</li>");
         }
@@ -272,7 +289,7 @@ public class Assignment {
      * @return True if file exists, false otherwise.
      */
     private boolean hasDescriptionFile() {
-        File[] files = dir.listFiles(new AssignmentDescriptionTextFileFilter());
+        File[] files = path.listFiles(new AssignmentDescriptionTextFileFilter());
         if (files.length > 0) return true;
         return false;
     }
@@ -282,7 +299,7 @@ public class Assignment {
      * @return True if file exists, false otherwise.
      */
     private boolean hasMetadataFile() {
-        File[] files = dir.listFiles(new AssignmentFileMetadataFileFilter());
+        File[] files = path.listFiles(new AssignmentMetadataFileFilter());
         if (files.length > 0) return true;
         return false;
     }
@@ -303,7 +320,7 @@ public class Assignment {
      */
     private String[] parseDescriptionFile() throws Exception {
        String[] vals = {"", "", "", ""};
-       File file = new File(dir.getAbsolutePath(),Config.ASSIGNMENT_DESCRIPTION_TEXT_FILE);
+       File file = new File(path.getAbsolutePath(),Config.ASSIGNMENT_DESCRIPTION_TEXT_FILE);
         if (file.exists()) {
            String text = FileUtils.readFileToString(file);
            text = text.replace("\"", "&quot;");

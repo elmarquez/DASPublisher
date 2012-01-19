@@ -20,7 +20,9 @@ package ryerson.daspub;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Student work submission
@@ -29,21 +31,28 @@ import java.util.List;
 public class Submission {
     
     private String path;
-    private String filename;
     private String course;
     private String author;
     private String instructor;
     private String grade;
-    private String tag;
+    private String tags;
     
     //--------------------------------------------------------------------------
 
     /**
      * Submission constructor
-     * @param Path 
+     * @param Course
+     * @param Path
+     * @param Author
+     * @param Instructor
+     * @param Grade
      */
-    public Submission(String Path) {
+    public Submission(String Course, String Path, String Author, String Instructor, String Grade) {
+        course = Course;
         path = Path;
+        author = Author;
+        instructor = Instructor;
+        grade = Grade;
     }
     
     //--------------------------------------------------------------------------
@@ -78,6 +87,19 @@ public class Submission {
         return course;
     }
 
+    public File getFile() {
+        return new File(path);
+    }
+    
+    /**
+     * Get the submission file name
+     * @return 
+     */
+    public String getFileName() {
+        File f = new File(path);
+        return f.getName();
+    }
+
     /**
      * Get submission grade
      * @return 
@@ -85,7 +107,7 @@ public class Submission {
     public String getGrade() {
         return grade;
     }
-
+    
     /**
      * Get instructor
      * @return 
@@ -98,15 +120,32 @@ public class Submission {
      * Get tags
      * @return 
      */
-    public List<String> getTags() {
-        ArrayList<String> tags = new ArrayList<>();
-        String[] sp = tag.split(",");
-        for (int i=0;i<sp.length;i++) {
-            String tag = sp[i];
+    public Set<String> getTags() {
+        HashSet<String> tagset = new HashSet<>();
+        String[] ts = tags.split(",");
+        for (int i=0;i<ts.length;i++) {
+            String tag = ts[i];
             tag = tag.replace(" ","");
-            tags.add(tag);
+            tagset.add(tag);
         }
-        return tags;
+        return tagset;
+    }
+    
+    /**
+     * Get thumbnail image or icon for submission.
+     */
+    public void getThumbnail() throws Exception {
+        throw new Exception("Not implemented yet.");
+    }
+
+    /**
+     * 
+     * @param Height
+     * @param Width
+     * @throws Exception 
+     */
+    public void getThumbnail(int Height, int Width) throws Exception {
+        throw new Exception("Not implemented yet.");
     }
     
 } // end class
