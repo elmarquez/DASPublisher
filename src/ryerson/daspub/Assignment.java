@@ -32,7 +32,6 @@ import jxl.Sheet;
 import jxl.Workbook;
 import jxl.WorkbookSettings;
 import jxl.read.biff.BiffException;
-import jxl.read.biff.WorkbookParser;
 import org.apache.commons.io.FileUtils;
 import ryerson.daspub.utility.AssignmentDescriptionTextFileFilter;
 import ryerson.daspub.utility.AssignmentMetadataFileFilter;
@@ -221,37 +220,38 @@ public class Assignment {
         ArrayList<Submission> items = new ArrayList<>();
         // load the metadata file
         File metadata = getMetadataFile();
-        // 
-        try {
-            WorkbookSettings ws = new WorkbookSettings();
-            ws.setLocale(new Locale("en","EN"));
-            FileInputStream fis = new FileInputStream(metadata);
-            Workbook workbook = Workbook.getWorkbook(fis,ws);
-            Sheet sheet = workbook.getSheet(0);
-            // Cell[] headCells = sheet.getRow(0);
-            for (int row=1;row<sheet.getRows();row++) {
-                String errorStr = "";
-                Cell[] cells = sheet.getRow(row);
-                // get the cell values
-                String course = cells[0].getContents();
-                String filename = cells[1].getContents();
-                String author = cells[2].getContents();
-                String instructor = cells[3].getContents();
-                String grade = cells[4].getContents();
-                // if the cells are not empty, add the submission
-                if (course != null && filename != null && author != null && 
-                    instructor != null && grade != null) 
-                {
-                    // create a new submission from cell data
-                    File f = new File(path,filename);
-                    Submission s = new Submission(course,f.getAbsolutePath(),author,instructor,grade);
-                    // add the submission to the list
-                    items.add(s);
-                }
-            }            
-        } catch (IOException | BiffException | IndexOutOfBoundsException ex) {
-            logger.log(Level.SEVERE,"Metadata for assignment {0} could not be loaded. Caught exception:\n\n{1}",
-                    new Object[]{path.getAbsolutePath(),ex.getStackTrace()});
+        if (metadata != null && metadata.exists()) {
+            try {
+                WorkbookSettings ws = new WorkbookSettings();
+                ws.setLocale(new Locale("en","EN"));
+                FileInputStream fis = new FileInputStream(metadata);
+                Workbook workbook = Workbook.getWorkbook(fis,ws);
+                Sheet sheet = workbook.getSheet(0);
+                // Cell[] headCells = sheet.getRow(0);
+                for (int row=1;row<sheet.getRows();row++) {
+                    String errorStr = "";
+                    Cell[] cells = sheet.getRow(row);
+                    // get the cell values
+                    String course = cells[0].getContents();
+                    String filename = cells[1].getContents();
+                    String author = cells[2].getContents();
+                    String instructor = cells[3].getContents();
+                    String grade = cells[4].getContents();
+                    // if the cells are not empty, add the submission
+                    if (course != null && filename != null && author != null && 
+                        instructor != null && grade != null) 
+                    {
+                        // create a new submission from cell data
+                        File f = new File(path,filename);
+                        Submission s = new Submission(course,f.getAbsolutePath(),author,instructor,grade);
+                        // add the submission to the list
+                        items.add(s);
+                    }
+                }            
+            } catch (IOException | BiffException | IndexOutOfBoundsException ex) {
+                logger.log(Level.SEVERE,"Metadata for assignment {0} could not be loaded. Caught exception:\n\n{1}",
+                        new Object[]{path.getAbsolutePath(),ex.getStackTrace()});
+            }
         }
         return items.iterator();
     }

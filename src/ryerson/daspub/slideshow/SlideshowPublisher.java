@@ -21,12 +21,8 @@ package ryerson.daspub.slideshow;
 import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Iterator;
-import java.util.List;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang3.exception.ExceptionUtils;
 import ryerson.daspub.Config;
 
 /**
@@ -77,32 +73,6 @@ public class SlideshowPublisher implements Runnable {
      * Run the publisher.
      */
     public void run() {
-        // clean the output directory
-        try {
-            if (output.exists()) {
-                deleteDirectory(output);
-            }
-            output.mkdirs();
-        } catch (Exception ex) {
-            String stack = ExceptionUtils.getStackTrace(ex);
-            _logger.log(Level.SEVERE, "Could not delete {0}. Will continue processing. Caught exception:\n\n{1}", 
-                    new Object[]{output.getAbsolutePath(),stack});
-        }
-        // process each archive
-        List<String> archives = Config.ARCHIVE_PATHS;
-        Iterator<String> it = archives.iterator();
-        File archive = null;
-        File program = null;
-        File published = null;
-        while (it.hasNext()) {
-            try {
-            } catch (Exception ex) {
-                String stack = ExceptionUtils.getStackTrace(ex);
-                _logger.log(Level.SEVERE, "Could not process archive {0}. Caught exception:\n\n{2}", 
-                        new Object[]{archive.getAbsolutePath(), stack});
-                System.exit(-1);
-            }
-        }
     }
 
 } // end class

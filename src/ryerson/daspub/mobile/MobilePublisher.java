@@ -33,7 +33,6 @@ import ryerson.daspub.Assignment;
 import ryerson.daspub.Config;
 import ryerson.daspub.Course;
 import ryerson.daspub.Program;
-import ryerson.daspub.utility.FolderFileFilter;
 import ryerson.daspub.utility.ImageFileFilter;
 import ryerson.daspub.utility.ImageUtils;
 import ryerson.daspub.utility.ProcessableImageFileFilter;
@@ -156,7 +155,6 @@ public class MobilePublisher implements Runnable {
      */
     private void processCourse(Course C, File Output) {
         logger.log(Level.INFO, "Processing course folder {0}", C.getFile().getAbsolutePath());
-        File courseOutputDir = new File(Output, C.getName());
         try {
             // create course index page
             String html = new String(course_template);
@@ -171,7 +169,7 @@ public class MobilePublisher implements Runnable {
             while (assignments.hasNext()) {
                 Assignment a = assignments.next();
                 sb.append("<div class='assignment'>");
-                String s = processAssignment(a,courseOutputDir);
+                String s = processAssignment(a,Output);
                 sb.append(s);
                 sb.append("</div>");
             }
@@ -179,7 +177,7 @@ public class MobilePublisher implements Runnable {
             // html = html.replace("${course.assignments}", getFormattedList(C.getAssignments()));
             // TODO revise formatted lists method for more flexibility
             html = html.replace("${course.exams}", getFormattedList(C.getExams()));
-            File index = new File(courseOutputDir.getAbsolutePath(), "index.html");
+            File index = new File(Output.getAbsolutePath(), "index.html");
             FileUtils.write(index, html);
         } catch (Exception ex) {
             String stack = ExceptionUtils.getStackTrace(ex);
@@ -200,9 +198,9 @@ public class MobilePublisher implements Runnable {
             FileUtils.copyDirectory(staticFiles,output);
         } catch (Exception ex) {
             String stack = ExceptionUtils.getStackTrace(ex);
-            logger.log(Level.SEVERE, "Could not copy static files from {0} to {1}. Caught exception:\n\n{2}", 
+            logger.log(Level.SEVERE, "Could not copy static files from {0} to {1}. Will continue processing. Caught exception:\n\n{2}", 
                     new Object[]{Config.STATIC_FILES_PATH, output.getAbsolutePath(), stack});
-            System.exit(-1);
+            // System.exit(-1);
         }
         // process the archives
         Iterator<Archive> archives = Archive.getArchives(Config.ARCHIVE_PATHS);
@@ -212,16 +210,17 @@ public class MobilePublisher implements Runnable {
         Program program = null;
         Course course = null;
         File courseOutPath = null;
+        File archiveOutPath = new File(output.getAbsolutePath(),"program");
         while (archives.hasNext()) {
             try {
                 archive = archives.next();
-                File archiveOutPath = new File(output.getCanonicalPath(), archive.getName());
+                archiveOutPath = new File(archiveOutPath,archive.getName());
                 // process programs
                 programs = archive.getPrograms();
                 while (programs.hasNext()) {
                     // process courses
                     program = programs.next();
-                    File programOutPath = new File(archiveOutPath, program.getName());
+                    File programOutPath = new File(archiveOutPath,program.getName());
                     // get course
                     courses = program.getCourses();
                     while (courses.hasNext()) {
@@ -232,6 +231,8 @@ public class MobilePublisher implements Runnable {
                         processCourse(course,courseOutPath);
                     }
                 }
+                // write program summary
+                // write archive summary
             } catch (Exception ex) {
                 String stack = ExceptionUtils.getStackTrace(ex);
                 logger.log(Level.SEVERE, "Could not copy archive content from {0} to {1}. Caught exception:\n\n{2}", 

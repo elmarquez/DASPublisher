@@ -37,6 +37,9 @@ public class MetadataFileFilter implements FilenameFilter {
      */
     public boolean accept(File dir, String name) {
         int i = name.indexOf(".");
+        if (i < 0) {
+            return false;
+        }
         String ext = name.toLowerCase().substring(i);
         boolean match = false;
         int j = 0;
