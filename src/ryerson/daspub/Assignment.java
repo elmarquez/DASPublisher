@@ -142,6 +142,14 @@ public class Assignment {
     }
 
     /**
+     * Get path safe name.
+     */
+    public String getPathSafeName() {
+        String name = getName();
+        return name.replace(" ", "_");
+    }
+
+    /**
      * Get list of processable files.
      * @return List of files
      */

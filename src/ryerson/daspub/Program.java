@@ -30,7 +30,7 @@ public class Program {
     //--------------------------------------------------------------------------
 
     /**
-     * 
+     * Determine if program folder exists.
      * @return True if the program folder exists, false otherwise.
      */
     public boolean exists() {
@@ -54,17 +54,34 @@ public class Program {
         return result.iterator();
     }
     
+    /**
+     * Get source folder file.
+     */
     public File getFile() {
         return new File(path);
     }
     
+    /**
+     * Get program name.
+     */
     public String getName() {
         File f = new File(path);
         return f.getName();
     }
-    
+
+    /**
+     * Get source path.
+     */
     public String getPath() {
         return path;
     }
     
+    /**
+     * Get path safe name.
+     */
+    public String getPathSafeName() {
+        String name = getName();
+        return name.replace(" ", "_");
+    }
+
 } // end class

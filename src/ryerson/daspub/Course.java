@@ -168,6 +168,14 @@ public class Course {
     }
 
     /**
+     * Get path safe name.
+     */
+    public String getPathSafeName() {
+        String name = getName();
+        return name.replace(" ", "_");
+    }
+    
+    /**
      * Get status report HTML
      */
     public String getStatusReportHTML() {

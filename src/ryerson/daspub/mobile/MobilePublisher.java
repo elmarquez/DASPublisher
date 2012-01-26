@@ -35,6 +35,7 @@ import ryerson.daspub.Course;
 import ryerson.daspub.Program;
 import ryerson.daspub.utility.ImageFileFilter;
 import ryerson.daspub.utility.ImageUtils;
+import ryerson.daspub.utility.NonThumbnailIndexFileFilter;
 import ryerson.daspub.utility.ProcessableImageFileFilter;
 
 /**
@@ -195,12 +196,12 @@ public class MobilePublisher implements Runnable {
         // copy static files to output directory
         try {
             File staticFiles = new File(Config.STATIC_FILES_PATH);
-            FileUtils.copyDirectory(staticFiles,output);
+            FileUtils.copyDirectory(staticFiles,output,new NonThumbnailIndexFileFilter());
         } catch (Exception ex) {
             String stack = ExceptionUtils.getStackTrace(ex);
             logger.log(Level.SEVERE, "Could not copy static files from {0} to {1}. Will continue processing. Caught exception:\n\n{2}", 
                     new Object[]{Config.STATIC_FILES_PATH, output.getAbsolutePath(), stack});
-            // System.exit(-1);
+            System.exit(-1);
         }
         // process the archives
         Iterator<Archive> archives = Archive.getArchives(Config.ARCHIVE_PATHS);
@@ -214,19 +215,19 @@ public class MobilePublisher implements Runnable {
         while (archives.hasNext()) {
             try {
                 archive = archives.next();
-                archiveOutPath = new File(archiveOutPath,archive.getName());
+                archiveOutPath = new File(archiveOutPath,archive.getPathSafeName());
                 // process programs
                 programs = archive.getPrograms();
                 while (programs.hasNext()) {
                     // process courses
                     program = programs.next();
-                    File programOutPath = new File(archiveOutPath,program.getName());
+                    File programOutPath = new File(archiveOutPath,program.getPathSafeName());
                     // get course
                     courses = program.getCourses();
                     while (courses.hasNext()) {
                         course = courses.next();
                         // determine output path
-                        courseOutPath = new File(programOutPath, course.getName());
+                        courseOutPath = new File(programOutPath, course.getPathSafeName());
                         // process the course folder
                         processCourse(course,courseOutPath);
                     }

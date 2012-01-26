@@ -42,6 +42,7 @@ public class Main {
     private static final String CMD_CONFIG = "config";
     private static final String CMD_REPORT = "report";
     private static final String CMD_HELP = "help";
+    private static final String CMD_LOG = "log";
     private static final String CMD_PUBLISH_ARTIFACT = "artifact";
     private static final String CMD_PUBLISH_MOBILE = "mobile";
     private static final String CMD_PUBLISH_SLIDESHOW = "slideshow";
@@ -53,6 +54,7 @@ public class Main {
 
     private static File input = null;
     private static List<File> inputs = null;
+    private static File log = null;
     private static File output = null;
     private static File report = null;
 
@@ -79,8 +81,9 @@ public class Main {
      * Define the command line options.
      */
     private void defineCommandOptions() {
-        options.addOption(CMD_CONFIG,true,"Set configuration file");
+        options.addOption(CMD_CONFIG,true,"Path to configuration file");
         options.addOption(CMD_HELP,false,"Show help message");
+        options.addOption(CMD_LOG,true,"Path to output log file");
         options.addOption(CMD_PUBLISH_MOBILE,true,"Publish mobile gallery to specified folder");
         options.addOption(CMD_PUBLISH_ARTIFACT,true,"Publish artifact gallery and tag sheets to specified folder");
         options.addOption(CMD_PUBLISH_SLIDESHOW,true,"Publish slideshow to specified folder");

@@ -85,6 +85,14 @@ public class Archive {
     }
     
     /**
+     * Get path safe name.
+     */
+    public String getPathSafeName() {
+        String name = getName();
+        return name.replace(" ", "_");
+    }
+
+    /**
      * Get an iterator to the program list
      * @return 
      */
