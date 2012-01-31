@@ -4,6 +4,12 @@ EXTERNAL REVIEW MANAGER
 
 Current Work:
 
+- working on Submission and Assignment objects to make sure that the output
+  directory is completely built
+    - need to make sure that all output in assignment folders is JPG
+    - build all thumbnails
+    - next ... work on multipage PDFs, extracting thumbnail from a video file!
+
 0.2.0 x Break up all operations into separate command line options, then 
         execute all options independently
 

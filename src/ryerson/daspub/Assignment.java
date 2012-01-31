@@ -90,9 +90,14 @@ public class Assignment {
      * @return Assignment description
      * @throws Exception
      */
-    public String getDescription() throws Exception {
-        String text[] = parseDescriptionFile();
-        return text[0];
+    public String getDescription() {
+        try {
+            String text[] = parseDescriptionFile();
+            return text[0];
+        } catch (Exception ex) {
+            logger.log(Level.SEVERE,"Could not parse description. Will continue processing. Caught exception:\n\n{0}",ex);
+            return "";
+        }
     }
 
     /**
@@ -227,38 +232,26 @@ public class Assignment {
     public Iterator<Submission> getSubmissions() {
         ArrayList<Submission> items = new ArrayList<>();
         // load the metadata file
-        File metadata = getMetadataFile();
-        if (metadata != null && metadata.exists()) {
+        File file = new File(this.path,Config.ASSIGNMENT_FILE_METADATA);
+        if (file.exists()) {            
             try {
                 WorkbookSettings ws = new WorkbookSettings();
                 ws.setLocale(new Locale("en","EN"));
-                FileInputStream fis = new FileInputStream(metadata);
+                FileInputStream fis = new FileInputStream(file);
                 Workbook workbook = Workbook.getWorkbook(fis,ws);
                 Sheet sheet = workbook.getSheet(0);
+                int rows = sheet.getRows();
                 // Cell[] headCells = sheet.getRow(0);
-                for (int row=1;row<sheet.getRows();row++) {
-                    String errorStr = "";
+                for (int row=1;row<rows-1;row++) {
                     Cell[] cells = sheet.getRow(row);
-                    // get the cell values
-                    String course = cells[0].getContents();
-                    String filename = cells[1].getContents();
-                    String author = cells[2].getContents();
-                    String instructor = cells[3].getContents();
-                    String grade = cells[4].getContents();
-                    // if the cells are not empty, add the submission
-                    if (course != null && filename != null && author != null && 
-                        instructor != null && grade != null) 
-                    {
-                        // create a new submission from cell data
-                        File f = new File(path,filename);
-                        Submission s = new Submission(course,f.getAbsolutePath(),author,instructor,grade);
-                        // add the submission to the list
+                    Submission s = Submission.getSubmission(cells,path);
+                    if (s != null) {
                         items.add(s);
                     }
                 }            
             } catch (IOException | BiffException | IndexOutOfBoundsException ex) {
                 logger.log(Level.SEVERE,"Metadata for assignment {0} could not be loaded. Caught exception:\n\n{1}",
-                        new Object[]{path.getAbsolutePath(),ex.getStackTrace()});
+                        new Object[]{path.getAbsolutePath(),ex});
             }
         }
         return items.iterator();
@@ -348,6 +341,55 @@ public class Assignment {
            }
         } 
         return vals;
+    }
+
+    /**
+     * 
+     * @param A Assignment
+     * @param Output Output folder
+     * @return
+     */
+    public static String WriteHTML(Assignment A, File Output) {
+        logger.log(Level.INFO, "Writing assignment folder {0}", A.getPath().getAbsolutePath());
+        // create the output folder        
+        Output.mkdirs();
+        try {
+            // load index page template file
+            String template = FileUtils.readFileToString(new File(Config.ASSIGNMENT_TEMPLATE_PATH));
+            // create assignment index page
+            template = template.replace("${assignment.title}", A.getName());
+            template = template.replace("${assignment.description}", A.getDescription());
+            template = template.replace("${assignment.description.pdf}", A.getAssignmentDescriptionPDF());
+            // build submission index - high pass
+            template = template.replace("${assignment.worksamples}", A.getSubmissionIndex());        
+            // build submission index - low pass
+
+            // write index file
+            File index = new File(Output,"index.html");
+            FileUtils.write(index, template);
+            // write JPGs of all source files
+            File[] files = A.getPath().listFiles(new ImageFileFilter());
+            for (int i=0;i<files.length;i++) {
+                FileUtils.copyFile(files[i], new File(Output,files[i].getName()));
+            }
+            // write thumbnails
+            File thumbs = new File(Output,"thumb");
+            if (!thumbs.exists()) {
+                thumbs.mkdirs();
+            }
+            Iterator<Submission> its = A.getSubmissions();
+            while (its.hasNext()) {
+                Submission s = its.next();
+                // File thumb = new File(thumbs.getAbsolutePath(),files[i].getName());
+                // ImageUtils.writeThumbnail(files[i], thumb);            
+            }
+        } catch (Exception ex) {
+            logger.log(Level.SEVERE,"Could not write assignment {0}. Will continue processing. Caught exception:\n\n{1}",
+                    new Object[]{A.getPath(),ex});
+        }
+        // create index data
+        // should probably get rid of the return statement
+        return A.getPathSafeName();
     }
     
 } // end class

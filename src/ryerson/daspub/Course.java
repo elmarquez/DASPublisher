@@ -24,9 +24,12 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import ryerson.daspub.utility.FolderFileFilter;
+import ryerson.daspub.utility.PDFFileFilter;
 
 /**
  * Course entity. Lazy loads data from the file system.
@@ -35,7 +38,7 @@ import ryerson.daspub.utility.FolderFileFilter;
 public class Course {
 
     private String path;
-    private static final Logger _logger = Logger.getLogger(Course.class.getName());
+    private static final Logger logger = Logger.getLogger(Course.class.getName());
 
     //--------------------------------------------------------------------------
     
@@ -111,6 +114,22 @@ public class Course {
     }
 
     /**
+     * Create a formatted HTML list from a list of String items.
+     * @param Items
+     * @return 
+     */
+    private static String getFormattedList(List<String> Items) {
+        StringBuilder sb = new StringBuilder();
+        Iterator<String> it = Items.iterator();
+        while (it.hasNext()) {
+            sb.append("<li>");
+            sb.append(it.next());
+            sb.append("</li>");
+        }
+        return sb.toString();
+    }
+    
+    /**
      *
      * @return
      */
@@ -177,6 +196,7 @@ public class Course {
     
     /**
      * Get status report HTML
+     * TODO make static
      */
     public String getStatusReportHTML() {
         StringBuilder sb = new StringBuilder();
@@ -213,7 +233,6 @@ public class Course {
         File[] dirs = dir.listFiles(new FolderFileFilter());
         if (dirs.length > 0) {
             Arrays.sort(dirs, new Comparator<File>() {
-
                 public int compare(File f1, File f2) {
                     return f1.getName().compareTo(f2.getName());
                 }
@@ -236,7 +255,7 @@ public class Course {
     }
 
     /**
-     * The content is raw and unprocessed.
+     * The content is raw and unprocessed. huh?
      * 0 - Description
      * 1 - Hours
      * 2 - Instructors
@@ -266,6 +285,61 @@ public class Course {
             }
         }
         return vals;
+    }
+    
+    /**
+     * Write course data and HTML index file to specified output folder
+     * @param C Course
+     * @param Output Output folder
+     */
+    public static void WriteHTML(Course C, File Output) {
+        logger.log(Level.INFO, "Writing course folder {0}", C.getFile().getAbsolutePath());
+        try {
+            // create the output folder
+            Output.mkdirs();
+            // copy course metadata, etc. files to output
+            File sourcePath = C.getFile();
+            File[] files = sourcePath.listFiles(new PDFFileFilter());
+            for (int i=0;i<files.length;i++) {
+                FileUtils.copyFile(files[i], new File(Output,files[i].getName()));
+            }
+            // load index page template file
+            String template = FileUtils.readFileToString(new File(Config.COURSE_TEMPLATE_PATH));
+            // build index page
+            template = template.replace("${course.title}", C.getName());
+            template = template.replace("${course.description}", C.getDescription());
+            template = template.replace("${course.description.pdf}", C.getCourseDescriptionPDF());
+            template = template.replace("${course.instructors}", getFormattedList(C.getInstructors()));
+            template = template.replace("${course.cacb.criteria}", getFormattedList(C.getCACBCriteria()));
+            // process assignment folders and add assignments to course index page
+            Iterator<Assignment> assignments = C.getAssignments();
+            StringBuilder sb = new StringBuilder();
+            File assignmentOutputPath = null;
+            while (assignments.hasNext()) {
+                Assignment a = assignments.next();
+                // add assignment to index
+                sb.append("<div class='assignment'>");
+                sb.append("<a href='");
+                sb.append(a.getPathSafeName());
+                sb.append("'>");
+                sb.append(a.getName());
+                sb.append("</a>");
+                sb.append("</div>\n");
+                // process assignment output
+                assignmentOutputPath = new File(Output,a.getPathSafeName());
+                Assignment.WriteHTML(a,assignmentOutputPath);
+            }
+            template = template.replace("${course.assignments}",sb.toString());
+            // TODO revise formatted lists method for more flexibility
+            template = template.replace("${course.exams}", getFormattedList(C.getExams()));
+            // write index page
+            File index = new File(Output.getAbsolutePath(), "index.html");
+            FileUtils.write(index, template);
+        } catch (Exception ex) {
+            String stack = ExceptionUtils.getStackTrace(ex);
+            logger.log(Level.SEVERE, "Could not copy course {0} to {1}. Caught exception:\n\n{2}", 
+                    new Object[]{C.getFile().getAbsolutePath(), Output.getAbsolutePath(), stack});
+        }
     }
     
 } // end class
