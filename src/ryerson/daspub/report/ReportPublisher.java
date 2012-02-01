@@ -136,7 +136,7 @@ public class ReportPublisher implements Runnable {
                 FileUtils.write(file, data);                
             }
         } catch (Exception ex) {
-            _logger.log(Level.SEVERE,"Could not create output file {0}. Caught exception:\n\n{1}",new Object[]{file.getAbsolutePath(),ex});
+            _logger.log(Level.SEVERE,"Could not create output file {0}.\n\n{1}",new Object[]{file.getAbsolutePath(),ex});
             System.exit(-1);
         }
     }

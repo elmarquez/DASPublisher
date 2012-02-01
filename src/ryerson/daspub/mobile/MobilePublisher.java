@@ -19,8 +19,6 @@
 package ryerson.daspub.mobile;
 
 import java.io.File;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.Iterator;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -59,54 +57,25 @@ public class MobilePublisher implements Runnable {
     public MobilePublisher(Config Config, File Output) throws Exception {
         config = Config;
         output = Output;
-        loadTemplates();
     }
 
     //--------------------------------------------------------------------------
     
     /**
-     * Clean the output directory.
-     */
-    private void cleanOutputDirectory() {
-        try {
-            if (output.exists()) {
-                Path dir = output.toPath();
-                Files.deleteIfExists(dir);
-            }
-            output.mkdirs();
-        } catch (Exception ex) {
-            String stack = ExceptionUtils.getStackTrace(ex);
-            logger.log(Level.SEVERE, "Could not delete {0}. Will continue processing. Caught exception:\n\n{1}", 
-                    new Object[]{output.getAbsolutePath(),stack});
-        }
-    }
-    
-    /**
-     * Load template files into memory. I know its a stupidly redundant method.
-     */
-    private void loadTemplates() throws Exception {
-        course_template = FileUtils.readFileToString(new File(Config.COURSE_TEMPLATE_PATH));
-        assignment_template = FileUtils.readFileToString(new File(Config.ASSIGNMENT_TEMPLATE_PATH));
-        exam_template = FileUtils.readFileToString(new File(Config.EXAM_TEMPLATE_PATH));
-    }
-
-    /**
      * Run the publisher.
      */
     public void run() {
-        // clean the output directory
-        cleanOutputDirectory();
         // copy static files to output directory
         // TODO consider making this a standalone function
-//        try {
-//            File staticFiles = new File(Config.STATIC_FILES_PATH);
-//            FileUtils.copyDirectory(staticFiles,output,new NonThumbnailIndexFileFilter());
-//        } catch (Exception ex) {
-//            String stack = ExceptionUtils.getStackTrace(ex);
-//            logger.log(Level.SEVERE, "Could not copy static files from {0} to {1}. Will continue processing. Caught exception:\n\n{2}", 
-//                    new Object[]{Config.STATIC_FILES_PATH, output.getAbsolutePath(), stack});
-//            System.exit(-1);
-//        }
+        try {
+            File staticFiles = new File(Config.STATIC_FILES_PATH);
+            FileUtils.copyDirectory(staticFiles,output,new NonThumbnailIndexFileFilter());
+        } catch (Exception ex) {
+            String stack = ExceptionUtils.getStackTrace(ex);
+            logger.log(Level.SEVERE,"Could not copy static files from {0} to {1}.\n\n{2}", 
+                    new Object[]{Config.STATIC_FILES_PATH, output.getAbsolutePath(), stack});
+            System.exit(-1);
+        }
         // process the archives
         Iterator<Archive> archives = Archive.getArchives(Config.ARCHIVE_PATHS);
         Iterator<Program> programs = null;
@@ -137,7 +106,7 @@ public class MobilePublisher implements Runnable {
                 // write archive summary
             } catch (Exception ex) {
                 String stack = ExceptionUtils.getStackTrace(ex);
-                logger.log(Level.SEVERE, "Could not copy archive content from {0} to {1}. Caught exception:\n\n{2}", 
+                logger.log(Level.SEVERE,"Could not copy archive content from {0} to {1}.\n\n{2}", 
                         new Object[]{archive.getPath(), output.getAbsolutePath(), stack});
                 System.exit(-1);
             }

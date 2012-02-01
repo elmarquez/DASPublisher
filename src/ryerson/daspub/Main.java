@@ -20,7 +20,6 @@
 package ryerson.daspub;
 
 import java.io.File;
-import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.apache.commons.cli.CommandLine;
@@ -28,6 +27,8 @@ import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.PosixParser;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import ryerson.daspub.artifact.ArtifactPublisher;
 import ryerson.daspub.mobile.MobilePublisher;
 import ryerson.daspub.report.ReportPublisher;
@@ -39,39 +40,32 @@ import ryerson.daspub.slideshow.SlideshowPublisher;
  */
 public class Main {
 
+    private static final String CMD_CLEAN = "clean";
     private static final String CMD_CONFIG = "config";
+    private static final String CMD_OUTPUT = "output";
     private static final String CMD_REPORT = "report";
     private static final String CMD_HELP = "help";
     private static final String CMD_LOG = "log";
-    private static final String CMD_PUBLISH_ARTIFACT = "artifact";
-    private static final String CMD_PUBLISH_MOBILE = "mobile";
-    private static final String CMD_PUBLISH_SLIDESHOW = "slideshow";
-    private static final String CMD_WINDOW = "window";
+    private static final String CMD_PUBLISH = "publish";
+    private static final String OPTION_ARTIFACT = "artifact";
+    private static final String OPTION_MOBILE = "mobile";
+    private static final String OPTION_SLIDESHOW = "slideshow";
 
     private static Options options = new Options();
     private static Config config = null;
     private static CommandLine cmd = null;
 
-    private static File input = null;
-    private static List<File> inputs = null;
-    private static File log = null;
-    private static File output = null;
-    private static File report = null;
-
-    private static final Logger _logger = Logger.getLogger(Main.class.getName());
+    private static final Logger logger = Logger.getLogger(Main.class.getName());
 
     //--------------------------------------------------------------------------
 
     /**
-     * Main constructors
+     * Main constructor
      * @param args Arguments
      */
     public Main(String[] args) {
-        // define command line options
         defineCommandOptions();
-        // parse command line options
         parseArguments(args);
-        // execute commands
         executeCommands();
     }
 
@@ -81,14 +75,13 @@ public class Main {
      * Define the command line options.
      */
     private void defineCommandOptions() {
+        options.addOption(CMD_CLEAN,true,"Delete all files and subfolders from specified directory");
         options.addOption(CMD_CONFIG,true,"Path to configuration file");
         options.addOption(CMD_HELP,false,"Show help message");
         options.addOption(CMD_LOG,true,"Path to output log file");
-        options.addOption(CMD_PUBLISH_MOBILE,true,"Publish mobile gallery to specified folder");
-        options.addOption(CMD_PUBLISH_ARTIFACT,true,"Publish artifact gallery and tag sheets to specified folder");
-        options.addOption(CMD_PUBLISH_SLIDESHOW,true,"Publish slideshow to specified folder");
-        options.addOption(CMD_REPORT,true,"Write archive status report to specified folder");
-        options.addOption(CMD_WINDOW,false,"Show the application user interface");
+        options.addOption(CMD_OUTPUT,true,"Output path for results.");
+        options.addOption(CMD_PUBLISH,true,"Publish archive content. Available options are mobile, artifact, slideshow.");
+        options.addOption(CMD_REPORT,false,"Write archive status report.");
     }
 
     /**
@@ -107,67 +100,87 @@ public class Main {
                 File configfile = new File(path);
                 config = new Config(configfile);
             } catch (Exception ex) {
-                _logger.log(Level.SEVERE,"Could not parse configuration file.", ex);
+                String stack = ExceptionUtils.getStackTrace(ex);
+                logger.log(Level.SEVERE,"Could not parse configuration file.\n\n{0}", stack);
+                System.exit(-1);
+            }
+        }
+        // set configuration file
+        if (cmd.hasOption(CMD_CLEAN)) {
+            try {
+                File path = new File(cmd.getOptionValue(CMD_CLEAN));
+                if (path.exists()) {
+                    FileUtils.deleteDirectory(path);
+                }
+                System.exit(-1);
+            } catch (Exception ex) {
+                String stack = ExceptionUtils.getStackTrace(ex);
+                logger.log(Level.SEVERE,"Could not clean output directories.\n\n{0}", stack);
                 System.exit(-1);
             }
         }
         // generate status report
-        if (cmd.hasOption(CMD_REPORT) && config != null) {
+        if (cmd.hasOption(CMD_REPORT)) {
+            // preconditions
+            if (config == null) {
+                logger.log(Level.SEVERE,"Configuration file must be specified.");
+                System.exit(-1);
+            }
+            if (!cmd.hasOption(CMD_OUTPUT)) {
+                logger.log(Level.SEVERE,"Output option must be specified.");
+                System.exit(-1);
+            }
+            // process
             String output_path = cmd.getOptionValue(CMD_REPORT);
-            output = new File(output_path);
+            String output = cmd.getOptionValue(CMD_OUTPUT);
+            File outputPath = new File(output);
             try {
-                ReportPublisher r = new ReportPublisher(config,output);
+                ReportPublisher r = new ReportPublisher(config,outputPath);
                 r.run();
             } catch (Exception ex) {
-                _logger.log(Level.SEVERE,"Could not generate report.",ex);
+                String stack = ExceptionUtils.getStackTrace(ex);
+                logger.log(Level.SEVERE,"Could not generate report.\n\n{0}",stack);
                 System.exit(-1);
             }
             System.exit(0);
         }
-        // publish mobile content application
-        if (cmd.hasOption(CMD_PUBLISH_MOBILE) && config != null) {
-            String output_path = cmd.getOptionValue(CMD_PUBLISH_MOBILE);
-            output = new File(output_path);
+        // publish content to output directory
+        if (cmd.hasOption(CMD_PUBLISH) && config != null) {
+            // preconditions
+            if (config == null) {
+                logger.log(Level.SEVERE,"Configuration file must be specified.");
+                System.exit(-1);
+            }
+            if (!cmd.hasOption(CMD_OUTPUT)) {
+                logger.log(Level.SEVERE,"Output option must be specified.");
+                System.exit(-1);
+            }
+            // process
+            String option = cmd.getOptionValue(CMD_PUBLISH);
+            String output = cmd.getOptionValue(CMD_OUTPUT);
+            File outputPath = new File(output);
             try {
-                MobilePublisher p = new MobilePublisher(config,output);
-                p.run();
+                if (option.equals(OPTION_MOBILE)) {
+                    // publish mobile content application
+                    MobilePublisher p = new MobilePublisher(config,outputPath);
+                    p.run();
+                } else if (option.equals(OPTION_ARTIFACT)) {
+                    // publish artifact gallery and tags
+                    ArtifactPublisher p = new ArtifactPublisher(config,outputPath);
+                    p.run();
+                    System.exit(0);
+                } else if (option.equals(OPTION_SLIDESHOW)) {
+                    // publish slideshow
+                    SlideshowPublisher p = new SlideshowPublisher(config,outputPath);
+                    p.run();
+                    System.exit(0);                    
+                }
             } catch (Exception ex) {
-                _logger.log(Level.SEVERE,"Could not publish mobile gallery.",ex);
+                String stack = ExceptionUtils.getStackTrace(ex);
+                logger.log(Level.SEVERE,"Could not publish gallery.\n\n{0}",stack);
                 System.exit(-1);
-            }
+            }                
             System.exit(0);
-        }
-        // publish artifact gallery and tags
-        if (cmd.hasOption(CMD_PUBLISH_MOBILE) && config != null) {
-            String output_path = cmd.getOptionValue(CMD_PUBLISH_MOBILE);
-            output = new File(output_path);
-            try {
-                ArtifactPublisher p = new ArtifactPublisher(config,output);
-                p.run();
-            } catch (Exception ex) {
-                _logger.log(Level.SEVERE,"Could not publish artifact gallery.",ex);
-                System.exit(-1);
-            }
-            System.exit(0);
-        }
-        // publish slideshow
-        if (cmd.hasOption(CMD_PUBLISH_MOBILE) && config != null) {
-            String output_path = cmd.getOptionValue(CMD_PUBLISH_MOBILE);
-            output = new File(output_path);
-            try {
-                SlideshowPublisher p = new SlideshowPublisher(config,output);
-                p.run();
-            } catch (Exception ex) {
-                _logger.log(Level.SEVERE,"Could not publish slideshow.",ex);
-                System.exit(-1);
-            }
-            System.exit(0);
-        }
-        // show the application user interface 
-        if (cmd.hasOption(CMD_WINDOW)) {
-            AppJFrame f = new AppJFrame();
-            f.pack();
-            f.setVisible(true);
         }
     }
 

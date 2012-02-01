@@ -41,7 +41,7 @@ public class Config {
     
     // file types
     public static final String PDF_TYPE = "pdf";
-    public static final String[] IMAGE_TYPES = {"bmp","gif","jpg","jpeg","mp4","ogg","pdf","png","tif","tiff","webm"};
+    public static final String[] IMAGE_TYPES = {"bmp","gif","jpg","jpeg","mp4","pdf","png","tif","tiff","webm"};
     public static final String[] PROCESSABLE_IMAGE_TYPES = {"bmp","gif","jpg","jpeg","png","tif","tiff"};
     public static final String[] NEAR_IMAGE_TYPES = {"3dm","3ds","avi","doc","docx","dwg","dxf","mov","mpg","odt","ppt","pptx","psd"};
 
@@ -161,7 +161,7 @@ public class Config {
                 _logger.log(Level.INFO,"Set {0} as {1}.",new Object[]{field.getName(),val.toString()});
             } catch (NoSuchFieldException | SecurityException | IllegalArgumentException | IllegalAccessException ex) {
                 String stack = ExceptionUtils.getStackTrace(ex);
-                _logger.log(Level.SEVERE,"Could not find or set field {0}. Caught exception:\n\n{1}",
+                _logger.log(Level.SEVERE,"Could not find or set field {0}.\n\n{1}",
                         new Object[]{name,stack});
             }
         }

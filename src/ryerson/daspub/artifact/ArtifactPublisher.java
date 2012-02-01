@@ -33,6 +33,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
+import org.apache.sanselan.ImageReadException;
 import org.jpedal.exception.PdfException;
 import ryerson.daspub.Assignment;
 import ryerson.daspub.Config;
@@ -82,7 +83,7 @@ public class ArtifactPublisher implements Runnable {
             _output.mkdirs();
         } catch (Exception ex) {
             String stack = ExceptionUtils.getStackTrace(ex);
-            _logger.log(Level.SEVERE, "Could not delete {0}. Will continue processing. Caught exception:\n\n{1}", 
+            _logger.log(Level.SEVERE, "Could not delete {0}.\n\n{1}", 
                     new Object[]{_output.getAbsolutePath(),stack});
         }
     }
@@ -154,15 +155,15 @@ public class ArtifactPublisher implements Runnable {
                             String artifact_screen_jpg = id + "_screen.jpg";
                             String artifact_thumbnail_jpg = id + "_tn.jpg";
                             // resize and write image to output folder
-                            ImageUtils.writeImage(file, new File(gallery, artifact_large_jpg), Config.IMAGE_MAX_WIDTH, Config.IMAGE_MAX_HEIGHT);
-                            ImageUtils.writeImage(file, new File(gallery, artifact_thumbnail_jpg), Config.THUMB_MAX_WIDTH, Config.THUMB_MAX_HEIGHT);
+                            ImageUtils.writeJPGImage(file, new File(gallery, artifact_large_jpg), Config.IMAGE_MAX_WIDTH, Config.IMAGE_MAX_HEIGHT);
+                            ImageUtils.writeJPGImage(file, new File(gallery, artifact_thumbnail_jpg), Config.THUMB_MAX_WIDTH, Config.THUMB_MAX_HEIGHT);
                             // write artifact page
                             String artifact_page = new String(_artifact_template);
                             FileUtils.write(new File(gallery, artifact_html), artifact_page);
                             // generate qr code and write to output folder
                             String url = Config.ARTIFACT_BASE_URL + "/" + artifact_html;
                             writeQRCode(url, gallery, artifact_qrcode_png);
-                        } catch (IOException | PdfException | WriterException ex) {
+                        } catch (ImageReadException | IOException | PdfException | WriterException ex) {
                             String stack = ExceptionUtils.getStackTrace(ex);
                             _logger.log(Level.WARNING, "Could not generate artifact record for {0}. Caught exception:\n\n{1}",
                                     new Object[]{file.getAbsolutePath(), stack});
@@ -177,7 +178,7 @@ public class ArtifactPublisher implements Runnable {
             ts.writeTagSheet(_output);
         } catch (IOException | DocumentException ex) {
             String stack = ExceptionUtils.getStackTrace(ex);
-            _logger.log(Level.SEVERE,"Could not complete generation of artifact tag sheet. Caught exception:\n\n{0}",stack);
+            _logger.log(Level.SEVERE,"Could not complete generation of artifact tag sheet.\n\n{0}",stack);
         }
     }
     

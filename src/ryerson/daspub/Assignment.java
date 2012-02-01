@@ -33,6 +33,7 @@ import jxl.Workbook;
 import jxl.WorkbookSettings;
 import jxl.read.biff.BiffException;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import ryerson.daspub.utility.AssignmentDescriptionTextFileFilter;
 import ryerson.daspub.utility.AssignmentMetadataFileFilter;
 import ryerson.daspub.utility.ImageFileFilter;
@@ -95,7 +96,8 @@ public class Assignment {
             String text[] = parseDescriptionFile();
             return text[0];
         } catch (Exception ex) {
-            logger.log(Level.SEVERE,"Could not parse description. Will continue processing. Caught exception:\n\n{0}",ex);
+            String stack = ExceptionUtils.getStackTrace(ex);
+            logger.log(Level.SEVERE,"Could not parse description.\n\n{0}",stack);
             return "";
         }
     }
@@ -242,7 +244,7 @@ public class Assignment {
                 Sheet sheet = workbook.getSheet(0);
                 int rows = sheet.getRows();
                 // Cell[] headCells = sheet.getRow(0);
-                for (int row=1;row<rows-1;row++) {
+                for (int row=1;row<rows;row++) {
                     Cell[] cells = sheet.getRow(row);
                     Submission s = Submission.getSubmission(cells,path);
                     if (s != null) {
@@ -250,8 +252,9 @@ public class Assignment {
                     }
                 }            
             } catch (IOException | BiffException | IndexOutOfBoundsException ex) {
-                logger.log(Level.SEVERE,"Metadata for assignment {0} could not be loaded. Caught exception:\n\n{1}",
-                        new Object[]{path.getAbsolutePath(),ex});
+                String stack = ExceptionUtils.getStackTrace(ex);
+                logger.log(Level.SEVERE,"Metadata for assignment {0} could not be loaded.\n\n{1}",
+                        new Object[]{path.getAbsolutePath(),stack});
             }
         }
         return items.iterator();
@@ -347,9 +350,8 @@ public class Assignment {
      * 
      * @param A Assignment
      * @param Output Output folder
-     * @return
      */
-    public static String WriteHTML(Assignment A, File Output) {
+    public static void WriteHTML(Assignment A, File Output) {
         logger.log(Level.INFO, "Writing assignment folder {0}", A.getPath().getAbsolutePath());
         // create the output folder        
         Output.mkdirs();
@@ -360,36 +362,32 @@ public class Assignment {
             template = template.replace("${assignment.title}", A.getName());
             template = template.replace("${assignment.description}", A.getDescription());
             template = template.replace("${assignment.description.pdf}", A.getAssignmentDescriptionPDF());
-            // build submission index - high pass
-            template = template.replace("${assignment.worksamples}", A.getSubmissionIndex());        
-            // build submission index - low pass
-
-            // write index file
-            File index = new File(Output,"index.html");
-            FileUtils.write(index, template);
-            // write JPGs of all source files
-            File[] files = A.getPath().listFiles(new ImageFileFilter());
-            for (int i=0;i<files.length;i++) {
-                FileUtils.copyFile(files[i], new File(Output,files[i].getName()));
-            }
-            // write thumbnails
-            File thumbs = new File(Output,"thumb");
-            if (!thumbs.exists()) {
-                thumbs.mkdirs();
-            }
+            // build submission index
+            StringBuilder sb = new StringBuilder();
+            File thumbnailOutputPath = new File(Output,"thumbs");
             Iterator<Submission> its = A.getSubmissions();
             while (its.hasNext()) {
                 Submission s = its.next();
-                // File thumb = new File(thumbs.getAbsolutePath(),files[i].getName());
-                // ImageUtils.writeThumbnail(files[i], thumb);            
+                if (s.getFile().exists()) {
+                    s.writeImage(Output);
+                    s.writeThumbnail(thumbnailOutputPath);
+                    sb.append("<div>");
+                    sb.append(s.getFileName());
+                    sb.append("</div>\n");
+                } else {
+                    logger.log(Level.WARNING,"Submission file {0} does not exist. Could not write images.",
+                            s.getFile().getAbsolutePath());
+                }
             }
+            template = template.replace("${assignment.worksamples}", sb.toString());
+            // write index file
+            File index = new File(Output,"index.html");
+            FileUtils.write(index,template);
         } catch (Exception ex) {
-            logger.log(Level.SEVERE,"Could not write assignment {0}. Will continue processing. Caught exception:\n\n{1}",
-                    new Object[]{A.getPath(),ex});
+            String stack = ExceptionUtils.getStackTrace(ex);
+            logger.log(Level.SEVERE,"Could not write assignment {0} to {1}.\n\n{2}",
+                    new Object[]{A.getName(),Output,stack});
         }
-        // create index data
-        // should probably get rid of the return statement
-        return A.getPathSafeName();
     }
     
 } // end class

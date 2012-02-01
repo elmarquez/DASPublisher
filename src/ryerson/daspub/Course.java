@@ -337,7 +337,7 @@ public class Course {
             FileUtils.write(index, template);
         } catch (Exception ex) {
             String stack = ExceptionUtils.getStackTrace(ex);
-            logger.log(Level.SEVERE, "Could not copy course {0} to {1}. Caught exception:\n\n{2}", 
+            logger.log(Level.SEVERE, "Could not copy course {0} to {1}.\n\n{2}", 
                     new Object[]{C.getFile().getAbsolutePath(), Output.getAbsolutePath(), stack});
         }
     }

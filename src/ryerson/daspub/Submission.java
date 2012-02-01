@@ -19,11 +19,16 @@
 package ryerson.daspub;
 
 import java.io.File;
-import java.util.ArrayList;
+import java.io.IOException;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import jxl.Cell;
+import org.apache.commons.lang3.exception.ExceptionUtils;
+import org.apache.sanselan.ImageReadException;
+import org.jpedal.exception.PdfException;
+import ryerson.daspub.utility.ImageUtils;
 
 /**
  * Student work submission
@@ -45,6 +50,8 @@ public class Submission {
     private String evaluation;
     private String tags;
     
+    private static final Logger logger = Logger.getLogger(Submission.class.getName());
+
     //--------------------------------------------------------------------------
 
     /**
@@ -230,15 +237,44 @@ public class Submission {
     public String getYear() {
         return year;
     }
-    
+
+    /**
+     * Write a JPG version of the file. If the file is already encoded as a JPG, 
+     * then copy the file.
+     * @param Output 
+     */
+    public void writeImage(File Output) {
+        logger.log(Level.INFO,"Writing full size image for {0}.",file.getName());
+        if (!Output.exists()) {
+            Output.mkdirs();
+        }
+        File image = new File(path);
+        try {
+            ImageUtils.writeJPGImage(image,Output,Config.IMAGE_MAX_WIDTH,Config.IMAGE_MAX_HEIGHT);
+        } catch (IOException | PdfException | ImageReadException ex) {
+            String stack = ExceptionUtils.getStackTrace(ex);
+            logger.log(Level.SEVERE,"Could not write thumbnail {0}.\n\n{1}",
+                    new Object[]{Output.getAbsolutePath(),stack});
+        }
+    }
+
     /**
      * Write thumbnail to folder
-     * @param Folder Folder to write thumbnail to
+     * @param Output Folder to write thumbnail to
      */
-    public void writeThumbnail(File Folder) {
-        // consider whether the document is a multi-page PDF or video
-        // File thumb = new File(thumbs.getAbsolutePath(),files[i].getName());
-        // ImageUtils.writeThumbnail(files[i], thumb);            
+    public void writeThumbnail(File Output) {
+        logger.log(Level.INFO,"Writing thumbnail image for {0}.",file.getName());
+        if (!Output.exists()) {
+            Output.mkdirs();
+        }
+        File image = new File(path);
+        try {
+            ImageUtils.writeJPGImage(image,Output,Config.THUMB_MAX_WIDTH,Config.THUMB_MAX_HEIGHT);
+        } catch (IOException | PdfException | ImageReadException ex) {
+            String stack = ExceptionUtils.getStackTrace(ex);
+            logger.log(Level.SEVERE,"Could not write thumbnail {0}.\n\n{1}",
+                    new Object[]{Output.getAbsolutePath(),stack});
+        }
     }
     
 } // end class

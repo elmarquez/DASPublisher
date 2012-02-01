@@ -4,7 +4,7 @@ EXTERNAL REVIEW MANAGER
 
 Current Work:
 
-- working on Submission and Assignment objects to make sure that the output
+- work on Submission and Assignment objects to make sure that the output
   directory is completely built
     - need to make sure that all output in assignment folders is JPG
     - build all thumbnails

@@ -25,6 +25,7 @@ import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import net.coobird.thumbnailator.Thumbnails;
+import org.apache.commons.io.FilenameUtils;
 import org.jpedal.PdfDecoder;
 import org.jpedal.exception.PdfException;
 
@@ -34,40 +35,39 @@ import org.jpedal.exception.PdfException;
  */
 public class PDFUtils {
 
-    private static final String PDF = "pdf";
-    private static final String JPG = "jpg";
-
     private static PdfDecoder _pdf = new PdfDecoder(true);
 
     private static final Logger _logger = Logger.getLogger(PDFUtils.class.getName());
     
     //--------------------------------------------------------------------------
 
+    public static void WriteImage() {
+        
+    }
+    
     /**
      * Extract a thumbnail image of the first page in the PDF
      * @param Input Input file
      * @param Output Output directory
-     * @param Width  Maximum thumbnail width
+     * @param Width Maximum thumbnail width
      * @param Height Maximum thumbnail height
+     * @param Multipage If document has multiple pages, write out a file for each page
      * @throws IOException
      * @throws PDFException
      */
-    public static void WriteThumbnail(File Input, File Output, int Width, int Height) throws PdfException, IOException {
-        if (Output.getName().toLowerCase().endsWith(PDF)) {
-            // create thumbnail file name
-            int in = Output.getName().toLowerCase().lastIndexOf(PDF);
-            String name = Output.getName().replace(PDF, JPG);
-            Output = new File(Output.getParent(), name);
+    public static void WriteJPGImage(File Input, File Output, int Width, int Height, Boolean Multipage) throws PdfException, IOException {
+        if (FilenameUtils.isExtension(Input.getName(),"pdf")) {
+            String filename = FilenameUtils.removeExtension(Input.getName()) + ".jpg";
+            File output = new File(Output,filename);
             // get first page of PDF as an image
             _pdf.openPdfFile(Input.getAbsolutePath());
             BufferedImage img = _pdf.getPageAsImage(1);
             _pdf.closePdfFile();
             // create and write a thumbnail image
-            Thumbnails.of(img).size(Width, Height).toFile(Output);
+            Thumbnails.of(img).size(Width,Height).outputFormat("jpg").toFile(output);
             _logger.log(Level.FINE,"Wrote PDF thumbnail {0}",Output.getAbsolutePath());
         } else {
             _logger.log(Level.WARNING,"Could not write PDF thumbnail for {0}. File is not a PDF document.",Input.getAbsolutePath());
-            return;
         }
     }
 

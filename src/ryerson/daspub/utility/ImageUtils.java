@@ -26,9 +26,10 @@ import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import net.coobird.thumbnailator.Thumbnails;
-import net.coobird.thumbnailator.Thumbnails.Builder;
+import org.apache.commons.io.FilenameUtils;
+import org.apache.sanselan.ImageReadException;
+import org.apache.sanselan.Sanselan;
 import org.jpedal.exception.PdfException;
-import ryerson.daspub.Config;
 
 /**
  *
@@ -37,87 +38,7 @@ import ryerson.daspub.Config;
  */
 public class ImageUtils {
 
-    private static final Logger _logger = Logger.getLogger(ImageUtils.class.getName());
-    
-    /**
-     * Determine if a file is an image.
-     * @param F File
-     * @return True if an image, false otherwise
-     */
-    public static boolean isImage(File F) {
-        boolean match = false;
-        int i = F.getName().lastIndexOf(".");
-        if (i != -1) {
-            String ext = F.getName().substring(i+1);
-            int count = 0;
-            while (!match && count < Config.IMAGE_TYPES.length) {
-                if (Config.IMAGE_TYPES[count].equals(ext)) {
-                    match = true;
-                }
-                count++;
-            }            
-        }
-        return match;
-    }
-    
-    /**
-     * Determine if a file is a visual but not processable.
-     * @param F File
-     * @return True if a near image, false otherwise
-     */
-    public static boolean isNearImage(File F) {
-        boolean match = false;
-        int i = F.getName().lastIndexOf(".");
-        if (i != -1) {
-            String ext = F.getName().substring(i+1);
-            int count = 0;
-            while (!match && count < Config.NEAR_IMAGE_TYPES.length) {
-                if (Config.NEAR_IMAGE_TYPES[count].equals(ext)) {
-                    match = true;
-                }
-                count++;
-            }            
-        }
-        return match;
-    }
-
-    /**
-     * Determine if a file is a PDF document.
-     * @param F File
-     * @return True if a PDF document, false otherwise
-     */
-    public static boolean isPDF(File F) {
-        boolean match = false;
-        int i = F.getName().lastIndexOf(".");
-        if (i != -1) {
-            String ext = F.getName().substring(i+1);
-            if (Config.PDF_TYPE.equals(ext)) {
-                match = true;
-            }
-        }
-        return match;
-    }
-    
-    /**
-     * Determine if a file is a processable image.
-     * @param F File
-     * @return True if a processable image, false otherwise
-     */
-    public static boolean isProcessableImage(File F) {
-        boolean match = false;
-        int i = F.getName().lastIndexOf(".");
-        if (i != -1) {
-            String ext = F.getName().substring(i+1);
-            int count = 0;
-            while (!match && count < Config.PROCESSABLE_IMAGE_TYPES.length) {
-                if (Config.PROCESSABLE_IMAGE_TYPES[count].equals(ext)) {
-                    match = true;
-                }
-                count++;
-            }            
-        }
-        return match;
-    }
+    private static final Logger logger = Logger.getLogger(ImageUtils.class.getName());
     
     /**
      * 
@@ -134,45 +55,41 @@ public class ImageUtils {
     }
     
     /**
-     * 
-     * @param Input
-     * @param Output
-     * @param Width
-     * @param Height
+     * Convert input file, resize and write JPG output image.  If the input file
+     * has multiple pages, write enumerated output files.
+     * @param Input Input file
+     * @param Output Output folder
+     * @param Width Maximum width
+     * @param Height Maximum height
      * @throws IOException
      * @throws PdfException 
+     * TODO there is a problem here when resizing
+     * TODO check the original image size and don't go any higher than the original
      */
-    public static void writeImage(File Input, File Output, int Width, int Height) throws IOException, PdfException {
-        // TODO there is a problem here when resizing
-        // TODO check the original image size and don't go any higher than the original
-        if (isProcessableImage(Input)) {
-            Thumbnails.of(Input).size(Width,Height).toFile(Output);               
-            _logger.log(Level.FINE,"Wrote image {0}", Output.getAbsolutePath());
-        } else if (isPDF(Input)) {
-            PDFUtils.WriteThumbnail(Input,Output,Width,Height);
-            _logger.log(Level.FINE,"Wrote image {0}", Output.getAbsolutePath());
+    public static void writeJPGImage(File Input, File Output, int Width, int Height) throws IOException, PdfException, ImageReadException {
+        if (FilenameUtils.isExtension(Input.getName(),"jpg")) {
+            File output = new File(Output,Input.getName());
+            Thumbnails.of(Input).size(Width,Height).toFile(output);
+            logger.log(Level.FINE,"Wrote image {0}", Output.getAbsolutePath());
+        } else if (FilenameUtils.isExtension(Input.getName(),"gif") ||
+                   FilenameUtils.isExtension(Input.getName(),"png")) {
+            String filename = FilenameUtils.removeExtension(Input.getName()) + ".jpg";
+            File output = new File(Output,filename);
+            Thumbnails.of(Input).size(Width,Height).outputFormat("jpg").toFile(output);
+            logger.log(Level.FINE,"Wrote image {0}", Output.getAbsolutePath());
+        } else if (FilenameUtils.isExtension(Input.getName(),"tif")) {
+            String filename = FilenameUtils.removeExtension(Input.getName()) + ".jpg";
+            File output = new File(Output,filename);
+            BufferedImage image = Sanselan.getBufferedImage(Input);
+            Thumbnails.of(image).size(Width,Height).toFile(output);
+        } else if (FilenameUtils.isExtension(Input.getName(),"pdf")) {
+            PDFUtils.WriteJPGImage(Input,Output,Width,Height,true);
+            logger.log(Level.FINE,"Wrote image {0}", Output.getAbsolutePath());
+        } else if (FilenameUtils.isExtension(Input.getName(),"mp4")) {
+            logger.log(Level.WARNING,"Image writing for MP4 type not implemented yet.");
         } else {
-            _logger.log(Level.WARNING,"Could not write image for {0}. File is not a processable image or PDF.", Output.getAbsolutePath());                
+            logger.log(Level.WARNING,"Could not write image for {0}. File is not a processable image or PDF.", Output.getAbsolutePath());                
         }
     }
 
-    /**
-     * Resize image and write thumbnail file.
-     * @param Input Source image file
-     * @param Output Thumbnail file
-     * @throws IOException Could not write image thumbnail file
-     * @throws PdfException Could not open PDF document or extract thumbnail
-     */
-    public static void writeThumbnail(File Input, File Output) throws IOException, PdfException {
-        if (isProcessableImage(Input)) {
-            Thumbnails.of(Input).size(Config.THUMB_MAX_WIDTH, Config.THUMB_MAX_HEIGHT).toFile(Output);               
-            _logger.log(Level.FINE,"Wrote thumbnail {0}", Output.getAbsolutePath());
-        } else if (isPDF(Input)) {
-            PDFUtils.WriteThumbnail(Input, Output, Config.THUMB_MAX_WIDTH, Config.THUMB_MAX_HEIGHT);
-            _logger.log(Level.FINE,"Wrote thumbnail {0}", Output.getAbsolutePath());
-        } else {
-            _logger.log(Level.WARNING,"Could not write thumbnail {0}. Input file is not a processable image or PDF.", Output.getAbsolutePath());
-        }
-    }
-    
 } // end class
