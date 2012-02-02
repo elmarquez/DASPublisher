@@ -36,10 +36,23 @@ import ryerson.daspub.slideshow.SlideshowPublisher;
 
 /**
  * Command line interface to application components.
+ * 
+ * Main commands:
+ * -config c:/path/to/config/file.txt  Set configuration from file
+ * -help show help message
+ * -publish artifact,gallery,mobile,report -output c:/path/to/output/folder
+ *
+ * Options:
+ * -clean clean output directory before publishing 
+ * -log c:/path/to/optional/output/log/file.txt write output messages to log file
+ * TODO what is the result of -clean -publish report ??? kills the output directory ... should kill report file instead
  * @author dmarques
  */
 public class Main {
 
+    private static final int FAIL = -1;
+    private static final int SUCCESS = 0;
+    
     private static final String CMD_CLEAN = "clean";
     private static final String CMD_CONFIG = "config";
     private static final String CMD_OUTPUT = "output";
@@ -47,8 +60,10 @@ public class Main {
     private static final String CMD_HELP = "help";
     private static final String CMD_LOG = "log";
     private static final String CMD_PUBLISH = "publish";
+
     private static final String OPTION_ARTIFACT = "artifact";
     private static final String OPTION_MOBILE = "mobile";
+    private static final String OPTION_REPORT = "report";
     private static final String OPTION_SLIDESHOW = "slideshow";
 
     private static Options options = new Options();
@@ -75,13 +90,12 @@ public class Main {
      * Define the command line options.
      */
     private void defineCommandOptions() {
-        options.addOption(CMD_CLEAN,true,"Delete all files and subfolders from specified directory");
-        options.addOption(CMD_CONFIG,true,"Path to configuration file");
-        options.addOption(CMD_HELP,false,"Show help message");
-        options.addOption(CMD_LOG,true,"Path to output log file");
+        options.addOption(CMD_CLEAN,false,"Delete all files and subfolders from the output path before publishing.");
+        options.addOption(CMD_CONFIG,true,"Path to configuration file.");
+        options.addOption(CMD_HELP,false,"Show help message.");
+        options.addOption(CMD_LOG,true,"Path for log file.");
         options.addOption(CMD_OUTPUT,true,"Output path for results.");
-        options.addOption(CMD_PUBLISH,true,"Publish archive content. Available options are mobile, artifact, slideshow.");
-        options.addOption(CMD_REPORT,false,"Write archive status report.");
+        options.addOption(CMD_PUBLISH,true,"Publish content. Available options are artifact, mobile, report, slideshow. Requires specification of output path.");
     }
 
     /**
@@ -91,7 +105,7 @@ public class Main {
         // show help message
         if (cmd.hasOption(CMD_HELP)) {
             showHelpMessage();
-            System.exit(0);
+            System.exit(SUCCESS);
         }
         // set configuration file
         if (cmd.hasOption(CMD_CONFIG)) {
@@ -102,85 +116,69 @@ public class Main {
             } catch (Exception ex) {
                 String stack = ExceptionUtils.getStackTrace(ex);
                 logger.log(Level.SEVERE,"Could not parse configuration file.\n\n{0}", stack);
-                System.exit(-1);
+                System.exit(FAIL);
             }
         }
-        // set configuration file
+        // clean output directory
         if (cmd.hasOption(CMD_CLEAN)) {
+            if (!cmd.hasOption(CMD_OUTPUT)) {
+                logger.log(Level.SEVERE,"Output path must be specified.");
+                System.exit(FAIL);
+            }
             try {
                 File path = new File(cmd.getOptionValue(CMD_CLEAN));
                 if (path.exists()) {
                     FileUtils.deleteDirectory(path);
                 }
-                System.exit(-1);
             } catch (Exception ex) {
                 String stack = ExceptionUtils.getStackTrace(ex);
-                logger.log(Level.SEVERE,"Could not clean output directories.\n\n{0}", stack);
-                System.exit(-1);
+                logger.log(Level.SEVERE,"Could not clean output directory.\n\n{0}", stack);
+                System.exit(FAIL);
             }
-        }
-        // generate status report
-        if (cmd.hasOption(CMD_REPORT)) {
-            // preconditions
-            if (config == null) {
-                logger.log(Level.SEVERE,"Configuration file must be specified.");
-                System.exit(-1);
-            }
-            if (!cmd.hasOption(CMD_OUTPUT)) {
-                logger.log(Level.SEVERE,"Output option must be specified.");
-                System.exit(-1);
-            }
-            // process
-            String output_path = cmd.getOptionValue(CMD_REPORT);
-            String output = cmd.getOptionValue(CMD_OUTPUT);
-            File outputPath = new File(output);
-            try {
-                ReportPublisher r = new ReportPublisher(config,outputPath);
-                r.run();
-            } catch (Exception ex) {
-                String stack = ExceptionUtils.getStackTrace(ex);
-                logger.log(Level.SEVERE,"Could not generate report.\n\n{0}",stack);
-                System.exit(-1);
-            }
-            System.exit(0);
         }
         // publish content to output directory
         if (cmd.hasOption(CMD_PUBLISH) && config != null) {
             // preconditions
             if (config == null) {
                 logger.log(Level.SEVERE,"Configuration file must be specified.");
-                System.exit(-1);
+                System.exit(FAIL);
             }
             if (!cmd.hasOption(CMD_OUTPUT)) {
-                logger.log(Level.SEVERE,"Output option must be specified.");
-                System.exit(-1);
+                logger.log(Level.SEVERE,"Output path must be specified.");
+                System.exit(FAIL);
             }
             // process
             String option = cmd.getOptionValue(CMD_PUBLISH);
             String output = cmd.getOptionValue(CMD_OUTPUT);
             File outputPath = new File(output);
             try {
-                if (option.equals(OPTION_MOBILE)) {
-                    // publish mobile content application
-                    MobilePublisher p = new MobilePublisher(config,outputPath);
-                    p.run();
-                } else if (option.equals(OPTION_ARTIFACT)) {
-                    // publish artifact gallery and tags
-                    ArtifactPublisher p = new ArtifactPublisher(config,outputPath);
-                    p.run();
-                    System.exit(0);
-                } else if (option.equals(OPTION_SLIDESHOW)) {
-                    // publish slideshow
-                    SlideshowPublisher p = new SlideshowPublisher(config,outputPath);
-                    p.run();
-                    System.exit(0);                    
+                switch (option) {
+                    case OPTION_ARTIFACT: {
+                            ArtifactPublisher p = new ArtifactPublisher(config,outputPath);
+                            p.run();
+                            break;
+                        }
+                    case OPTION_MOBILE: {
+                            MobilePublisher p = new MobilePublisher(config,outputPath);
+                            p.run();
+                            break;
+                        }
+                    case OPTION_REPORT: {
+                            ReportPublisher r = new ReportPublisher(config,outputPath);
+                            r.run();
+                            break;
+                        }
+                    case OPTION_SLIDESHOW: {
+                            SlideshowPublisher p = new SlideshowPublisher(config,outputPath);
+                            p.run();
+                            break;
+                        }
                 }
             } catch (Exception ex) {
                 String stack = ExceptionUtils.getStackTrace(ex);
-                logger.log(Level.SEVERE,"Could not publish gallery.\n\n{0}",stack);
-                System.exit(-1);
-            }                
-            System.exit(0);
+                logger.log(Level.SEVERE,"Could not complete publication.\n\n{0}",stack);
+                System.exit(FAIL);
+            }
         }
     }
 
@@ -201,9 +199,9 @@ public class Main {
         try {
             cmd = parser.parse(options,args);
         } catch (Exception ex) {
-            System.out.println("Could not parse command line arguments.");
-            System.out.println(ex.getMessage());
-            System.exit(-1);
+            String stack = ExceptionUtils.getStackTrace(ex);
+            logger.log(Level.SEVERE,"Could not parse command line arguments.\n\n{0}",stack);
+            System.exit(FAIL);
         }
     }
 
@@ -212,7 +210,7 @@ public class Main {
      */
     private void showHelpMessage() {
         HelpFormatter formatter = new HelpFormatter();
-        formatter.printHelp("java daspub.jar ",options,true);
+        formatter.printHelp("java DASPub.jar ",options,true);
     }
 
 } // end class
