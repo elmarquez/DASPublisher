@@ -30,6 +30,7 @@ import org.apache.commons.cli.PosixParser;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import ryerson.daspub.artifact.ArtifactPublisher;
+import ryerson.daspub.artifact.QRTagSheetPublisher;
 import ryerson.daspub.mobile.MobilePublisher;
 import ryerson.daspub.report.ReportPublisher;
 import ryerson.daspub.slideshow.SlideshowPublisher;
@@ -48,7 +49,7 @@ import ryerson.daspub.slideshow.SlideshowPublisher;
  * TODO what is the result of -clean -publish report ??? kills the output directory ... should kill report file instead
  * @author dmarques
  */
-public class Main {
+public class Main implements Runnable {
 
     private static final int FAIL = -1;
     private static final int SUCCESS = 0;
@@ -81,7 +82,6 @@ public class Main {
     public Main(String[] args) {
         defineCommandOptions();
         parseArguments(args);
-        executeCommands();
     }
 
     //--------------------------------------------------------------------------
@@ -94,14 +94,38 @@ public class Main {
         options.addOption(CMD_CONFIG,true,"Path to configuration file.");
         options.addOption(CMD_HELP,false,"Show help message.");
         options.addOption(CMD_LOG,true,"Path for log file.");
-        options.addOption(CMD_OUTPUT,true,"Output path for results.");
+        options.addOption(CMD_OUTPUT,true,"Output path.");
         options.addOption(CMD_PUBLISH,true,"Publish content. Available options are artifact, mobile, report, slideshow. Requires specification of output path.");
+    }
+
+    /**
+     * Program entry point
+     * @param args Command line arguments
+     */
+    public static void main(String[] args) {
+        Main m = new Main(args);
+        m.run();
+    }
+
+    /**
+     * Parse command line arguments
+     * @param args
+     */
+    private void parseArguments(String[] args) {
+        CommandLineParser parser = new PosixParser();
+        try {
+            cmd = parser.parse(options,args);
+        } catch (Exception ex) {
+            String stack = ExceptionUtils.getStackTrace(ex);
+            logger.log(Level.SEVERE,"Could not parse command line arguments.\n\n{0}",stack);
+            System.exit(FAIL);
+        }
     }
 
     /**
      * Execute commands.
      */
-    private void executeCommands() {
+    public void run() {
         // show help message
         if (cmd.hasOption(CMD_HELP)) {
             showHelpMessage();
@@ -126,8 +150,9 @@ public class Main {
                 System.exit(FAIL);
             }
             try {
-                File path = new File(cmd.getOptionValue(CMD_CLEAN));
+                File path = new File(cmd.getOptionValue(CMD_OUTPUT));
                 if (path.exists()) {
+                    logger.log(Level.INFO,"Cleaning output directory {0}.", path.getAbsolutePath());
                     FileUtils.deleteDirectory(path);
                 }
             } catch (Exception ex) {
@@ -154,23 +179,25 @@ public class Main {
             try {
                 switch (option) {
                     case OPTION_ARTIFACT: {
-                            ArtifactPublisher p = new ArtifactPublisher(config,outputPath);
-                            p.run();
+                            ArtifactPublisher ap = new ArtifactPublisher(config,outputPath);
+                            QRTagSheetPublisher qp = new QRTagSheetPublisher(outputPath,new File(output,"artifact-tagsheet.pdf"));
+                            ap.run();
+                            qp.run();
                             break;
                         }
                     case OPTION_MOBILE: {
-                            MobilePublisher p = new MobilePublisher(config,outputPath);
-                            p.run();
+                            MobilePublisher mp = new MobilePublisher(config,outputPath);
+                            mp.run();
                             break;
                         }
                     case OPTION_REPORT: {
-                            ReportPublisher r = new ReportPublisher(config,outputPath);
-                            r.run();
+                            ReportPublisher rp = new ReportPublisher(config,outputPath);
+                            rp.run();
                             break;
                         }
                     case OPTION_SLIDESHOW: {
-                            SlideshowPublisher p = new SlideshowPublisher(config,outputPath);
-                            p.run();
+                            SlideshowPublisher sp = new SlideshowPublisher(config,outputPath);
+                            sp.run();
                             break;
                         }
                 }
@@ -179,29 +206,6 @@ public class Main {
                 logger.log(Level.SEVERE,"Could not complete publication.\n\n{0}",stack);
                 System.exit(FAIL);
             }
-        }
-    }
-
-    /**
-     * Program entry point
-     * @param args Command line arguments
-     */
-    public static void main(String[] args) {
-        Main m = new Main(args);
-    }
-
-    /**
-     * Parse command line arguments
-     * @param args
-     */
-    private void parseArguments(String[] args) {
-        CommandLineParser parser = new PosixParser();
-        try {
-            cmd = parser.parse(options,args);
-        } catch (Exception ex) {
-            String stack = ExceptionUtils.getStackTrace(ex);
-            logger.log(Level.SEVERE,"Could not parse command line arguments.\n\n{0}",stack);
-            System.exit(FAIL);
         }
     }
 

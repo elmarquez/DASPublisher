@@ -32,13 +32,39 @@ import org.apache.sanselan.Sanselan;
 import org.jpedal.exception.PdfException;
 
 /**
- *
+ * Image processing utility methods
  * @author dmarques
  * @see http://im4java.sourceforge.net/
  */
 public class ImageUtils {
-
+    
     private static final Logger logger = Logger.getLogger(ImageUtils.class.getName());
+
+    //--------------------------------------------------------------------------
+
+    /**
+     * Change the file name so that it has the new extension
+     * @param Filename Current file name
+     * @param Extension New extension to replace current filename extension
+     * @return 
+     */
+    public static String changeFileExtension(String Filename, String Extension) {
+        String name = FilenameUtils.removeExtension(Filename);
+        return name + "." + Extension;
+    }
+    
+    /**
+     * Generate a new file name
+     * When converting between image encoding types, the filename extension
+     * @param File
+     * @param NewExtension
+     * @return 
+     */
+    public static File changeFileExtension(File Input, String NewExtension) {
+        String filename = FilenameUtils.removeExtension(Input.getName());
+        filename = filename + "." + NewExtension;
+        return new File(Input.getParentFile(),filename);
+    }
     
     /**
      * 
@@ -58,7 +84,7 @@ public class ImageUtils {
      * Convert input file, resize and write JPG output image.  If the input file
      * has multiple pages, write enumerated output files.
      * @param Input Input file
-     * @param Output Output folder
+     * @param Output Output file
      * @param Width Maximum width
      * @param Height Maximum height
      * @throws IOException
@@ -73,15 +99,15 @@ public class ImageUtils {
             logger.log(Level.FINE,"Wrote image {0}", Output.getAbsolutePath());
         } else if (FilenameUtils.isExtension(Input.getName(),"gif") ||
                    FilenameUtils.isExtension(Input.getName(),"png")) {
-            String filename = FilenameUtils.removeExtension(Input.getName()) + ".jpg";
-            File output = new File(Output,filename);
-            Thumbnails.of(Input).size(Width,Height).outputFormat("jpg").toFile(output);
+//            String filename = FilenameUtils.removeExtension(Input.getName()) + ".jpg";
+//            File output = new File(Output,filename);
+            Thumbnails.of(Input).size(Width,Height).outputFormat("jpg").toFile(Output);
             logger.log(Level.FINE,"Wrote image {0}", Output.getAbsolutePath());
         } else if (FilenameUtils.isExtension(Input.getName(),"tif")) {
-            String filename = FilenameUtils.removeExtension(Input.getName()) + ".jpg";
-            File output = new File(Output,filename);
+//            String filename = FilenameUtils.removeExtension(Input.getName()) + ".jpg";
+//            File output = new File(Output,filename);
             BufferedImage image = Sanselan.getBufferedImage(Input);
-            Thumbnails.of(image).size(Width,Height).toFile(output);
+            Thumbnails.of(image).size(Width,Height).toFile(Output);
         } else if (FilenameUtils.isExtension(Input.getName(),"pdf")) {
             PDFUtils.WriteJPGImage(Input,Output,Width,Height,true);
             logger.log(Level.FINE,"Wrote image {0}", Output.getAbsolutePath());

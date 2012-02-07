@@ -65,8 +65,11 @@ public class MobilePublisher implements Runnable {
      * Run the publisher.
      */
     public void run() {
+        // make the output directory if it does not exist
+        if (!output.exists()) {
+            output.mkdirs();
+        }
         // copy static files to output directory
-        // TODO consider making this a standalone function
         try {
             File staticFiles = new File(Config.STATIC_FILES_PATH);
             FileUtils.copyDirectory(staticFiles,output,new NonThumbnailIndexFileFilter());

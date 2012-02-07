@@ -29,6 +29,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import ryerson.daspub.Archive;
 import ryerson.daspub.Config;
 import ryerson.daspub.Course;
@@ -40,39 +41,30 @@ import ryerson.daspub.Program;
  */
 public class ReportPublisher implements Runnable {
 
-    private Config config;                          // configuration
-    private String path;                            // output file path
-
-    private final String htmlFileName = "report.html";
+    private final String htmlFileName = "index.html";
     private final String[] supportFiles = {"animatedcollapse.js","configuration.html","help.html","styles.css"};
+
+    private Config config;
+    private String path;
     
-    private static final Logger _logger = Logger.getLogger(ReportPublisher.class.getName());
+    private static final Logger logger = Logger.getLogger(ReportPublisher.class.getName());
 
     //--------------------------------------------------------------------------
-
-    /**
-     * Reporter constructor
-     * @param Config Configuration
-     */
-    public ReportPublisher(Config Configuration, String Path) {
-        config = Configuration;
-        path = Path;
-    }
 
     /**
      * 
      * @param Configuration
-     * @param Dir 
+     * @param Output Output directory
      */
-    public ReportPublisher(Config Configuration, File Dir) {
+    public ReportPublisher(Config Configuration, File Output) {
         config = Configuration;
-        path = Dir.getAbsolutePath();
+        path = Output.getAbsolutePath();
     }
 
     //--------------------------------------------------------------------------
 
     /**
-     * Generate archive status report
+     * Generate report
      */
     public void run() {
         StringBuilder content = new StringBuilder();
@@ -98,7 +90,7 @@ public class ReportPublisher implements Runnable {
                 Iterator<Course> courses = program.getCourses();
                 while (courses.hasNext()) {
                     Course course = courses.next();
-                    _logger.log(Level.INFO,"Adding report for course {0}",course.getPath());
+                    logger.log(Level.INFO,"Adding report for course {0}",course.getPath());
                     content.append(course.getStatusReportHTML());
                 }
                 content.append("</div>");
@@ -124,19 +116,20 @@ public class ReportPublisher implements Runnable {
             String title = "Status Report - Generated " + dateFormat.format(date);
             data = data.replace("${title}", title);
             data = data.replace("${content}", content.toString());
-            _logger.log(Level.INFO,"Writing report file {0}",file.getAbsolutePath());
+            logger.log(Level.INFO,"Writing report file {0}",file.getAbsolutePath());
             FileUtils.write(file, data);
-            // write support file
+            // write support files
             // if the file is a binary file, we need to modify this code
             for (int i=0;i<supportFiles.length;i++) {
                 file = new File(output,supportFiles[i]);
                 is = ReportPublisher.class.getResourceAsStream(supportFiles[i]);
                 data = IOUtils.toString(is);
-                _logger.log(Level.INFO,"Writing support file {0}",file.getAbsolutePath());
-                FileUtils.write(file, data);                
+                logger.log(Level.INFO,"Writing support file {0}",file.getAbsolutePath());
+                FileUtils.write(file,data);                
             }
         } catch (Exception ex) {
-            _logger.log(Level.SEVERE,"Could not create output file {0}.\n\n{1}",new Object[]{file.getAbsolutePath(),ex});
+            String stack = ExceptionUtils.getStackTrace(ex);
+            logger.log(Level.SEVERE,"Could not create output file {0}.\n\n{1}",new Object[]{file.getAbsolutePath(),stack});
             System.exit(-1);
         }
     }

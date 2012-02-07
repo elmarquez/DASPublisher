@@ -36,7 +36,9 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.logging.Level;
 import java.util.logging.Logger;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import ryerson.daspub.utility.ImageUtils;
 import ryerson.daspub.utility.QRCodeImageFileFilter;
 
@@ -45,11 +47,10 @@ import ryerson.daspub.utility.QRCodeImageFileFilter;
  * Lays out the images on a letter sized sheet that conforms to an Avery 22806
  * sheet template.
  */
-public class QRCodeSheetPublisher {
+public class QRTagSheetPublisher implements Runnable {
 
     private static final int ITEMS_PER_PAGE = 12;
     private static final float LINE_THICKNESS = 0.25f;
-    private static final String PDF_FILENAME = "artifact-tagsheet.pdf";
 
     private static final Boolean PRINT_FRAME = false;
     private static final Boolean PRINT_TRIM_MARKS = true;
@@ -66,9 +67,10 @@ public class QRCodeSheetPublisher {
     private static final String HEADER_STRING = "Print on Avery 22806 compatible label sheet.";
     
     private File input;
+    private File output;
     private ArrayList<Point> layout = new ArrayList<>();
     
-    private static final Logger _logger = Logger.getLogger(QRCodeSheetPublisher.class.getName());
+    private static final Logger logger = Logger.getLogger(QRTagSheetPublisher.class.getName());
 
     //--------------------------------------------------------------------------
 
@@ -77,57 +79,13 @@ public class QRCodeSheetPublisher {
      * @param Input Input directory with QR barcode files
      * @param Output Output file
      */
-    public QRCodeSheetPublisher(File Input) {
+    public QRTagSheetPublisher(File Input, File Output) {
         input = Input;
-        
-        // define the standard sticker layout points
-        layout.add(new Point(45,601));
-        layout.add(new Point(234,601));
-        layout.add(new Point(423,601));
-
-        layout.add(new Point(45,416));
-        layout.add(new Point(234,416));
-        layout.add(new Point(423,416));
-
-        layout.add(new Point(45,230));
-        layout.add(new Point(234,230));
-        layout.add(new Point(423,230));
-
-        layout.add(new Point(45,45));
-        layout.add(new Point(234,45));
-        layout.add(new Point(423,45));
+        output = Output;
     }
 
     //--------------------------------------------------------------------------
 
-    /**
-     * Draw trimming marks around each tag.
-     * @param Writer PDF writer
-     * @param x X coordinate of bottom left corner of tag frame
-     * @param y Y coordinate of bottom left corner of tag frame
-     * @param width Width of tag frame
-     * @param height Height of tag frame
-     * @throws DocumentException
-     * @throws IOException 
-     */
-    private void drawTrimMarks(PdfWriter Writer, int x, int y, int width, int height) throws DocumentException, IOException {
-        // redefine tag frame coordinates in absolute coordinates
-        width = width + x;
-        height = height + y;
-        // bottom left
-        drawLine(Writer,x,y-TRIM_MARK_OFFSET,x,y-TRIM_MARK_LENGTH);
-        drawLine(Writer,x-TRIM_MARK_OFFSET,y,x-TRIM_MARK_LENGTH,y);
-        // top left
-        drawLine(Writer,x,height+TRIM_MARK_OFFSET,x,height+TRIM_MARK_LENGTH);
-        drawLine(Writer,x-TRIM_MARK_OFFSET,height,x-TRIM_MARK_LENGTH,height);
-        // top right
-        drawLine(Writer,width,height+TRIM_MARK_OFFSET,width,height+TRIM_MARK_LENGTH);
-        drawLine(Writer,width+TRIM_MARK_OFFSET,height,width+TRIM_MARK_LENGTH,height);
-        // bottom right
-        drawLine(Writer,width,y-TRIM_MARK_OFFSET,width,y-TRIM_MARK_LENGTH);
-        drawLine(Writer,width+TRIM_MARK_OFFSET,y,width+TRIM_MARK_LENGTH,y);
-    }
-    
     /**
      * Draw an image on the current page.
      * @param Writer PDF writer
@@ -149,7 +107,7 @@ public class QRCodeSheetPublisher {
         img.setAbsolutePosition(x,y);
         Writer.getDirectContent().addImage(img, true);
     }
-    
+
     /**
      * Draw a text label on the current page.
      * @param Writer PDF writer
@@ -172,7 +130,7 @@ public class QRCodeSheetPublisher {
     }
     
     /**
-     * 
+     * Draw label
      * @param Writer
      * @param Text
      * @param x
@@ -185,24 +143,25 @@ public class QRCodeSheetPublisher {
     /**
      * Draw a line on the page
      * @param Writer
-     * @param x
-     * @param y
-     * @param w
-     * @param h 
+     * @param x1 Line start, X coordinate
+     * @param y1 Line start, Y coordinate
+     * @param x2 Line end, X coordinate
+     * @param y2 Line end, Y coordinate
+     * @param t Stroke thickness
      */
-    private void drawLine(PdfWriter Writer, int x1, int y1, int x2, int y2) throws DocumentException, IOException {
+    private static void drawLine(PdfWriter Writer, int x1, int y1, int x2, int y2, float t) throws DocumentException, IOException {
         PdfContentByte cb = Writer.getDirectContent();
-        cb.setFontAndSize(BaseFont.createFont(BaseFont.HELVETICA, BaseFont.WINANSI, false), 24);
+        cb.setFontAndSize(BaseFont.createFont(BaseFont.HELVETICA, BaseFont.WINANSI, false), 24); // TODO why do we have this here??
         cb.moveTo(x1,y1);
         cb.lineTo(x2,y2);
-        cb.setLineWidth(LINE_THICKNESS);
+        cb.setLineWidth(t);
         cb.stroke();    
     }
 
     /**
-     * 
-     * @param Writer
-     * @param Page
+     * Draw page labels
+     * @param Writer PDF writer
+     * @param Page Page number
      * @throws DocumentException
      * @throws IOException 
      */
@@ -219,30 +178,32 @@ public class QRCodeSheetPublisher {
         // page number
         if (PRINT_PAGE_NUMBER) drawLabel(Writer,String.valueOf(Page),568,22,PdfContentByte.ALIGN_RIGHT);
     }
-    
+
     /**
-     * 
+     * Draw rectangle
      * @param Writer
-     * @param x
-     * @param y
-     * @param w
-     * @param h 
+     * @param x Start X coordinate
+     * @param y Start Y coordinate
+     * @param w Width
+     * @param h Height
+     * @param t Stroke thickness
      */
-    private void addRectangle(PdfWriter Writer, int x, int y, int w, int h) {
+    private static void drawRectangle(PdfWriter Writer, int x, int y, int w, int h, float t) {
         PdfContentByte cb = Writer.getDirectContent();
         cb.rectangle(x,y,w,h);
-        cb.setLineWidth(LINE_THICKNESS);
+        cb.setLineWidth(t);
         cb.stroke();
     }
 
     /**
-     * 
-     * @param Writer
-     * @param P 
+     * Draw QR tag for a file
+     * @param Writer PDF writer
+     * @param Img QR bar code image file
+     * @param P Tag page coordinates
      */
     private void drawTag(PdfWriter Writer, File Img, Point P) throws BadElementException, MalformedURLException, IOException, DocumentException {
         // tag frame
-        if (PRINT_FRAME) addRectangle(Writer,P.x,P.y,145,145);
+        if (PRINT_FRAME) drawRectangle(Writer,P.x,P.y,145,145,LINE_THICKNESS);
         // tag cut marks
         if (PRINT_TRIM_MARKS) drawTrimMarks(Writer,P.x,P.y,145,145);
         // bar code
@@ -254,9 +215,67 @@ public class QRCodeSheetPublisher {
             drawLabel(Writer,name,P.x+72,P.y+16);
         }
     }
-     
+
     /**
-     * 
+     * Draw trimming marks around each tag.
+     * @param Writer PDF writer
+     * @param x X coordinate of bottom left corner of tag frame
+     * @param y Y coordinate of bottom left corner of tag frame
+     * @param width Width of tag frame
+     * @param height Height of tag frame
+     * @throws DocumentException
+     * @throws IOException 
+     */
+    private void drawTrimMarks(PdfWriter Writer, int x, int y, int width, int height) throws DocumentException, IOException {
+        // redefine tag frame coordinates in absolute coordinates
+        width = width + x;
+        height = height + y;
+        // bottom left
+        drawLine(Writer,x,y-TRIM_MARK_OFFSET,x,y-TRIM_MARK_LENGTH,LINE_THICKNESS);
+        drawLine(Writer,x-TRIM_MARK_OFFSET,y,x-TRIM_MARK_LENGTH,y,LINE_THICKNESS);
+        // top left
+        drawLine(Writer,x,height+TRIM_MARK_OFFSET,x,height+TRIM_MARK_LENGTH,LINE_THICKNESS);
+        drawLine(Writer,x-TRIM_MARK_OFFSET,height,x-TRIM_MARK_LENGTH,height,LINE_THICKNESS);
+        // top right
+        drawLine(Writer,width,height+TRIM_MARK_OFFSET,width,height+TRIM_MARK_LENGTH,LINE_THICKNESS);
+        drawLine(Writer,width+TRIM_MARK_OFFSET,height,width+TRIM_MARK_LENGTH,height,LINE_THICKNESS);
+        // bottom right
+        drawLine(Writer,width,y-TRIM_MARK_OFFSET,width,y-TRIM_MARK_LENGTH,LINE_THICKNESS);
+        drawLine(Writer,width+TRIM_MARK_OFFSET,y,width+TRIM_MARK_LENGTH,y,LINE_THICKNESS);
+    }
+
+    /**
+     * Run publisher
+     */
+    @Override
+    public void run() {
+        // define the standard sticker layout points
+        layout.add(new Point(45,601));
+        layout.add(new Point(234,601));
+        layout.add(new Point(423,601));
+
+        layout.add(new Point(45,416));
+        layout.add(new Point(234,416));
+        layout.add(new Point(423,416));
+
+        layout.add(new Point(45,230));
+        layout.add(new Point(234,230));
+        layout.add(new Point(423,230));
+
+        layout.add(new Point(45,45));
+        layout.add(new Point(234,45));
+        layout.add(new Point(423,45));
+        // write the tag sheet
+        try {
+            writeTagSheet();
+        } catch (DocumentException | IOException ex) {
+            String stack = ExceptionUtils.getStackTrace(ex);
+            logger.log(Level.SEVERE,"Could not write tag sheet file.\n\n{0}",stack);
+        }
+    }
+    
+    /**
+     * Write artifact tag sheet to a file.
      * @param Output
      * @throws DocumentException
      * @throws FileNotFoundException
@@ -264,13 +283,13 @@ public class QRCodeSheetPublisher {
      * @throws MalformedURLException
      * @throws IOException 
      */
-    public void writeTagSheet(File Output) throws DocumentException, FileNotFoundException, BadElementException, MalformedURLException, IOException {
+    public void writeTagSheet() throws DocumentException, FileNotFoundException, BadElementException, MalformedURLException, IOException {
         // get list of input files
         File[] files = input.listFiles(new QRCodeImageFileFilter());
         if (files != null && files.length > 0) {
             // create a new PDF document
             Document document = new Document(PageSize.LETTER);
-            PdfWriter writer = PdfWriter.getInstance(document,new FileOutputStream(Output));
+            PdfWriter writer = PdfWriter.getInstance(document,new FileOutputStream(output));
             document.addTitle("Artifact QR Code Labels");
             document.open();
             // generate page layouts with barcodes
@@ -294,5 +313,5 @@ public class QRCodeSheetPublisher {
             document.close();
         }
     }
-    
+
 } // end class
