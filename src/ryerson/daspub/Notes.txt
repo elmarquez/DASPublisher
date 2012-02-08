@@ -2,16 +2,28 @@
 DAS ARCHIVE PUBLISHER
 --------------------------------------------------------------------------------
 
+0.4.0 o Attempt to package mobile output as a self-contained app
+      o Include video
+      o Interactive and automatic slideshow presentation
+
+0.3.0 o Deal with multi-page PDFs
+      o Deal with video
+      o Automatic building of course and assignment indexes
+      o Sort assignment submissions into high pass, low pass
+      o Improve reporting
+      o Make the report page public and obvious to all staff, faculty
+      o Do all TODO tasks
+
 Current Work:
 
-0.2.0 x Break up all operations into separate command line options, then 
-        execute all options independently
+0.2.0 - build assignment page with thumbnail list
+      - build all thumbnails ... missing thumbnails for videos
       - work on Submission and Assignment objects to make sure that the output
         directory is completely built
-      x need to make sure that all output in assignment folders is JPG
-      - build all thumbnails
-      - build assignment page with thumbnail list
       - test security for artifact web accessible content
+      x break up all operations into separate command line options, then 
+        execute all options independently
+      x need to make sure that all output in assignment folders is JPG
 
 0.1.0 x Generates a basic mobile site
       x Artifact lookup
@@ -19,20 +31,6 @@ Current Work:
       x Insert current APR into review content
       x Break up the publish command into: mobile gallery, artifact gallery, 
         web presentation, etc. modes
-
-Next Steps:
-
-0.3.0 - Deal with multi-page PDFs
-      - Deal with video
-      - Automatic building of course and assignment indexes
-      - Sort assignment submissions into high pass, low pass
-      - Improve reporting
-      - Make the report page public and obvious to all staff, faculty
-      - Do all TODO tasks
-
-0.4.0 - Attempt to package mobile output as a self-contained app
-      - Include video
-      - Interactive and automatic slideshow presentation
 
 --------------------------------------------------------------------------------
 NOTES

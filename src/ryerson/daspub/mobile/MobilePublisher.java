@@ -72,10 +72,12 @@ public class MobilePublisher implements Runnable {
         // copy static files to output directory
         try {
             File staticFiles = new File(Config.STATIC_FILES_PATH);
+            logger.log(Level.INFO,"Copying static files from {0} to {1}", 
+                    new Object[]{staticFiles.getAbsolutePath(),output.getAbsolutePath()});
             FileUtils.copyDirectory(staticFiles,output,new NonThumbnailIndexFileFilter());
         } catch (Exception ex) {
             String stack = ExceptionUtils.getStackTrace(ex);
-            logger.log(Level.SEVERE,"Could not copy static files from {0} to {1}.\n\n{2}", 
+            logger.log(Level.SEVERE,"Could not copy static files from {0} to {1}\n\n{2}", 
                     new Object[]{Config.STATIC_FILES_PATH, output.getAbsolutePath(), stack});
             System.exit(-1);
         }
@@ -109,7 +111,7 @@ public class MobilePublisher implements Runnable {
                 // write archive summary
             } catch (Exception ex) {
                 String stack = ExceptionUtils.getStackTrace(ex);
-                logger.log(Level.SEVERE,"Could not copy archive content from {0} to {1}.\n\n{2}", 
+                logger.log(Level.SEVERE,"Could not copy archive content from {0} to {1}\n\n{2}", 
                         new Object[]{archive.getPath(), output.getAbsolutePath(), stack});
                 System.exit(-1);
             }

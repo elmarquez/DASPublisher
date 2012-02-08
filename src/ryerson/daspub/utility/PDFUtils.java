@@ -41,6 +41,20 @@ public class PDFUtils {
     //--------------------------------------------------------------------------
 
     /**
+     * Get incremental file name
+     * @param F File
+     * @param I Index
+     * @return 
+     */
+    private static File getIncrementedFileName(File F, int I) {
+        String filename = FilenameUtils.getBaseName(F.getName());
+        String extension = FilenameUtils.getExtension(F.getName());
+        filename = filename + "-" + String.valueOf(I) + "." + extension;
+        File file = new File(F.getParentFile(),filename);
+        return file;
+    }
+    
+    /**
      * Extract one or more thumbnail images from a PDF document.
      * @param Input Input file
      * @param Output Output file
@@ -50,23 +64,31 @@ public class PDFUtils {
      * @throws IOException
      * @throws PDFException
      */
-    public static void WriteJPGImage(File Input, File Output, int Width, int Height, Boolean Multipage) throws PdfException, IOException {
+    public static void writeJPGImage(File Input, File Output, int Width, int Height, Boolean Multipage) throws PdfException, IOException {
         if (FilenameUtils.isExtension(Input.getName(),"pdf")) {
             // open the file
             pdf.openPdfFile(Input.getAbsolutePath());
             // write images
             if (Multipage) {
-                logger.log(Level.WARNING,"Multipage PDF to JPG output not implemented yet.");
                 int pages = pdf.getPageCount();
-                for (int i=1;i<pages;i++) {
-                    BufferedImage img = pdf.getPageAsImage(i);
+                if (pages > 1) {
+                    for (int i=0;i<pages;i++) {
+                        BufferedImage img = pdf.getPageAsImage(i+1);
+                        File output = getIncrementedFileName(Output,i+1);
+                        Thumbnails.of(img).size(Width,Height).outputFormat("jpg").toFile(output);
+                        logger.log(Level.INFO,"Writing JPEG image for {0}",output.getName());
+                    }
+                } else if (pages == 1) {
+                    BufferedImage img = pdf.getPageAsImage(1);
+                    Thumbnails.of(img).size(Width,Height).outputFormat("jpg").toFile(Output);
+                    logger.log(Level.INFO,"Writing JPEG for {0}",Output.getName());
                 }
             } else {
                 // get first page of PDF as an image
                 BufferedImage img = pdf.getPageAsImage(1);
                 // create and write a thumbnail image
                 Thumbnails.of(img).size(Width,Height).outputFormat("jpg").toFile(Output);
-                logger.log(Level.FINE,"Wrote PDF thumbnail {0}",Output.getAbsolutePath());
+                logger.log(Level.INFO,"Writing JPEG for {0}",Output.getName());
             }
             // close the file
             pdf.closePdfFile();

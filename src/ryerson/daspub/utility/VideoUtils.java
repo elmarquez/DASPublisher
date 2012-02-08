@@ -19,13 +19,37 @@
 
 package ryerson.daspub.utility;
 
+import java.io.File;
+import java.io.IOException;
+
 /**
- *
+ * Video file utilities.
  * @author dmarques
  * @see http://krishnabhargav.blogspot.com/2008/02/processing-videos-in-java.html
  * @see http://www.xuggle.com/xuggler/
  * @see http://build.xuggle.com/view/Stable/job/xuggler_jdk5_stable/ws/workingcopy/src/com/xuggle/mediatool/demos/DecodeAndCaptureFrames.java
  */
-public class VideoFileUtils {
+public class VideoUtils {
 
-}
+    /**
+     * Write a JPG snapshot 
+     * @param Input
+     * @param Output
+     * @param Width
+     * @param Height
+     * @throws IOException
+     * @throws PdfException
+     * @throws ImageReadException 
+     */
+    public static void writeJPGImage(File Input, File Output, int Width, int Height) throws IOException {
+        // open file
+        // get duration
+        // if multiple snapshots
+        //     subdivide duration by number of snapshots
+        //     fetch frames
+        // else
+        //     get frame from 1/3 into video
+        // write frames
+    }
+    
+} // end class

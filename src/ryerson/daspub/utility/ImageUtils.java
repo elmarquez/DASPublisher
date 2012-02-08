@@ -19,6 +19,7 @@
 
 package ryerson.daspub.utility;
 
+import com.itextpdf.text.pdf.PdfException;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -29,7 +30,6 @@ import net.coobird.thumbnailator.Thumbnails;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.sanselan.ImageReadException;
 import org.apache.sanselan.Sanselan;
-import org.jpedal.exception.PdfException;
 
 /**
  * Image processing utility methods
@@ -48,7 +48,7 @@ public class ImageUtils {
      * @param Extension New extension to replace current filename extension
      * @return 
      */
-    public static String changeFileExtension(String Filename, String Extension) {
+    public static String getJPGFileName(String Filename, String Extension) {
         String name = FilenameUtils.removeExtension(Filename);
         return name + "." + Extension;
     }
@@ -60,7 +60,7 @@ public class ImageUtils {
      * @param NewExtension
      * @return 
      */
-    public static File changeFileExtension(File Input, String NewExtension) {
+    public static File getJPGFileName(File Input, String NewExtension) {
         String filename = FilenameUtils.removeExtension(Input.getName());
         filename = filename + "." + NewExtension;
         return new File(Input.getParentFile(),filename);
@@ -92,29 +92,26 @@ public class ImageUtils {
      * TODO there is a problem here when resizing
      * TODO check the original image size and don't go any higher than the original
      */
-    public static void writeJPGImage(File Input, File Output, int Width, int Height) throws IOException, PdfException, ImageReadException {
+    public static void writeJPGImage(File Input, File Output, int Width, int Height) throws IOException, ImageReadException, org.jpedal.exception.PdfException {
         if (FilenameUtils.isExtension(Input.getName(),"jpg")) {
-            File output = new File(Output,Input.getName());
-            Thumbnails.of(Input).size(Width,Height).toFile(output);
+            Thumbnails.of(Input).size(Width,Height).toFile(Output);
             logger.log(Level.FINE,"Wrote image {0}", Output.getAbsolutePath());
         } else if (FilenameUtils.isExtension(Input.getName(),"gif") ||
                    FilenameUtils.isExtension(Input.getName(),"png")) {
-//            String filename = FilenameUtils.removeExtension(Input.getName()) + ".jpg";
-//            File output = new File(Output,filename);
             Thumbnails.of(Input).size(Width,Height).outputFormat("jpg").toFile(Output);
             logger.log(Level.FINE,"Wrote image {0}", Output.getAbsolutePath());
         } else if (FilenameUtils.isExtension(Input.getName(),"tif")) {
-//            String filename = FilenameUtils.removeExtension(Input.getName()) + ".jpg";
-//            File output = new File(Output,filename);
             BufferedImage image = Sanselan.getBufferedImage(Input);
             Thumbnails.of(image).size(Width,Height).toFile(Output);
         } else if (FilenameUtils.isExtension(Input.getName(),"pdf")) {
-            PDFUtils.WriteJPGImage(Input,Output,Width,Height,true);
+            // TODO not sure if this should be removed
+            PDFUtils.writeJPGImage(Input,Output,Width,Height,false);
             logger.log(Level.FINE,"Wrote image {0}", Output.getAbsolutePath());
         } else if (FilenameUtils.isExtension(Input.getName(),"mp4")) {
-            logger.log(Level.WARNING,"Image writing for MP4 type not implemented yet.");
+            // TODO not sure if this should be removed, create a VideoUtils class
+            logger.log(Level.WARNING,"Image writing for MP4 type not implemented yet");
         } else {
-            logger.log(Level.WARNING,"Could not write image for {0}. File is not a processable image or PDF.", Output.getAbsolutePath());                
+            logger.log(Level.WARNING,"Could not write image for {0}. File is not processable.", Output.getAbsolutePath());                
         }
     }
 

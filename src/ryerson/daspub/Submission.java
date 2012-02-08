@@ -25,10 +25,12 @@ import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import jxl.Cell;
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.sanselan.ImageReadException;
 import org.jpedal.exception.PdfException;
 import ryerson.daspub.utility.ImageUtils;
+import ryerson.daspub.utility.PDFUtils;
 
 /**
  * Student work submission
@@ -239,9 +241,8 @@ public class Submission {
     }
 
     /**
-     * Write a JPG version of the file. If the file is already encoded as a JPG, 
-     * then copy the file.
-     * @param Output Output directory
+     * Write a JPG version of the file.
+     * @param Output Output file
      */
     public void writeImage(File Output) {
         logger.log(Level.INFO,"Writing full size image for {0}.",file.getName());
@@ -250,19 +251,23 @@ public class Submission {
         }
         File image = new File(path);
         try {
-            String filename = ImageUtils.changeFileExtension(image.getName(),"jpg");
+            String filename = ImageUtils.getJPGFileName(image.getName(),"jpg");
             File imageOutput = new File(Output,filename);
-            ImageUtils.writeJPGImage(image,imageOutput,Config.IMAGE_MAX_WIDTH,Config.IMAGE_MAX_HEIGHT);
+            if (FilenameUtils.isExtension(image.getName(),"pdf")) {
+                PDFUtils.writeJPGImage(image,imageOutput,Config.IMAGE_MAX_WIDTH,Config.IMAGE_MAX_HEIGHT,true);
+            } else {
+                ImageUtils.writeJPGImage(image,imageOutput,Config.IMAGE_MAX_WIDTH,Config.IMAGE_MAX_HEIGHT);
+            }
         } catch (IOException | PdfException | ImageReadException ex) {
             String stack = ExceptionUtils.getStackTrace(ex);
-            logger.log(Level.SEVERE,"Could not write thumbnail {0}.\n\n{1}",
+            logger.log(Level.SEVERE,"Could not write thumbnail {0}\n\n{1}",
                     new Object[]{Output.getAbsolutePath(),stack});
         }
     }
 
     /**
-     * Write thumbnail to folder
-     * @param Output Output directory
+     * Write thumbnail to file.
+     * @param Output Output file
      */
     public void writeThumbnail(File Output) {
         logger.log(Level.INFO,"Writing thumbnail image for {0}.",file.getName());
@@ -271,12 +276,16 @@ public class Submission {
         }
         File image = new File(path);
         try {
-            String filename = ImageUtils.changeFileExtension(image.getName(),"jpg");
+            String filename = ImageUtils.getJPGFileName(image.getName(),"jpg");
             File imageOutput = new File(Output,filename);
-            ImageUtils.writeJPGImage(image,imageOutput,Config.THUMB_MAX_WIDTH,Config.THUMB_MAX_HEIGHT);
+            if (FilenameUtils.isExtension(image.getName(),"pdf")) {
+                PDFUtils.writeJPGImage(image,imageOutput,Config.THUMB_MAX_WIDTH,Config.THUMB_MAX_HEIGHT,false);
+            } else {
+                ImageUtils.writeJPGImage(image,imageOutput,Config.THUMB_MAX_WIDTH,Config.THUMB_MAX_HEIGHT);
+            }
         } catch (IOException | PdfException | ImageReadException ex) {
             String stack = ExceptionUtils.getStackTrace(ex);
-            logger.log(Level.SEVERE,"Could not write thumbnail {0}.\n\n{1}",
+            logger.log(Level.SEVERE,"Could not write thumbnail {0}\n\n{1}",
                     new Object[]{Output.getAbsolutePath(),stack});
         }
     }

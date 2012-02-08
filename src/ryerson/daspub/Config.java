@@ -158,10 +158,10 @@ public class Config {
                 } else {
                     field.set(this,val);
                 }
-                _logger.log(Level.INFO,"Set {0} as {1}.",new Object[]{field.getName(),val.toString()});
+                _logger.log(Level.INFO,"Set {0} as {1}",new Object[]{field.getName(),val.toString()});
             } catch (NoSuchFieldException | SecurityException | IllegalArgumentException | IllegalAccessException ex) {
                 String stack = ExceptionUtils.getStackTrace(ex);
-                _logger.log(Level.SEVERE,"Could not find or set field {0}.\n\n{1}",
+                _logger.log(Level.SEVERE,"Could not find or set field {0}\n\n{1}",
                         new Object[]{name,stack});
             }
         }

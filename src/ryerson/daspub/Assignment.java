@@ -362,8 +362,9 @@ public class Assignment {
             template = template.replace("${assignment.title}", A.getName());
             template = template.replace("${assignment.description}", A.getDescription());
             template = template.replace("${assignment.description.pdf}", A.getAssignmentDescriptionPDF());
-            // build submission index
+            // build index for high pass submissions
             StringBuilder sb = new StringBuilder();
+            sb.append("\n<ul id='Gallery' class='gallery'>");
             File thumbnailOutputPath = new File(Output,"thumbs");
             Iterator<Submission> its = A.getSubmissions();
             while (its.hasNext()) {
@@ -371,21 +372,29 @@ public class Assignment {
                 if (s.getFile().exists()) {
                     s.writeImage(Output);
                     s.writeThumbnail(thumbnailOutputPath);
-                    sb.append("<div>");
+                    sb.append("<li>");
+                    sb.append("<a href='");
                     sb.append(s.getFileName());
-                    sb.append("</div>\n");
+                    sb.append("' rel='external'><img src='");
+                    sb.append(s.getFileName());
+                    sb.append("' alt='");
+                    sb.append(s.getAuthor());
+                    sb.append("' /></a></li>\n");
                 } else {
                     logger.log(Level.WARNING,"Submission file {0} does not exist. Could not write images.",
                             s.getFile().getAbsolutePath());
                 }
             }
-            template = template.replace("${assignment.worksamples}", sb.toString());
+            sb.append("</ul>");
+            template = template.replace("${assignment.submissions.highpass}", sb.toString());
+            // build index for low pass submissions
+
             // write index file
             File index = new File(Output,"index.html");
             FileUtils.write(index,template);
         } catch (Exception ex) {
             String stack = ExceptionUtils.getStackTrace(ex);
-            logger.log(Level.SEVERE,"Could not write assignment {0} to {1}.\n\n{2}",
+            logger.log(Level.SEVERE,"Could not write assignment {0} to {1}\n\n{2}",
                     new Object[]{A.getName(),Output,stack});
         }
     }

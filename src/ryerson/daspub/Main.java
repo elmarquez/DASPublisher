@@ -20,7 +20,10 @@
 package ryerson.daspub;
 
 import java.io.File;
+import java.util.logging.ConsoleHandler;
+import java.util.logging.Handler;
 import java.util.logging.Level;
+import java.util.logging.LogManager;
 import java.util.logging.Logger;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
@@ -34,6 +37,7 @@ import ryerson.daspub.artifact.QRTagSheetPublisher;
 import ryerson.daspub.mobile.MobilePublisher;
 import ryerson.daspub.report.ReportPublisher;
 import ryerson.daspub.slideshow.SlideshowPublisher;
+import ryerson.daspub.utility.CustomLogFormatter;
 
 /**
  * Command line interface to application components.
@@ -80,7 +84,14 @@ public class Main implements Runnable {
      * @param args Arguments
      */
     public Main(String[] args) {
+        // set default log formatting
+//        LogManager.getLogManager().reset();
+//        Handler ch = new ConsoleHandler();
+//        ch.setFormatter(new CustomLogFormatter());
+//        Logger.getGlobal().addHandler(ch);
+        // define command line options
         defineCommandOptions();
+        // parse command line arguments
         parseArguments(args);
     }
 
@@ -117,7 +128,7 @@ public class Main implements Runnable {
             cmd = parser.parse(options,args);
         } catch (Exception ex) {
             String stack = ExceptionUtils.getStackTrace(ex);
-            logger.log(Level.SEVERE,"Could not parse command line arguments.\n\n{0}",stack);
+            logger.log(Level.SEVERE,"Could not parse command line arguments\n\n{0}",stack);
             System.exit(FAIL);
         }
     }
@@ -139,25 +150,25 @@ public class Main implements Runnable {
                 config = new Config(configfile);
             } catch (Exception ex) {
                 String stack = ExceptionUtils.getStackTrace(ex);
-                logger.log(Level.SEVERE,"Could not parse configuration file.\n\n{0}", stack);
+                logger.log(Level.SEVERE,"Could not parse configuration file\n\n{0}", stack);
                 System.exit(FAIL);
             }
         }
         // clean output directory
         if (cmd.hasOption(CMD_CLEAN)) {
             if (!cmd.hasOption(CMD_OUTPUT)) {
-                logger.log(Level.SEVERE,"Output path must be specified.");
+                logger.log(Level.SEVERE,"Output path must be specified");
                 System.exit(FAIL);
             }
             try {
                 File path = new File(cmd.getOptionValue(CMD_OUTPUT));
+                logger.log(Level.INFO,"Cleaning output directory {0}", path.getAbsolutePath());
                 if (path.exists()) {
-                    logger.log(Level.INFO,"Cleaning output directory {0}.", path.getAbsolutePath());
                     FileUtils.deleteDirectory(path);
                 }
             } catch (Exception ex) {
                 String stack = ExceptionUtils.getStackTrace(ex);
-                logger.log(Level.SEVERE,"Could not clean output directory.\n\n{0}", stack);
+                logger.log(Level.SEVERE,"Could not clean output directory\n\n{0}", stack);
                 System.exit(FAIL);
             }
         }
@@ -165,11 +176,11 @@ public class Main implements Runnable {
         if (cmd.hasOption(CMD_PUBLISH) && config != null) {
             // preconditions
             if (config == null) {
-                logger.log(Level.SEVERE,"Configuration file must be specified.");
+                logger.log(Level.SEVERE,"Configuration file must be specified");
                 System.exit(FAIL);
             }
             if (!cmd.hasOption(CMD_OUTPUT)) {
-                logger.log(Level.SEVERE,"Output path must be specified.");
+                logger.log(Level.SEVERE,"Output path must be specified");
                 System.exit(FAIL);
             }
             // process
@@ -203,7 +214,7 @@ public class Main implements Runnable {
                 }
             } catch (Exception ex) {
                 String stack = ExceptionUtils.getStackTrace(ex);
-                logger.log(Level.SEVERE,"Could not complete publication.\n\n{0}",stack);
+                logger.log(Level.SEVERE,"Could not complete publication\n\n{0}",stack);
                 System.exit(FAIL);
             }
         }
