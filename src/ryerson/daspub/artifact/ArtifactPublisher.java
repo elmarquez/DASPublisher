@@ -115,7 +115,6 @@ public class ArtifactPublisher implements Runnable {
             String artifact_html = id + ".html";
             String artifact_large_jpg = id + ".jpg";
             String artifact_qrcode_png = id + "_qr.png";
-            String artifact_screen_jpg = id + "_screen.jpg";
             String artifact_thumbnail_jpg = id + "_tn.jpg";
             // resize and write image to output folder
             if (FilenameUtils.isExtension(file.getName(),"pdf")) {

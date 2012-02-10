@@ -245,7 +245,7 @@ public class Submission {
      * @param Output Output file
      */
     public void writeImage(File Output) {
-        logger.log(Level.INFO,"Writing full size image for {0}.",file.getName());
+        logger.log(Level.INFO,"Writing full size image for {0}",file.getName());
         if (!Output.exists()) {
             Output.mkdirs();
         }
@@ -270,7 +270,7 @@ public class Submission {
      * @param Output Output file
      */
     public void writeThumbnail(File Output) {
-        logger.log(Level.INFO,"Writing thumbnail image for {0}.",file.getName());
+        logger.log(Level.INFO,"Writing thumbnail image for {0}",file.getName());
         if (!Output.exists()) {
             Output.mkdirs();
         }

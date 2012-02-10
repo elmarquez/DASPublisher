@@ -261,30 +261,31 @@ public class Assignment {
     }
 
     /**
-     * A map of fullsize, thumbnail file paths?
-     * @return 
+     * A map of fullsize, thumbnail file paths
+     * @param S Submission
+     * @param E Evaluation value
+     * @return PhotoSwipe gallery
      */
-    public String getSubmissionIndex() {
+    public static String getSubmissionIndex(Assignment A, String E) {
         StringBuilder sb = new StringBuilder();
-        Iterator<Submission> submissions = getSubmissions();
         sb.append("\n<ul id='Gallery' class='gallery'>");
-        while (submissions.hasNext()) {
-            Submission sub = submissions.next();
-            sb.append("\n\t<li>");
-            sb.append("<a href='");
-            sb.append(sub.getFileName());
-            sb.append("' rel='external'>");
-            sb.append("<img src='");
-            sb.append(sub.getFileName());
-            sb.append("' alt='");
-            sb.append("' />");
-            String author = sub.getAuthor();
-            sb.append(sub);// TODO get the description, etc. from the spreadsheet file
-            sb.append("Description of the work, authors, date, instructors");
-            sb.append("</a>");
-            sb.append("</li>");
+        Iterator<Submission> its = A.getSubmissions();
+        while (its.hasNext()) {
+            Submission s = its.next();
+            if (s.getEvaluation().toLowerCase().equals(E) &&
+                s.getFile().exists()) {
+                sb.append("<li>");
+                sb.append("<a href='");
+                sb.append(s.getFileName());
+                sb.append("' rel='external'><img src='");
+                sb.append(s.getFileName());
+                sb.append("' alt='");
+                sb.append(s.getAuthor());
+                sb.append("' /></a></li>\n");
+            }
         }
-        sb.append("\n</ul>");
+        sb.append("</ul>");
+        // return result
         return sb.toString();
     }
 
@@ -362,7 +363,7 @@ public class Assignment {
             template = template.replace("${assignment.title}", A.getName());
             template = template.replace("${assignment.description}", A.getDescription());
             template = template.replace("${assignment.description.pdf}", A.getAssignmentDescriptionPDF());
-            // build index for high pass submissions
+            // create thumbnails and scaled full size images
             StringBuilder sb = new StringBuilder();
             sb.append("\n<ul id='Gallery' class='gallery'>");
             File thumbnailOutputPath = new File(Output,"thumbs");
@@ -372,23 +373,17 @@ public class Assignment {
                 if (s.getFile().exists()) {
                     s.writeImage(Output);
                     s.writeThumbnail(thumbnailOutputPath);
-                    sb.append("<li>");
-                    sb.append("<a href='");
-                    sb.append(s.getFileName());
-                    sb.append("' rel='external'><img src='");
-                    sb.append(s.getFileName());
-                    sb.append("' alt='");
-                    sb.append(s.getAuthor());
-                    sb.append("' /></a></li>\n");
                 } else {
                     logger.log(Level.WARNING,"Submission file {0} does not exist. Could not write images.",
                             s.getFile().getAbsolutePath());
                 }
             }
-            sb.append("</ul>");
-            template = template.replace("${assignment.submissions.highpass}", sb.toString());
+            // build index for high pass submissions
+            String si = getSubmissionIndex(A,"high pass");
+            template = template.replace("${assignment.highpass}", sb.toString());
             // build index for low pass submissions
-
+            si = getSubmissionIndex(A,"low pass");
+            template = template.replace("${assignment.lowpass}", sb.toString());
             // write index file
             File index = new File(Output,"index.html");
             FileUtils.write(index,template);

@@ -13,6 +13,7 @@ DAS ARCHIVE PUBLISHER
       o Improve reporting
       o Make the report page public and obvious to all staff, faculty
       o Do all TODO tasks
+      o Custom log formatter, log file output
 
 Current Work:
 
