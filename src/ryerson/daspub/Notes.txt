@@ -6,32 +6,32 @@ DAS ARCHIVE PUBLISHER
       o Include video
       o Interactive and automatic slideshow presentation
 
-0.3.0 o Deal with multi-page PDFs
-      o Deal with video
-      o Automatic building of course and assignment indexes
-      o Sort assignment submissions into high pass, low pass
+0.3.0 o Assignment pages have indexes for multi-page PDFs
+      o Assignment pages have thumbnails for videos
+      o Videos are viewable
       o Improve reporting
       o Make the report page public and obvious to all staff, faculty
       o Do all TODO tasks
       o Custom log formatter, log file output
 
+
 Current Work:
 
-0.2.0 - build assignment page with thumbnail list
-      - build all thumbnails ... missing thumbnails for videos
-      - work on Submission and Assignment objects to make sure that the output
-        directory is completely built
+0.2.0 - build course page with index of assignments
+      - build assignment page with index of high and low pass submissions
+        -- need to make sure that we point to JPG versions of the image and thumbnail
+      x build all thumbnails for images
       - test security for artifact web accessible content
-      x break up all operations into separate command line options, then 
-        execute all options independently
+      x break up all operations into separate command line options, then execute 
+        all options independently
       x need to make sure that all output in assignment folders is JPG
 
 0.1.0 x Generates a basic mobile site
       x Artifact lookup
       x Artifact PDF sheet
       x Insert current APR into review content
-      x Break up the publish command into: mobile gallery, artifact gallery, 
-        web presentation, etc. modes
+      x Break up the publish command into: mobile gallery, artifact gallery, web 
+        presentation, etc. modes
 
 --------------------------------------------------------------------------------
 NOTES

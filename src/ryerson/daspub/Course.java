@@ -114,11 +114,27 @@ public class Course {
     }
 
     /**
+     * Get course folder file
+     * @return 
+     */
+    public File getFile() {
+        return new File(path);
+    }
+
+    /**
+     * 
+     * @return 
+     */
+    private String getHTMLAssignmentIndex() {
+       return "";
+    }
+
+    /**
      * Create a formatted HTML list from a list of String items.
      * @param Items
      * @return 
      */
-    private static String getFormattedList(List<String> Items) {
+    private static String getHTMLFormattedList(List<String> Items) {
         StringBuilder sb = new StringBuilder();
         Iterator<String> it = Items.iterator();
         while (it.hasNext()) {
@@ -148,57 +164,10 @@ public class Course {
     }
 
     /**
-     * Get course folder file
-     * @return 
-     */
-    public File getFile() {
-        return new File(path);
-    }
-
-    /**
-     * Get list of instructors
-     * @return 
-     */
-    public List<String> getInstructors() throws Exception {
-        String text[] = parseDescriptionFile();
-        ArrayList<String> items = new ArrayList<>();
-        String[] subitems = text[1].split("-");
-        for (int i = 0; i < subitems.length; i++) {
-            items.add(subitems[i].trim());
-        }
-        return items;
-    }
-
-    /**
-     * Get course title. The course title is the folder name.
-     * @return
-     */
-    public String getName() {
-        File dir = new File(path);
-        return dir.getName();
-    }
-
-    /**
-     * Get course folder path
-     * @return 
-     */
-    public String getPath() {
-        return path;
-    }
-
-    /**
-     * Get path safe name.
-     */
-    public String getPathSafeName() {
-        String name = getName();
-        return name.replace(" ", "_");
-    }
-    
-    /**
      * Get status report HTML
      * TODO make static
      */
-    public String getStatusReportHTML() {
+    public String getHTMLStatusReport() {
         StringBuilder sb = new StringBuilder();
         sb.append("\n<script type='text/javascript'>");
         sb.append("animatedcollapse.addDiv('");
@@ -239,7 +208,7 @@ public class Course {
             });
             for (int i = 0; i < dirs.length; i++) {
                 Assignment a = new Assignment(dirs[i]);
-                sb.append(a.getStatusReportHTML());
+                sb.append(a.getHTMLStatusReport());
             }
         } else {
             sb.append("\n\t\t<div class='assignment'>");
@@ -252,6 +221,45 @@ public class Course {
         sb.append("\n\t</div>");
         sb.append("\n</div><!-- /course -->");
         return sb.toString();
+    }
+
+    /**
+     * Get list of instructors
+     * @return 
+     */
+    public List<String> getInstructors() throws Exception {
+        String text[] = parseDescriptionFile();
+        ArrayList<String> items = new ArrayList<>();
+        String[] subitems = text[1].split("-");
+        for (int i = 0; i < subitems.length; i++) {
+            items.add(subitems[i].trim());
+        }
+        return items;
+    }
+
+    /**
+     * Get course title. The course title is the folder name.
+     * @return
+     */
+    public String getName() {
+        File dir = new File(path);
+        return dir.getName();
+    }
+
+    /**
+     * Get course folder path
+     * @return 
+     */
+    public String getPath() {
+        return path;
+    }
+
+    /**
+     * Get path safe name.
+     */
+    public String getPathSafeName() {
+        String name = getName();
+        return name.replace(" ", "_");
     }
 
     /**
@@ -309,8 +317,8 @@ public class Course {
             template = template.replace("${course.title}", C.getName());
             template = template.replace("${course.description}", C.getDescription());
             template = template.replace("${course.description.pdf}", C.getCourseDescriptionPDF());
-            template = template.replace("${course.instructors}", getFormattedList(C.getInstructors()));
-            template = template.replace("${course.cacb.criteria}", getFormattedList(C.getCACBCriteria()));
+            template = template.replace("${course.instructors}", getHTMLFormattedList(C.getInstructors()));
+            template = template.replace("${course.cacb.criteria}", getHTMLFormattedList(C.getCACBCriteria()));
             // process assignment folders and add assignments to course index page
             Iterator<Assignment> assignments = C.getAssignments();
             StringBuilder sb = new StringBuilder();
@@ -331,7 +339,7 @@ public class Course {
             }
             template = template.replace("${course.assignments}",sb.toString());
             // TODO revise formatted lists method for more flexibility
-            template = template.replace("${course.exams}", getFormattedList(C.getExams()));
+            template = template.replace("${course.exams}", getHTMLFormattedList(C.getExams()));
             // write index page
             File index = new File(Output.getAbsolutePath(), "index.html");
             FileUtils.write(index, template);

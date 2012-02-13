@@ -51,6 +51,8 @@ public class Submission {
     private String path;
     private String evaluation;
     private String tags;
+
+    private boolean isMultiPagePDF = false;
     
     private static final Logger logger = Logger.getLogger(Submission.class.getName());
 
@@ -100,7 +102,7 @@ public class Submission {
     //--------------------------------------------------------------------------
 
     /**
-     * 
+     * Get the assignment duration
      * @return 
      */
     public String getAssignmentDuration() {
@@ -108,7 +110,7 @@ public class Submission {
     }
     
     /**
-     * 
+     * Get the assignment name
      * @return 
      */
     public String getAssignmentName() {
@@ -148,23 +150,7 @@ public class Submission {
     }
 
     /**
-     * 
-     */
-    public File getFile() {
-        return file;
-    }
-    
-    /**
-     * Get the submission file name
-     * @return 
-     */
-    public String getFileName() {
-        File f = new File(path);
-        return f.getName();
-    }
-    
-    /**
-     * Get instructor
+     * Get instructor name
      * @return 
      */
     public String getInstructor() {
@@ -172,10 +158,38 @@ public class Submission {
     }
 
     /**
+     * Get the submission output file name
+     * @return 
+     */
+    public String getOutputFileName() {
+        String name = "";
+        if (file.exists()) {
+            name = ImageUtils.getJPGFileName(file.getName(),"jpg");
+        }
+        return name;
+    }
+    
+    /**
      * Get submission semester
      */
     public String getSemester() {
         return semester;
+    }
+    
+    /**
+     * 
+     */
+    public File getSourceFile() {
+        return file;
+    }
+    
+    /**
+     * Get the submission file name
+     * @return 
+     */
+    public String getSourceFileName() {
+        File f = new File(path);
+        return f.getName();
     }
     
     /**
@@ -234,6 +248,18 @@ public class Submission {
     }
 
     /**
+     * Get thumbnail file name.
+     * @return 
+     */
+    public String getThumbnailFileName() {
+        String name = "";
+        if (file.exists()) {
+            name = ImageUtils.getJPGFileName(file.getName(),"jpg");
+        }
+        return name;
+    }
+    
+    /**
      * Get submission year.
      */
     public String getYear() {
@@ -241,7 +267,7 @@ public class Submission {
     }
 
     /**
-     * Write a JPG version of the file.
+     * Write a JPG image of the file.
      * @param Output Output file
      */
     public void writeImage(File Output) {
@@ -249,10 +275,9 @@ public class Submission {
         if (!Output.exists()) {
             Output.mkdirs();
         }
-        File image = new File(path);
         try {
-            String filename = ImageUtils.getJPGFileName(image.getName(),"jpg");
-            File imageOutput = new File(Output,filename);
+            File image = new File(path);
+            File imageOutput = new File(Output,getThumbnailFileName());
             if (FilenameUtils.isExtension(image.getName(),"pdf")) {
                 PDFUtils.writeJPGImage(image,imageOutput,Config.IMAGE_MAX_WIDTH,Config.IMAGE_MAX_HEIGHT,true);
             } else {

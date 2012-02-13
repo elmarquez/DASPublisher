@@ -91,7 +91,7 @@ public class ReportPublisher implements Runnable {
                 while (courses.hasNext()) {
                     Course course = courses.next();
                     logger.log(Level.INFO,"Adding report for course {0}",course.getPath());
-                    content.append(course.getStatusReportHTML());
+                    content.append(course.getHTMLStatusReport());
                 }
                 content.append("</div>");
             }

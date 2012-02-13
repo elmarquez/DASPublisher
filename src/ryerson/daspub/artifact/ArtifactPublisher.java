@@ -105,7 +105,7 @@ public class ArtifactPublisher implements Runnable {
      * @param Output
      */
     private void processSubmission(Submission S,File Output) {
-        File file = S.getFile();
+        File file = S.getSourceFile();
         logger.log(Level.FINE, "Processing submission {0}", file.getAbsolutePath());
         try {
             // generate id for artifact

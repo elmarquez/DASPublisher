@@ -5,11 +5,22 @@ work from a simple file system archive.
 * QR Code tagging for all digital artifacts
 * Interactive or automatic slideshow
 
-==Archive Format==
+Archive Format
+--------------
 
-==File Formats==
+File Formats
+------------
 
-==Configuring DASPublisher==
+Supported file formats are as follows:
 
-==Output Options==
+* JPG, GIF, PNG, TIF
+* PDF (single and multi-page)
+
+Configuring DASPublisher
+------------------------
+
+
+Output Options
+--------------
+
 
