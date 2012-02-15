@@ -38,6 +38,9 @@ import ryerson.daspub.utility.PDFFileFilter;
 public class Course {
 
     private String path;
+    private ArrayList<String> instructors = new ArrayList<>();
+    private ArrayList<String> cacbcriteria = new ArrayList<>();
+    
     private static final Logger logger = Logger.getLogger(Course.class.getName());
 
     //--------------------------------------------------------------------------
@@ -265,7 +268,7 @@ public class Course {
     /**
      * The content is raw and unprocessed. huh?
      * 0 - Description
-     * 1 - Hours
+     * 1 - Course format, hours
      * 2 - Instructors
      * 3 - CACB Criteria
      * @return Array of content values
@@ -319,25 +322,26 @@ public class Course {
             template = template.replace("${course.description.pdf}", C.getCourseDescriptionPDF());
             template = template.replace("${course.instructors}", getHTMLFormattedList(C.getInstructors()));
             template = template.replace("${course.cacb.criteria}", getHTMLFormattedList(C.getCACBCriteria()));
-            // process assignment folders and add assignments to course index page
+            // build assignment index
             Iterator<Assignment> assignments = C.getAssignments();
             StringBuilder sb = new StringBuilder();
+            sb.append("<ul data-role='list-view' data-theme='g'>");
             File assignmentOutputPath = null;
             while (assignments.hasNext()) {
                 Assignment a = assignments.next();
                 // add assignment to index
-                sb.append("<div class='assignment'>");
-                sb.append("<a href='");
+                sb.append("\n\t<li><a href='");
                 sb.append(a.getPathSafeName());
                 sb.append("'>");
                 sb.append(a.getName());
-                sb.append("</a>");
-                sb.append("</div>\n");
+                sb.append("</a></li>");
                 // process assignment output
                 assignmentOutputPath = new File(Output,a.getPathSafeName());
                 Assignment.WriteHTML(a,assignmentOutputPath);
             }
+            sb.append("\n</ul>\n");
             template = template.replace("${course.assignments}",sb.toString());
+            // build exam list
             // TODO revise formatted lists method for more flexibility
             template = template.replace("${course.exams}", getHTMLFormattedList(C.getExams()));
             // write index page

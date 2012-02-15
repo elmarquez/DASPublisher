@@ -158,8 +158,12 @@ public class Assignment {
                 s.getSourceFile().exists()) {
                 sb.append("\n\t<li>");
                 sb.append("<a href='");
+                sb.append(A.getPathSafeName());
+                sb.append("/");
                 sb.append(s.getOutputFileName());
                 sb.append("' rel='external'><img src='");
+                sb.append(A.getPathSafeName());
+                sb.append("/");
                 sb.append(THUMBS);
                 sb.append(s.getThumbnailFileName());
                 sb.append("' alt='");
