@@ -104,7 +104,7 @@ public class MobilePublisher implements Runnable {
                     while (courses.hasNext()) {
                         course = courses.next();
                         courseOutputPath = new File(programOutPath, course.getPathSafeName());
-                        Course.WriteHTML(course,courseOutputPath);
+                        course.writeHTML(courseOutputPath);
                     }
                 }
                 // write program summary

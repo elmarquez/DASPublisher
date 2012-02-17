@@ -19,6 +19,7 @@
 package ryerson.daspub;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
@@ -38,6 +39,9 @@ import ryerson.daspub.utility.PDFFileFilter;
 public class Course {
 
     private String path;
+    
+    private String description = "";
+    private String format = "";
     private ArrayList<String> instructors = new ArrayList<>();
     private ArrayList<String> cacbcriteria = new ArrayList<>();
     
@@ -51,6 +55,7 @@ public class Course {
      */
     public Course(String Path) {
         path = Path;
+        parseDescriptionFile();
     }
 
     //--------------------------------------------------------------------------
@@ -67,43 +72,6 @@ public class Course {
             items.add(a);
         }
         return items.iterator();
-    }
-
-    /**
-     * Get list of CACB criteria addressed by this course.
-     * @return List of criteria
-     */
-    public List<String> getCACBCriteria() throws Exception {
-        String text[] = parseDescriptionFile();
-        ArrayList<String> items = new ArrayList<>();
-        String[] subitems = text[2].split("-");
-        for (int i = 0; i < subitems.length; i++) {
-            items.add(subitems[i].trim());
-        }
-        return items;
-    }
-
-    /**
-     * Get link to course description PDF 
-     * @return 
-     */
-    public String getCourseDescriptionPDF() {
-        File dir = new File(path);
-        File file = new File(dir.getAbsolutePath(), Config.COURSE_DESCRIPTION_PDF_FILE);
-        if (file.exists()) {
-            return Config.COURSE_DESCRIPTION_PDF_FILE;
-        } else {
-            return "";
-        }
-    }
-
-    /**
-     * Get course description
-     * @return
-     */
-    public String getDescription() throws Exception {
-        String text[] = parseDescriptionFile();
-        return text[0];
     }
 
     /**
@@ -125,26 +93,20 @@ public class Course {
     }
 
     /**
-     * 
-     * @return 
-     */
-    private String getHTMLAssignmentIndex() {
-       return "";
-    }
-
-    /**
      * Create a formatted HTML list from a list of String items.
      * @param Items
      * @return 
      */
     private static String getHTMLFormattedList(List<String> Items) {
         StringBuilder sb = new StringBuilder();
+        sb.append("\n<ul>");
         Iterator<String> it = Items.iterator();
         while (it.hasNext()) {
-            sb.append("<li>");
+            sb.append("\n\t<li>");
             sb.append(it.next());
             sb.append("</li>");
         }
+        sb.append("\n</ul>\n");
         return sb.toString();
     }
     
@@ -227,20 +189,6 @@ public class Course {
     }
 
     /**
-     * Get list of instructors
-     * @return 
-     */
-    public List<String> getInstructors() throws Exception {
-        String text[] = parseDescriptionFile();
-        ArrayList<String> items = new ArrayList<>();
-        String[] subitems = text[1].split("-");
-        for (int i = 0; i < subitems.length; i++) {
-            items.add(subitems[i].trim());
-        }
-        return items;
-    }
-
-    /**
      * Get course title. The course title is the folder name.
      * @return
      */
@@ -266,50 +214,79 @@ public class Course {
     }
 
     /**
-     * The content is raw and unprocessed. huh?
+     * Get link to course description PDF 
+     * @return 
+     */
+    public String getSyllabusLink() {
+        File file = new File(path, Config.COURSE_DESCRIPTION_PDF_FILE);
+        if (file.exists()) {
+            return "<a href='" + Config.COURSE_DESCRIPTION_PDF_FILE + "'>Course syllabus</a>";
+        } else {
+            return "Course syllabus file not available.";
+        }
+    }
+
+    /**
+     * Parse the course description file and assign values to local variables.
      * 0 - Description
      * 1 - Course format, hours
      * 2 - Instructors
      * 3 - CACB Criteria
-     * @return Array of content values
+     * TODO this should be implemented for lazy loading instead
      */
-    private String[] parseDescriptionFile() throws Exception {
-        String[] vals = {"", "", "", ""};
-        File dir = new File(path);
-        File file = new File(dir.getAbsolutePath(), Config.COURSE_DESCRIPTION_TEXT_FILE);
+    private void parseDescriptionFile() {
+        File file = new File(path,Config.COURSE_DESCRIPTION_TEXT_FILE);
         if (file.exists()) {
-            String text = FileUtils.readFileToString(file);
-            text = text.replace("\"", "&quot;");
-            String[] blocks = text.split("==");
-            String line = "";
-            int count = 0;
-            for (int i = 0; i < blocks.length && count < vals.length; i++) {
-                line = blocks[i];
-                if (!line.equals("")) {
-                    if (line.startsWith("\r\n")) {
-                        line = line.replace("\r\n", " ");
-                        line = line.trim();
-                        vals[count] = line;
-                        count++;
+            try {
+                String text = FileUtils.readFileToString(file);
+                String[] block = text.split("==");
+                // get rid of empty elements
+                int n = 0;
+                if (block[0].equals("")) {
+                    n++;
+                }
+                // process elements
+                if (block.length>n+1) {
+                    description = block[n+1].replaceAll("\r\n","").trim();
+                }
+                if (block.length>n+3) {
+                    format = block[n+3].replaceAll("\r\n","").trim();
+                }
+                if (block.length>n+5) {
+                    String[] items = block[n+5].split("-");
+                    for (int i=0;i<items.length;i++) {
+                        if (!items[i].equals("") && !items[i].equals("\r\n") && !items[i].contains("\r\n\r\n")) {
+                            instructors.add(items[i].replaceAll("\r\n",""));
+                        }
                     }
                 }
+                if (block.length>=n+7) {
+                    String[] items = block[n+7].split("-");
+                    for (int i=0;i<items.length;i++) {
+                        if (!items[i].equals("") && !items[i].equals("\r\n") && !items[i].contains("\r\n\r\n")) {
+                            cacbcriteria.add(items[i].replaceAll("\r\n",""));
+                        }
+                    }
+                }
+            } catch (IOException ex) {
+                String stack = ExceptionUtils.getStackTrace(ex);
+                logger.log(Level.SEVERE,"Could not parse course description file {0}\n\n{1}",
+                        new Object[]{file.getAbsolutePath(),stack});
             }
         }
-        return vals;
     }
     
     /**
      * Write course data and HTML index file to specified output folder
-     * @param C Course
      * @param Output Output folder
      */
-    public static void WriteHTML(Course C, File Output) {
-        logger.log(Level.INFO, "Writing course folder {0}", C.getFile().getAbsolutePath());
+    public void writeHTML(File Output) {
+        logger.log(Level.INFO, "Writing course folder {0}", path);
         try {
             // create the output folder
             Output.mkdirs();
             // copy course metadata, etc. files to output
-            File sourcePath = C.getFile();
+            File sourcePath = this.getFile();
             File[] files = sourcePath.listFiles(new PDFFileFilter());
             for (int i=0;i<files.length;i++) {
                 FileUtils.copyFile(files[i], new File(Output,files[i].getName()));
@@ -317,22 +294,23 @@ public class Course {
             // load index page template file
             String template = FileUtils.readFileToString(new File(Config.COURSE_TEMPLATE_PATH));
             // build index page
-            template = template.replace("${course.title}", C.getName());
-            template = template.replace("${course.description}", C.getDescription());
-            template = template.replace("${course.description.pdf}", C.getCourseDescriptionPDF());
-            template = template.replace("${course.instructors}", getHTMLFormattedList(C.getInstructors()));
-            template = template.replace("${course.cacb.criteria}", getHTMLFormattedList(C.getCACBCriteria()));
+            template = template.replace("${course.title}", this.getName());
+            template = template.replace("${course.description}", description);
+            template = template.replace("${course.format}", format);
+            template = template.replace("${course.syllabus}", this.getSyllabusLink());
+            template = template.replace("${course.instructors}", getHTMLFormattedList(instructors));
+            template = template.replace("${course.cacb.criteria}", getHTMLFormattedList(cacbcriteria));
             // build assignment index
-            Iterator<Assignment> assignments = C.getAssignments();
+            Iterator<Assignment> assignments = this.getAssignments();
             StringBuilder sb = new StringBuilder();
-            sb.append("<ul data-role='list-view' data-theme='g'>");
+            sb.append("<ul data-role=\"listview\" data-inset=\"true\" data-theme=\"c\">");
             File assignmentOutputPath = null;
             while (assignments.hasNext()) {
                 Assignment a = assignments.next();
                 // add assignment to index
-                sb.append("\n\t<li><a href='");
+                sb.append("\n\t<li><a href=\"");
                 sb.append(a.getPathSafeName());
-                sb.append("'>");
+                sb.append("\">");
                 sb.append(a.getName());
                 sb.append("</a></li>");
                 // process assignment output
@@ -343,14 +321,14 @@ public class Course {
             template = template.replace("${course.assignments}",sb.toString());
             // build exam list
             // TODO revise formatted lists method for more flexibility
-            template = template.replace("${course.exams}", getHTMLFormattedList(C.getExams()));
+            template = template.replace("${course.exams}", getHTMLFormattedList(this.getExams()));
             // write index page
             File index = new File(Output.getAbsolutePath(), "index.html");
             FileUtils.write(index, template);
         } catch (Exception ex) {
             String stack = ExceptionUtils.getStackTrace(ex);
             logger.log(Level.SEVERE, "Could not copy course {0} to {1}\n\n{2}", 
-                    new Object[]{C.getFile().getAbsolutePath(), Output.getAbsolutePath(), stack});
+                    new Object[]{path,Output.getAbsolutePath(),stack});
         }
     }
     

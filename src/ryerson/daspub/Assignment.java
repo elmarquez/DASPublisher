@@ -49,6 +49,7 @@ public class Assignment {
     private static String THUMBS = "thumbs/";
     
     private File path;
+    private String description = "";
 
     private static final Logger logger = Logger.getLogger(Assignment.class.getName());
     
@@ -150,25 +151,25 @@ public class Assignment {
      */
     public static String getHTMLSubmissionIndex(Assignment A, String E) {
         StringBuilder sb = new StringBuilder();
-        sb.append("\n<ul id='Gallery' class='gallery'>");
+        sb.append("\n<ul id=\"Gallery\" class=\"gallery\">");
         Iterator<Submission> its = A.getSubmissions();
         while (its.hasNext()) {
             Submission s = its.next();
             if (s.getEvaluation().toLowerCase().equals(E) &&
                 s.getSourceFile().exists()) {
                 sb.append("\n\t<li>");
-                sb.append("<a href='");
+                sb.append("<a href=\"");
                 sb.append(A.getPathSafeName());
                 sb.append("/");
                 sb.append(s.getOutputFileName());
-                sb.append("' rel='external'><img src='");
+                sb.append("\" rel=\"external\"><img src=\"");
                 sb.append(A.getPathSafeName());
                 sb.append("/");
                 sb.append(THUMBS);
                 sb.append(s.getThumbnailFileName());
-                sb.append("' alt='");
+                sb.append("\" alt=\"");
                 sb.append(s.getAuthor());
-                sb.append("' /></a></li>");
+                sb.append("\" /></a></li>");
             }
         }
         sb.append("\n</ul>");
@@ -264,9 +265,9 @@ public class Assignment {
     public String getSyllabusLink() {
         File file = new File(path.getAbsolutePath(),Config.ASSIGNMENT_DESCRIPTION_PDF_FILE);
         if (file.exists()) {
-            return "<a href='" + Config.ASSIGNMENT_DESCRIPTION_PDF_FILE + "'>Course Syllabus</a>";
+            return "<a href='" + Config.ASSIGNMENT_DESCRIPTION_PDF_FILE + "'>Assignment handout</a>";
         } else {
-            return "Syllabus file not available.";
+            return "Assignment handout not available.";
         }
      }
     
