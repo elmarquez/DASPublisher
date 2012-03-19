@@ -63,7 +63,7 @@ public class Config {
     public static String COURSE_TEMPLATE_PATH;
     public static String EXAM_TEMPLATE_PATH;
 
-    public static String ARTIFACT_BASE_URL = "http://www.arch.ryerson.ca/ar/";
+    public static String ARTIFACT_BASE_URL = "http://www.arch.ryerson.ca/cacb/ag/index.php/";
     public static int ARTIFACT_TAG_WIDTH = 100;
     public static int ARTIFACT_TAG_HEIGHT = 100;
             

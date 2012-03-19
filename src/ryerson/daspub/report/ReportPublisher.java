@@ -30,19 +30,20 @@ import java.util.logging.Logger;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
-import ryerson.daspub.Archive;
+import ryerson.daspub.model.Archive;
 import ryerson.daspub.Config;
-import ryerson.daspub.Course;
-import ryerson.daspub.Program;
 
 /**
- * Report generator.
+ * Writes HTML status report for a content archive.
  * @author dmarques
  */
 public class ReportPublisher implements Runnable {
 
-    private final String htmlFileName = "index.html";
-    private final String[] supportFiles = {"animatedcollapse.js","configuration.html","help.html","styles.css"};
+    private final String htmlFileName = "html/index.html";
+    private final String[] supportFiles = {"html/animatedcollapse.js",
+                                           "html/configuration.html",
+                                           "html/help.html",
+                                           "html/styles.css"};
 
     private Config config;
     private String path;
@@ -52,8 +53,8 @@ public class ReportPublisher implements Runnable {
     //--------------------------------------------------------------------------
 
     /**
-     * 
-     * @param Configuration
+     * Report publisher 
+     * @param Configuration Configuration
      * @param Output Output directory
      */
     public ReportPublisher(Config Configuration, File Output) {
@@ -64,7 +65,7 @@ public class ReportPublisher implements Runnable {
     //--------------------------------------------------------------------------
 
     /**
-     * Generate report
+     * Generate report.
      */
     public void run() {
         StringBuilder content = new StringBuilder();
@@ -72,30 +73,7 @@ public class ReportPublisher implements Runnable {
         Iterator<Archive> archives = Archive.getArchives(Config.ARCHIVE_PATHS);
         while (archives.hasNext()) {
             Archive archive = archives.next();
-            // archive block header
-            content.append("\n\n<div class='archive'>");
-            content.append("\n<h1>");
-            content.append(path);
-            content.append("</h1>");
-            // process programs
-            Iterator<Program> programs = archive.getPrograms();
-            while (programs.hasNext()) {
-                Program program = programs.next();
-                // program block header
-                content.append("\n\n<div class='program'>");
-                content.append("\n<h1>");
-                content.append(program.getName());
-                content.append("</h1>");
-                //  process courses
-                Iterator<Course> courses = program.getCourses();
-                while (courses.hasNext()) {
-                    Course course = courses.next();
-                    logger.log(Level.INFO,"Adding report for course {0}",course.getPath());
-                    content.append(course.getHTMLStatusReport());
-                }
-                content.append("</div>");
-            }
-            content.append("</div>");
+            content.append(ArchiveReport.GetHTML(archive));
         }
         // delete existing report file
         File output = new File(path);

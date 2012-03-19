@@ -17,7 +17,7 @@
  * 02110-1301, USA.
  */
 
-package ryerson.daspub;
+package ryerson.daspub.model;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -34,6 +34,7 @@ import jxl.WorkbookSettings;
 import jxl.read.biff.BiffException;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
+import ryerson.daspub.Config;
 import ryerson.daspub.utility.AssignmentDescriptionTextFileFilter;
 import ryerson.daspub.utility.AssignmentMetadataFileFilter;
 import ryerson.daspub.utility.MetadataFileFilter;
@@ -62,7 +63,7 @@ public class Assignment {
     public Assignment(File D) {
         path = D;
     }
-
+   
     //--------------------------------------------------------------------------
 
     /**
@@ -89,92 +90,6 @@ public class Assignment {
     private String getHTMLSafeID() {
         String name = path.getName();
         return name.replace(" ", "_");
-    }
-    
-    /**
-     * Get status report HTML
-     * @return
-     */
-    public String getHTMLStatusReport() {
-        StringBuilder sb = new StringBuilder();
-        // if the folder is 100%, show green
-        // if it has the required description/metadata/student work files, show yellow
-        // if it is missing all files, show red
-        sb.append("\n\t<div class='assignment ");
-        sb.append(getPublicationStatus());
-        sb.append("'>");
-        // item title
-        sb.append("\n\t\t<h1>");
-        sb.append(getName());
-        sb.append("</h1>");
-        // description and metadata files
-        sb.append("\n\t\t<ul class='marked'>");
-        if (hasDescriptionFile()) {
-            sb.append("\n\t\t\t<li class='checked'>Has assignment_description.txt file</li>");
-        } else {
-            sb.append("\n\t\t\t<li class='crossed'>Does not have assignment_description.txt file</li>");
-        }
-        if (hasMetadataFile()) {
-            sb.append("\n\t\t\t<li class='checked'>Has files.xls file</li>");
-        } else {
-            sb.append("\n\t\t\t<li class='crossed'>Does not have files.xls file</li>");
-        }
-        sb.append("\n\t\t</ul>");
-        // student work files
-        sb.append("\n\t\t<div class='files'>");
-        File[] files = path.listFiles();
-        int count = files.length;
-        sb.append("\n\t\t\t<p>There are ");
-        sb.append(count);
-        sb.append(" files in the assignment folder.");
-        sb.append("</p>");
-        sb.append("\n\t\t\t<ul>");
-        files = path.listFiles(new NonImageFileFilter());
-        for (int i=0;i<files.length;i++) {
-            // if description or metadata file then pass
-            sb.append("\n\t\t\t\t<li>");
-            sb.append(files[i].getName());
-            sb.append("</li>");
-        }
-        sb.append("\n\t\t\t</ul>");
-        sb.append("\n\t\t</div>");
-        // return results
-        sb.append("\n\t</div><!-- /assignment -->");
-        return sb.toString();
-    }
-
-    /**
-     * HTML thumbnail index of Submissions matching the evaluation value E.
-     * @param A Assignment
-     * @param E Evaluation value
-     * @return PhotoSwipe gallery index
-     */
-    public static String getHTMLSubmissionIndex(Assignment A, String E) {
-        StringBuilder sb = new StringBuilder();
-        sb.append("\n<ul id=\"Gallery\" class=\"gallery\">");
-        Iterator<Submission> its = A.getSubmissions();
-        while (its.hasNext()) {
-            Submission s = its.next();
-            if (s.getEvaluation().toLowerCase().equals(E) &&
-                s.getSourceFile().exists()) {
-                sb.append("\n\t<li>");
-                sb.append("<a href=\"");
-                sb.append(A.getPathSafeName());
-                sb.append("/");
-                sb.append(s.getOutputFileName());
-                sb.append("\" rel=\"external\"><img src=\"");
-                sb.append(A.getPathSafeName());
-                sb.append("/");
-                sb.append(THUMBS);
-                sb.append(s.getThumbnailFileName());
-                sb.append("\" alt=\"");
-                sb.append(s.getAuthor());
-                sb.append("\" /></a></li>");
-            }
-        }
-        sb.append("\n</ul>");
-        // return result
-        return sb.toString();
     }
 
     /**
@@ -275,7 +190,7 @@ public class Assignment {
      * Determine if assignment has a description file.
      * @return True if file exists, false otherwise.
      */
-    private boolean hasDescriptionFile() {
+    public boolean hasDescriptionFile() {
         File[] files = path.listFiles(new AssignmentDescriptionTextFileFilter());
         if (files.length > 0) return true;
         return false;
@@ -285,7 +200,7 @@ public class Assignment {
      * Determine if assignment has a metadata file.
      * @return True if file exists, false otherwise.
      */
-    private boolean hasMetadataFile() {
+    public boolean hasMetadataFile() {
         File[] files = path.listFiles(new AssignmentMetadataFileFilter());
         if (files.length > 0) return true;
         return false;
@@ -295,7 +210,7 @@ public class Assignment {
      * Determine if the file metadata is complete
      * @return
      */
-    private boolean isCompletedMetadata() {
+    public boolean isCompletedMetadata() {
         return false;
     }
 
@@ -327,51 +242,6 @@ public class Assignment {
            }
         } 
         return vals;
-    }
-
-    /**
-     * Write HTML output
-     * @param A Assignment
-     * @param Output Output folder
-     */
-    public static void WriteHTML(Assignment A, File Output) {
-        logger.log(Level.INFO, "Writing assignment folder {0}", A.getPath().getAbsolutePath());
-        // create the output folder        
-        Output.mkdirs();
-        try {
-            // load index page template file
-            String template = FileUtils.readFileToString(new File(Config.ASSIGNMENT_TEMPLATE_PATH));
-            // create assignment index page
-            template = template.replace("${assignment.title}", A.getName());
-            template = template.replace("${assignment.description}", A.getDescription());
-            template = template.replace("${assignment.syllabus}", A.getSyllabusLink());
-            // create thumbnails and scaled full size images
-            File thumbnailOutputPath = new File(Output,THUMBS);
-            Iterator<Submission> its = A.getSubmissions();
-            while (its.hasNext()) {
-                Submission s = its.next();
-                if (s.getSourceFile().exists()) {
-                    s.writeImage(Output);
-                    s.writeThumbnail(thumbnailOutputPath);
-                } else {
-                    logger.log(Level.WARNING,"Submission file {0} does not exist. Could not write images.",
-                            s.getSourceFile().getAbsolutePath());
-                }
-            }
-            // build index for high pass submissions
-            String index = getHTMLSubmissionIndex(A,"high pass");
-            template = template.replace("${assignment.highpass}",index);
-            // build index for low pass submissions
-            index = getHTMLSubmissionIndex(A,"low pass");
-            template = template.replace("${assignment.lowpass}",index);
-            // write html file
-            File html = new File(Output,"index.html");
-            FileUtils.write(html,template);
-        } catch (Exception ex) {
-            String stack = ExceptionUtils.getStackTrace(ex);
-            logger.log(Level.SEVERE,"Could not write assignment {0} to {1}\n\n{2}",
-                    new Object[]{A.getName(),Output,stack});
-        }
     }
     
 } // end class

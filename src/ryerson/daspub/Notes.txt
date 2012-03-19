@@ -5,17 +5,19 @@ DAS ARCHIVE PUBLISHER
 0.4.0 o Attempt to package mobile output as a self-contained app
       o Include video
       o Interactive and automatic slideshow presentation
-
-0.3.0 o Assignment pages have indexes for multi-page PDFs
-      o Assignment pages have thumbnails for videos
-      o Videos are viewable
+      o Assignment pages have indexes for multi-page PDFs
       o Improve reporting
       o Make the report page public and obvious to all staff, faculty
-      o Do all TODO tasks
-      o Custom log formatter, log file output
-
 
 Current Work:
+
+0.3.0 o Assignment pages have thumbnails for videos
+      o Move all HTML export functions into classes separate from the model classes
+      o Custom log formatter, log file output
+      o Do all TODO tasks
+      o Need web authentication for artifact details lookup
+      x APR is converted to JPG image gallery (done manually in static file folder)
+      x APR image index is built automatically (done with python script)
 
 0.2.0 x build course page with index of assignments
       x build assignment page with index of high and low pass submissions

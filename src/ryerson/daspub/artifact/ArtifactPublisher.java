@@ -32,12 +32,12 @@ import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.sanselan.ImageReadException;
 import org.jpedal.exception.PdfException;
-import ryerson.daspub.Archive;
-import ryerson.daspub.Assignment;
+import ryerson.daspub.model.Archive;
+import ryerson.daspub.model.Assignment;
 import ryerson.daspub.Config;
-import ryerson.daspub.Course;
-import ryerson.daspub.Program;
-import ryerson.daspub.Submission;
+import ryerson.daspub.model.Course;
+import ryerson.daspub.model.Program;
+import ryerson.daspub.model.Submission;
 import ryerson.daspub.utility.ImageUtils;
 import ryerson.daspub.utility.PDFUtils;
 

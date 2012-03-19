@@ -24,10 +24,8 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
-import ryerson.daspub.Archive;
+import ryerson.daspub.model.Archive;
 import ryerson.daspub.Config;
-import ryerson.daspub.Course;
-import ryerson.daspub.Program;
 import ryerson.daspub.utility.NonThumbnailIndexFileFilter;
 
 /**
@@ -73,8 +71,8 @@ public class MobilePublisher implements Runnable {
         try {
             File staticFiles = new File(Config.STATIC_FILES_PATH);
             logger.log(Level.INFO,"Copying static files from {0} to {1}", 
-                    new Object[]{staticFiles.getAbsolutePath(),output.getAbsolutePath()});
-            FileUtils.copyDirectory(staticFiles,output,new NonThumbnailIndexFileFilter());
+                    new Object[]{staticFiles.getAbsolutePath(), output.getAbsolutePath()});
+            FileUtils.copyDirectory(staticFiles, output, new NonThumbnailIndexFileFilter());
         } catch (Exception ex) {
             String stack = ExceptionUtils.getStackTrace(ex);
             logger.log(Level.SEVERE,"Could not copy static files from {0} to {1}\n\n{2}", 
@@ -83,38 +81,9 @@ public class MobilePublisher implements Runnable {
         }
         // process the archives
         Iterator<Archive> archives = Archive.getArchives(Config.ARCHIVE_PATHS);
-        Iterator<Program> programs = null;
-        Iterator<Course> courses = null;
-        Archive archive = null;
-        Program program = null;
-        Course course = null;
-        File courseOutputPath = null;
-        File archiveOutPath = new File(output.getAbsolutePath(),"program");
         while (archives.hasNext()) {
-            try {
-                archive = archives.next();
-                archiveOutPath = new File(archiveOutPath,archive.getPathSafeName());
-                // process programs
-                programs = archive.getPrograms();
-                while (programs.hasNext()) {
-                    // process courses
-                    program = programs.next();
-                    File programOutPath = new File(archiveOutPath,program.getPathSafeName());
-                    courses = program.getCourses();
-                    while (courses.hasNext()) {
-                        course = courses.next();
-                        courseOutputPath = new File(programOutPath, course.getPathSafeName());
-                        course.writeHTML(courseOutputPath);
-                    }
-                }
-                // write program summary
-                // write archive summary
-            } catch (Exception ex) {
-                String stack = ExceptionUtils.getStackTrace(ex);
-                logger.log(Level.SEVERE,"Could not copy archive content from {0} to {1}\n\n{2}", 
-                        new Object[]{archive.getPath(), output.getAbsolutePath(), stack});
-                System.exit(-1);
-            }
+            Archive a = archives.next();
+            ArchivePresentation.Write(a, output);
         }
     }
 

@@ -20,10 +20,7 @@
 package ryerson.daspub;
 
 import java.io.File;
-import java.util.logging.ConsoleHandler;
-import java.util.logging.Handler;
 import java.util.logging.Level;
-import java.util.logging.LogManager;
 import java.util.logging.Logger;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
@@ -37,7 +34,6 @@ import ryerson.daspub.artifact.QRTagSheetPublisher;
 import ryerson.daspub.mobile.MobilePublisher;
 import ryerson.daspub.report.ReportPublisher;
 import ryerson.daspub.slideshow.SlideshowPublisher;
-import ryerson.daspub.utility.CustomLogFormatter;
 
 /**
  * Command line interface to application components.
@@ -50,7 +46,6 @@ import ryerson.daspub.utility.CustomLogFormatter;
  * Options:
  * -clean clean output directory before publishing 
  * -log c:/path/to/optional/output/log/file.txt write output messages to log file
- * TODO what is the result of -clean -publish report ??? kills the output directory ... should kill report file instead
  * @author dmarques
  */
 public class Main implements Runnable {
@@ -84,11 +79,6 @@ public class Main implements Runnable {
      * @param args Arguments
      */
     public Main(String[] args) {
-        // set default log formatting
-//        LogManager.getLogManager().reset();
-//        Handler ch = new ConsoleHandler();
-//        ch.setFormatter(new CustomLogFormatter());
-//        Logger.getGlobal().addHandler(ch);
         // define command line options
         defineCommandOptions();
         // parse command line arguments

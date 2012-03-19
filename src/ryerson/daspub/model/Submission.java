@@ -16,7 +16,7 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
  * 02110-1301, USA.
  */
-package ryerson.daspub;
+package ryerson.daspub.model;
 
 import java.io.File;
 import java.io.IOException;
@@ -29,6 +29,7 @@ import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.sanselan.ImageReadException;
 import org.jpedal.exception.PdfException;
+import ryerson.daspub.Config;
 import ryerson.daspub.utility.ImageUtils;
 import ryerson.daspub.utility.PDFUtils;
 
