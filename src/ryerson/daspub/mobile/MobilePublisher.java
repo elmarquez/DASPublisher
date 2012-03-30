@@ -60,24 +60,12 @@ public class MobilePublisher implements Runnable {
     //--------------------------------------------------------------------------
     
     /**
-     * Run the publisher.
+     * Run 
      */
     public void run() {
         // make the output directory if it does not exist
         if (!output.exists()) {
             output.mkdirs();
-        }
-        // copy static files to output directory
-        try {
-            File staticFiles = new File(Config.STATIC_FILES_PATH);
-            logger.log(Level.INFO,"Copying static files from {0} to {1}", 
-                    new Object[]{staticFiles.getAbsolutePath(), output.getAbsolutePath()});
-            FileUtils.copyDirectory(staticFiles, output, new NonThumbnailIndexFileFilter());
-        } catch (Exception ex) {
-            String stack = ExceptionUtils.getStackTrace(ex);
-            logger.log(Level.SEVERE,"Could not copy static files from {0} to {1}\n\n{2}", 
-                    new Object[]{Config.STATIC_FILES_PATH, output.getAbsolutePath(), stack});
-            System.exit(-1);
         }
         // process the archives
         Iterator<Archive> archives = Archive.getArchives(Config.ARCHIVE_PATHS);

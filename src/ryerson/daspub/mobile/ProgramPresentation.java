@@ -24,7 +24,6 @@ import java.util.Iterator;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.apache.commons.lang3.exception.ExceptionUtils;
-import ryerson.daspub.model.Archive;
 import ryerson.daspub.model.Course;
 
 /**
@@ -40,36 +39,25 @@ public class ProgramPresentation {
     /**
      * Write the program HTML to the specified path.  Create the path if it
      * does not exist.
-     * @param A
-     * @param F 
+     * @param P Program
+     * @param F Output folder
      */
-    public static void Write(Archive A, File F) {
+    public static void Write(Program P, File F) {
         try {
             Iterator<Course> courses = null;
-            Program program = null;
             Course course = null;
             File courseOutputPath = null;
-            File archiveOutPath = new File(F.getAbsolutePath(),"program");
-            archiveOutPath = new File(archiveOutPath,A.getPathSafeName());
-            // process programs
-            Iterator<Program> programs = A.getPrograms();
-            while (programs.hasNext()) {
-                // process courses
-                program = programs.next();
-                File programOutPath = new File(archiveOutPath,program.getPathSafeName());
-                courses = program.getCourses();
-                while (courses.hasNext()) {
-                    course = courses.next();
-                    courseOutputPath = new File(programOutPath, course.getPathSafeName());
-                    CoursePresentation.Write(course,courseOutputPath);
-                }
+            // process courses
+            courses = P.getCourses();
+            while (courses.hasNext()) {
+                course = courses.next();
+                courseOutputPath = new File(F, course.getPathSafeName());
+                CoursePresentation.Write(course,courseOutputPath);
             }
-            // write program summary
-            // write archive summary
         } catch (Exception ex) {
             String stack = ExceptionUtils.getStackTrace(ex);
             logger.log(Level.SEVERE,"Could not copy archive content from {0} to {1}\n\n{2}", 
-                    new Object[]{A.getPath(), F.getAbsolutePath(), stack});
+                    new Object[]{P.getPath(), F.getAbsolutePath(), stack});
             System.exit(-1);
         }
     }

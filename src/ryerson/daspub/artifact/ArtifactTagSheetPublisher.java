@@ -39,15 +39,15 @@ import java.util.Calendar;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.apache.commons.lang3.exception.ExceptionUtils;
+import ryerson.daspub.Config;
 import ryerson.daspub.utility.ImageUtils;
 import ryerson.daspub.utility.QRCodeImageFileFilter;
 
 /**
- * Takes a file pointer to a directory that contains PNG images of QR barcodes.
- * Lays out the images on a letter sized sheet that conforms to an Avery 22806
- * sheet template.
+ * Takes a directory containing PNG images of QR barcodes and constructs a 
+ * PDF document conforming to an Avery 22806 template.
  */
-public class QRTagSheetPublisher implements Runnable {
+public class ArtifactTagSheetPublisher implements Runnable {
 
     private static final int ITEMS_PER_PAGE = 12;
     private static final float LINE_THICKNESS = 0.25f;
@@ -66,22 +66,27 @@ public class QRTagSheetPublisher implements Runnable {
 
     private static final String HEADER_STRING = "Print on Avery 22806 compatible label sheet.";
     
-    private File input;
-    private File output;
+    private Config config;
+    private File inputDir;
+    private File outputDir;
+    private File outputFile;
     private ArrayList<Point> layout = new ArrayList<>();
     
-    private static final Logger logger = Logger.getLogger(QRTagSheetPublisher.class.getName());
+    private static final Logger logger = Logger.getLogger(ArtifactTagSheetPublisher.class.getName());
 
     //--------------------------------------------------------------------------
 
     /**
-     * TagSheet constructor.
-     * @param Input Input directory with QR barcode files
+     * QRTagSheetPublisher constructor.
+     * @param Config Output configuration
+     * @param Input Input directory with artifact pages and QR code images
      * @param Output Output file
      */
-    public QRTagSheetPublisher(File Input, File Output) {
-        input = Input;
-        output = Output;
+    public ArtifactTagSheetPublisher(Config Config, File Input, File Output) {
+        config = Config;
+        inputDir = Input;
+        outputDir = Output;
+        outputFile = new File(Output, "tagsheet.pdf");
     }
 
     //--------------------------------------------------------------------------
@@ -285,11 +290,11 @@ public class QRTagSheetPublisher implements Runnable {
      */
     public void writeTagSheet() throws DocumentException, FileNotFoundException, BadElementException, MalformedURLException, IOException {
         // get list of input files
-        File[] files = input.listFiles(new QRCodeImageFileFilter());
+        File[] files = inputDir.listFiles(new QRCodeImageFileFilter());
         if (files != null && files.length > 0) {
             // create a new PDF document
             Document document = new Document(PageSize.LETTER);
-            PdfWriter writer = PdfWriter.getInstance(document,new FileOutputStream(output));
+            PdfWriter writer = PdfWriter.getInstance(document,new FileOutputStream(outputFile));
             document.addTitle("Artifact QR Code Labels");
             document.open();
             // generate page layouts with barcodes

@@ -25,10 +25,9 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import ryerson.daspub.model.Archive;
-import ryerson.daspub.model.Course;
 
 /**
- * Utility class to publish HTML data for an archive
+ * Utility class to publish HTML data for an archive.
  * @author dmarques
  */
 public class ArchivePresentation {
@@ -38,35 +37,23 @@ public class ArchivePresentation {
     //--------------------------------------------------------------------------
     
     /**
-     * Write the archive HTML to the specified path.  Create the path if it
-     * does not exist.
+     * Write the archive HTML to the specified path. Create the path if it does 
+     * not exist.
      * @param A
      * @param F 
      */
     public static void Write(Archive A, File F) {
         try {
-            Iterator<Course> courses = null;
             Program program = null;
-            Course course = null;
-            File courseOutputPath = null;
             File archiveOutPath = new File(F.getAbsolutePath(),"program");
             archiveOutPath = new File(archiveOutPath,A.getPathSafeName());
             // process programs
             Iterator<Program> programs = A.getPrograms();
             while (programs.hasNext()) {
-                // process courses
                 program = programs.next();
                 File programOutPath = new File(archiveOutPath,program.getPathSafeName());
-                
-                courses = program.getCourses();
-                while (courses.hasNext()) {
-                    course = courses.next();
-                    courseOutputPath = new File(programOutPath, course.getPathSafeName());
-                    CoursePresentation.Write(course,courseOutputPath);
-                }
+                ProgramPresentation.Write(program, programOutPath);
             }
-            // write program summary
-            // write archive summary
         } catch (Exception ex) {
             String stack = ExceptionUtils.getStackTrace(ex);
             logger.log(Level.SEVERE,"Could not copy archive content from {0} to {1}\n\n{2}", 

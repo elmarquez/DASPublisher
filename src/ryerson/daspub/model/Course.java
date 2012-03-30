@@ -167,6 +167,15 @@ public class Course {
     }
 
     /**
+     * Determine if the course metadata file exists
+     * @return 
+     */
+    public boolean hasMetadata() {
+        File file = new File(path,Config.COURSE_DESCRIPTION_TEXT_FILE);
+        return file.exists();
+    }
+    
+    /**
      * Parse the course description file and assign values to local variables.
      * 0 - Description
      * 1 - Course format, hours

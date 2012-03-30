@@ -38,7 +38,6 @@ import ryerson.daspub.Config;
 import ryerson.daspub.utility.AssignmentDescriptionTextFileFilter;
 import ryerson.daspub.utility.AssignmentMetadataFileFilter;
 import ryerson.daspub.utility.MetadataFileFilter;
-import ryerson.daspub.utility.NonImageFileFilter;
 
 /**
  * Assignment entity.

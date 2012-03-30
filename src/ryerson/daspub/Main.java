@@ -16,7 +16,6 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
  * 02110-1301, USA.
  */
-
 package ryerson.daspub;
 
 import java.io.File;
@@ -27,25 +26,16 @@ import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.PosixParser;
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import ryerson.daspub.artifact.ArtifactPublisher;
-import ryerson.daspub.artifact.QRTagSheetPublisher;
+import ryerson.daspub.artifact.ArtifactTagSheetPublisher;
+import ryerson.daspub.init.Initializer;
 import ryerson.daspub.mobile.MobilePublisher;
 import ryerson.daspub.report.ReportPublisher;
 import ryerson.daspub.slideshow.SlideshowPublisher;
 
 /**
  * Command line interface to application components.
- * 
- * Main commands:
- * -config c:/path/to/config/file.txt  Set configuration from file
- * -help show help message
- * -publish artifact,gallery,mobile,report -output c:/path/to/output/folder
- *
- * Options:
- * -clean clean output directory before publishing 
- * -log c:/path/to/optional/output/log/file.txt write output messages to log file
  * @author dmarques
  */
 public class Main implements Runnable {
@@ -53,50 +43,121 @@ public class Main implements Runnable {
     private static final int FAIL = -1;
     private static final int SUCCESS = 0;
     
-    private static final String CMD_CLEAN = "clean";
     private static final String CMD_CONFIG = "config";
-    private static final String CMD_OUTPUT = "output";
-    private static final String CMD_REPORT = "report";
     private static final String CMD_HELP = "help";
-    private static final String CMD_LOG = "log";
+    private static final String CMD_INIT = "init";
+    private static final String CMD_OUTPUT = "output";
     private static final String CMD_PUBLISH = "publish";
 
     private static final String OPTION_ARTIFACT = "artifact";
     private static final String OPTION_MOBILE = "mobile";
     private static final String OPTION_REPORT = "report";
     private static final String OPTION_SLIDESHOW = "slideshow";
-
+    private static final String OPTION_TAGSHEET = "tagsheet";
+    
     private static Options options = new Options();
     private static Config config = null;
     private static CommandLine cmd = null;
-
+    
     private static final Logger logger = Logger.getLogger(Main.class.getName());
 
     //--------------------------------------------------------------------------
-
+    
     /**
      * Main constructor
      * @param args Arguments
      */
     public Main(String[] args) {
-        // define command line options
         defineCommandOptions();
-        // parse command line arguments
         parseArguments(args);
     }
 
     //--------------------------------------------------------------------------
-
+    
     /**
      * Define the command line options.
      */
     private void defineCommandOptions() {
-        options.addOption(CMD_CLEAN,false,"Delete all files and subfolders from the output path before publishing.");
-        options.addOption(CMD_CONFIG,true,"Path to configuration file.");
-        options.addOption(CMD_HELP,false,"Show help message.");
-        options.addOption(CMD_LOG,true,"Path for log file.");
-        options.addOption(CMD_OUTPUT,true,"Output path.");
-        options.addOption(CMD_PUBLISH,true,"Publish content. Available options are artifact, mobile, report, slideshow. Requires specification of output path.");
+        options.addOption(CMD_CONFIG, true, "Path to configuration file.");
+        options.addOption(CMD_HELP, false, "Show help message.");
+        options.addOption(CMD_INIT, true, "Initialize or update the archive folder(s) with requried metadata files.");
+        options.addOption(CMD_OUTPUT, true, "Output path for published files.");
+        options.addOption(CMD_PUBLISH, true, "Publish content. Available options are artifact, mobile, report, slideshow, tagsheet. Requires specification of output path.");
+    }
+
+    /**
+     * Initialize the archive
+     */
+    private void executeInit() {
+        // preconditions
+        if (!cmd.hasOption(CMD_OUTPUT)) {
+            logger.log(Level.SEVERE, "Output path must be specified");
+            System.exit(FAIL);
+        }
+        // initialize archive
+        try {
+            File path = new File(cmd.getOptionValue(CMD_OUTPUT));
+            Initializer init = new Initializer();
+            init.run();
+        } catch (Exception ex) {
+            String stack = ExceptionUtils.getStackTrace(ex);
+            logger.log(Level.SEVERE, "Could not complete initialization\n\n{0}", stack);
+            System.exit(FAIL);
+        }
+    }
+
+    /**
+     * Publish content
+     */
+    private void executePublish() {
+        // preconditions
+        if (config == null) {
+            logger.log(Level.SEVERE, "Configuration file must be specified");
+            System.exit(FAIL);
+        }
+        if (!cmd.hasOption(CMD_OUTPUT)) {
+            logger.log(Level.SEVERE, "Output path must be specified");
+            System.exit(FAIL);
+        }
+        // publish
+        String option = cmd.getOptionValue(CMD_PUBLISH);
+        String output = cmd.getOptionValue(CMD_OUTPUT);
+        File outputPath = new File(output);
+        try {
+            switch (option) {
+                case OPTION_ARTIFACT: {
+                    ArtifactPublisher p = new ArtifactPublisher(config, outputPath);
+                    p.run();
+                    break;
+                }
+                case OPTION_MOBILE: {
+                    MobilePublisher p = new MobilePublisher(config, outputPath);
+                    p.run();
+                    break;
+                }
+                case OPTION_REPORT: {
+                    ReportPublisher p = new ReportPublisher(config, outputPath);
+                    p.run();
+                    break;
+                }
+                case OPTION_SLIDESHOW: {
+                    SlideshowPublisher p = new SlideshowPublisher(config, outputPath);
+                    p.run();
+                    break;
+                }
+                case OPTION_TAGSHEET: {
+                    ArtifactTagSheetPublisher p = new ArtifactTagSheetPublisher(config, outputPath, outputPath);
+                    p.run();
+                    break;
+                }
+            }
+        } catch (Exception ex) {
+            String stack = ExceptionUtils.getStackTrace(ex);
+            logger.log(Level.SEVERE, "Could not complete publication\n\n{0}", stack);
+            System.exit(FAIL);
+        }
+        // exit
+        System.exit(SUCCESS);
     }
 
     /**
@@ -115,10 +176,10 @@ public class Main implements Runnable {
     private void parseArguments(String[] args) {
         CommandLineParser parser = new PosixParser();
         try {
-            cmd = parser.parse(options,args);
+            cmd = parser.parse(options, args);
         } catch (Exception ex) {
             String stack = ExceptionUtils.getStackTrace(ex);
-            logger.log(Level.SEVERE,"Could not parse command line arguments\n\n{0}",stack);
+            logger.log(Level.SEVERE, "Could not parse command line arguments\n\n{0}", stack);
             System.exit(FAIL);
         }
     }
@@ -132,81 +193,24 @@ public class Main implements Runnable {
             showHelpMessage();
             System.exit(SUCCESS);
         }
-        // set configuration file
+        // load configuration
         if (cmd.hasOption(CMD_CONFIG)) {
             try {
                 String path = cmd.getOptionValue(CMD_CONFIG);
                 File configfile = new File(path);
-                config = new Config(configfile);
+                config = new Config();
+                config.load(configfile);
             } catch (Exception ex) {
                 String stack = ExceptionUtils.getStackTrace(ex);
-                logger.log(Level.SEVERE,"Could not parse configuration file\n\n{0}", stack);
+                logger.log(Level.SEVERE, "Could not parse configuration file\n\n{0}", stack);
                 System.exit(FAIL);
             }
         }
-        // clean output directory
-        if (cmd.hasOption(CMD_CLEAN)) {
-            if (!cmd.hasOption(CMD_OUTPUT)) {
-                logger.log(Level.SEVERE,"Output path must be specified");
-                System.exit(FAIL);
-            }
-            try {
-                File path = new File(cmd.getOptionValue(CMD_OUTPUT));
-                logger.log(Level.INFO,"Cleaning output directory {0}", path.getAbsolutePath());
-                if (path.exists()) {
-                    FileUtils.deleteDirectory(path);
-                }
-            } catch (Exception ex) {
-                String stack = ExceptionUtils.getStackTrace(ex);
-                logger.log(Level.SEVERE,"Could not clean output directory\n\n{0}", stack);
-                System.exit(FAIL);
-            }
-        }
-        // publish content to output directory
-        if (cmd.hasOption(CMD_PUBLISH) && config != null) {
-            // preconditions
-            if (config == null) {
-                logger.log(Level.SEVERE,"Configuration file must be specified");
-                System.exit(FAIL);
-            }
-            if (!cmd.hasOption(CMD_OUTPUT)) {
-                logger.log(Level.SEVERE,"Output path must be specified");
-                System.exit(FAIL);
-            }
-            // process
-            String option = cmd.getOptionValue(CMD_PUBLISH);
-            String output = cmd.getOptionValue(CMD_OUTPUT);
-            File outputPath = new File(output);
-            try {
-                switch (option) {
-                    case OPTION_ARTIFACT: {
-                            ArtifactPublisher ap = new ArtifactPublisher(config,outputPath);
-                            QRTagSheetPublisher qp = new QRTagSheetPublisher(outputPath,new File(output,"artifact-tagsheet.pdf"));
-                            ap.run();
-                            qp.run();
-                            break;
-                        }
-                    case OPTION_MOBILE: {
-                            MobilePublisher mp = new MobilePublisher(config,outputPath);
-                            mp.run();
-                            break;
-                        }
-                    case OPTION_REPORT: {
-                            ReportPublisher rp = new ReportPublisher(config,outputPath);
-                            rp.run();
-                            break;
-                        }
-                    case OPTION_SLIDESHOW: {
-                            SlideshowPublisher sp = new SlideshowPublisher(config,outputPath);
-                            sp.run();
-                            break;
-                        }
-                }
-            } catch (Exception ex) {
-                String stack = ExceptionUtils.getStackTrace(ex);
-                logger.log(Level.SEVERE,"Could not complete publication\n\n{0}",stack);
-                System.exit(FAIL);
-            }
+        // execute commands
+        if (cmd.hasOption(CMD_INIT)) {
+            executeInit();
+        } else if (cmd.hasOption(CMD_PUBLISH)) {
+            executePublish();
         }
     }
 
@@ -215,7 +219,7 @@ public class Main implements Runnable {
      */
     private void showHelpMessage() {
         HelpFormatter formatter = new HelpFormatter();
-        formatter.printHelp("java DASPub.jar ",options,true);
+        formatter.printHelp("java DASPub.jar ", options, true);
     }
-
+    
 } // end class

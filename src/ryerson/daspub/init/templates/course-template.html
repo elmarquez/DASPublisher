@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+	<head>
+	  	<title>${course.title}</title>
+	</head>
+	<body>
+		<div data-role="page" data-add-back-btn="true">
+			<div data-role="header" data-position="fixed">
+				<h1>${course.title}</h1>
+			</div><!-- /header -->
+			<div data-role="content">
+
+				<h2>Description</h2>
+				<p>${course.description}</p>
+				<p>${course.format}</p>
+				<p>${course.syllabus}</p>
+
+				<h2>Instructor Information</h2>
+				<p>${course.instructors}</p>
+
+				<h2>CACB Criteria</h2>
+				<p>This course fulfills the following CACB Student Performance Criteria:</p>
+				<p>${course.cacb.criteria}</p>
+
+				<h2>Assignments</h2>
+				<p>${course.assignments}</p>
+
+				<!--
+				<h2>Exams</h2>
+				<p>
+					${course.exams}
+				</p>
+				-->
+		  	</div><!-- /content -->
+			<div data-role="footer" data-position="fixed">
+		  		<div data-role="navbar" data-iconpos="top">
+		  			<ul>
+		  				<li><a href="../../index.html" data-icon="home">Home</a></li>
+		  				<li><a href="../index.html" data-icon="star" class="ui-btn-active">Program Review</a></li>
+		  				<li><a href="../../map/index.html" data-icon="grid">Exhibit Map</a></li>
+		  				<li><a href="../../help/index.html" data-icon="info">Help</a></li>
+		  			</ul>
+		  		</div><!-- /navbar -->
+		  	</div><!-- /footer -->
+		</div><!-- /page -->
+	</body>
+</html>

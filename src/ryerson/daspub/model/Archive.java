@@ -54,7 +54,7 @@ public class Archive {
     }
 
     /**
-     * 
+     * Get a list of all archives in a given path.
      * @param Paths
      * @return 
      */

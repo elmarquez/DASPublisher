@@ -104,5 +104,5 @@ public class AssignmentPresentation {
                     new Object[]{A.getName(),Output,stack});
         }
     }
-    
+
 } // end class

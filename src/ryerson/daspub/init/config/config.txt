@@ -1,0 +1,51 @@
+// ----------------------------------------------------------------------------
+// Publisher Configuration Settings
+// Comments start with //.
+// Paths may be either relative to the working directory of the executing 
+// program, or absolute.
+
+// ----------------------------------------------------------------------------
+// Archives
+// You can define multiple archive inputs by separating them with commas.
+// Paths are comma separated. Paths with spaces in their names should be
+// enclosed in quotes.
+// eg. archive_path = \\host\archive\1, folderName, "folder name"
+
+archive_path = Z:\Student Work\2011-2012
+
+// ----------------------------------------------------------------------------
+// Metadata Files
+
+course_description_text_file = course.txt
+course_description_pdf_file = course.pdf
+assignment_description_text_file = assignment.txt
+assignment_description_pdf_file = assignment.pdf
+assignment_file_metadata = assignment.xls
+
+// ----------------------------------------------------------------------------
+// Static Content Files
+
+static_files_path = Z:\Student Work\config\static
+
+// ----------------------------------------------------------------------------
+// Template Files
+
+course_template_path = Z:\Student Work\config\templates\course-template.html
+assignment_template_path = Z:\Student Work\config\templates\assignment-template.html
+artifact_template_path = Z:\Student Work\config\templates\artifact-template.php
+exam_template_path = Z:\Student Work\config\templates\exam-template.html
+
+// ----------------------------------------------------------------------------
+// Images and Video
+
+image_max_height = 2000
+image_max_width = 2000
+thumb_max_height = 120
+thumb_max_width = 120
+
+// ----------------------------------------------------------------------------
+// Artifact Gallery
+
+artifact_base_url = http://www.arch.ryerson.ca/cacb/ag
+artifact_tag_width = 200
+artifact_tag_height = 200

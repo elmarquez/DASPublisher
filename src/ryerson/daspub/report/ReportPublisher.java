@@ -39,11 +39,11 @@ import ryerson.daspub.Config;
  */
 public class ReportPublisher implements Runnable {
 
-    private final String htmlFileName = "html/index.html";
-    private final String[] supportFiles = {"html/animatedcollapse.js",
-                                           "html/configuration.html",
-                                           "html/help.html",
-                                           "html/styles.css"};
+    private final String htmlFileName = "index.html";
+    private final String[] supportFiles = {"animatedcollapse.js",
+                                           "configuration.html",
+                                           "help.html",
+                                           "styles.css"};
 
     private Config config;
     private String path;

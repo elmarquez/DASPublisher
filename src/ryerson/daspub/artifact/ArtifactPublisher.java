@@ -65,7 +65,7 @@ public class ArtifactPublisher implements Runnable {
     }
 
     //--------------------------------------------------------------------------
-
+    
     /**
      * Run 
      */
@@ -91,7 +91,7 @@ public class ArtifactPublisher implements Runnable {
                         Iterator<Submission> its = assignment.getSubmissions();
                         while (its.hasNext()) {
                             Submission submission = its.next();
-                            processSubmission(submission,output);
+                            processSubmission(submission, output);
                         }
                     }
                 }
@@ -104,36 +104,55 @@ public class ArtifactPublisher implements Runnable {
      * @param S 
      * @param Output
      */
-    private void processSubmission(Submission S,File Output) {
-        File file = S.getSourceFile();
-        logger.log(Level.FINE, "Processing submission {0}", file.getAbsolutePath());
-        try {
-            // generate id for artifact
-            long checksum = FileUtils.checksumCRC32(file); // TODO not sure if this is the right way to do this
-            String id = String.valueOf(checksum);
-            // set output file names
-            String artifact_html = id + ".html";
-            String artifact_large_jpg = id + ".jpg";
-            String artifact_qrcode_png = id + "_qr.png";
-            String artifact_thumbnail_jpg = id + "_tn.jpg";
-            // resize and write image to output folder
-            if (FilenameUtils.isExtension(file.getName(),"pdf")) {
-                PDFUtils.writeJPGImage(file,new File(Output,artifact_large_jpg),Config.IMAGE_MAX_WIDTH,Config.IMAGE_MAX_HEIGHT,false);
-                PDFUtils.writeJPGImage(file,new File(Output,artifact_thumbnail_jpg),Config.THUMB_MAX_WIDTH,Config.THUMB_MAX_HEIGHT,false);
-            } else {
-                ImageUtils.writeJPGImage(file,new File(Output,artifact_large_jpg),Config.IMAGE_MAX_WIDTH,Config.IMAGE_MAX_HEIGHT);
-                ImageUtils.writeJPGImage(file,new File(Output,artifact_thumbnail_jpg),Config.THUMB_MAX_WIDTH,Config.THUMB_MAX_HEIGHT);
+    private void processSubmission(Submission S, File Output) {
+        File input = S.getSourceFile();
+        String id = S.getSubmissionId();
+        if (id != null) {
+            logger.log(Level.FINE, "Processing submission {0}", input.getAbsolutePath());
+            try {
+                // set output file names
+                String artifact_html = id + ".php";
+                String artifact_medium_jpg = id + "_md.jpg";
+                String artifact_large_jpg = id + ".jpg";
+                String artifact_qrcode_png = id + "_qr.png";
+                String artifact_thumbnail_jpg = id + "_tn.jpg";
+                // resize and write image to output folder
+                if (FilenameUtils.isExtension(input.getName(), "pdf")) {
+                    // PDFUtils.writeJPGImage(input, new File(Output, artifact_thumbnail_jpg), Config.THUMB_MAX_WIDTH, Config.THUMB_MAX_HEIGHT, false);
+                    PDFUtils.writeJPGImage(input, new File(Output, artifact_medium_jpg), Config.ARTIFACT_PREVIEW_MAX_WIDTH, Config.ARTIFACT_PREVIEW_MAX_HEIGHT, false);
+                    PDFUtils.writeJPGImage(input, new File(Output, artifact_large_jpg), Config.IMAGE_MAX_WIDTH, Config.IMAGE_MAX_HEIGHT, false);
+                } else {
+                    // ImageUtils.writeJPGImage(input, new File(Output, artifact_thumbnail_jpg), Config.THUMB_MAX_WIDTH, Config.THUMB_MAX_HEIGHT);
+                    ImageUtils.writeJPGImage(input, new File(Output, artifact_medium_jpg), Config.ARTIFACT_PREVIEW_MAX_WIDTH, Config.ARTIFACT_PREVIEW_MAX_HEIGHT);
+                    ImageUtils.writeJPGImage(input, new File(Output, artifact_large_jpg), Config.IMAGE_MAX_WIDTH, Config.IMAGE_MAX_HEIGHT);
+                }
+                // substitute artifact page template values
+                String artifact_page = new String(template);
+                artifact_page = artifact_page.replace("${imageMedium}", artifact_medium_jpg);
+                artifact_page = artifact_page.replace("${imageLarge}", artifact_large_jpg);
+                artifact_page = artifact_page.replace("${year}", S.getYear());
+                artifact_page = artifact_page.replace("${semester}", S.getSemester());
+                artifact_page = artifact_page.replace("${courseNumber}", S.getCourseNumber());
+                artifact_page = artifact_page.replace("${courseName}", S.getCourseName());
+                artifact_page = artifact_page.replace("${studioMaster}", S.getStudioMaster());
+                artifact_page = artifact_page.replace("${instructor}", S.getInstructor());
+                artifact_page = artifact_page.replace("${assignmentName}", S.getAssignmentName());
+                artifact_page = artifact_page.replace("${assignmentDuration}", S.getAssignmentDuration());
+                artifact_page = artifact_page.replace("${studentName}", S.getStudentName());
+                artifact_page = artifact_page.replace("${submissionId}", S.getSubmissionId());
+                artifact_page = artifact_page.replace("${evaluation}", S.getEvaluation());
+                // write artifact page
+                FileUtils.write(new File(Output, artifact_html), artifact_page);
+                // generate qr code and write to output folder
+                String url = Config.ARTIFACT_BASE_URL + "/" + artifact_html;
+                writeQRTag(url, output, artifact_qrcode_png);
+            } catch (ImageReadException | IOException | PdfException | WriterException ex) {
+                String stack = ExceptionUtils.getStackTrace(ex);
+                logger.log(Level.WARNING, "Could not generate artifact record for {0}. Caught exception:\n\n{1}",
+                        new Object[]{input.getAbsolutePath(), stack});
             }
-            // write artifact page
-            String artifact_page = new String(template);
-            FileUtils.write(new File(Output, artifact_html), artifact_page);
-            // generate qr code and write to output folder
-            String url = Config.ARTIFACT_BASE_URL + "/" + artifact_html;
-            writeQRTag(url,output,artifact_qrcode_png);
-        } catch (ImageReadException | IOException | PdfException | WriterException ex) {
-            String stack = ExceptionUtils.getStackTrace(ex);
-            logger.log(Level.WARNING, "Could not generate artifact record for {0}. Caught exception:\n\n{1}",
-                    new Object[]{file.getAbsolutePath(), stack});
+        } else {
+            logger.log(Level.WARNING, "Could not create artifact page for {0}. Submission ID not available.", input.getAbsolutePath());
         }
     }
 
@@ -154,9 +173,9 @@ public class ArtifactPublisher implements Runnable {
         int w = Config.ARTIFACT_TAG_WIDTH;
         com.google.zxing.Writer writer = new QRCodeWriter();
         // write code to image
-        matrix = writer.encode(Url,com.google.zxing.BarcodeFormat.QR_CODE,w,h);
+        matrix = writer.encode(Url, com.google.zxing.BarcodeFormat.QR_CODE, w, h);
         MatrixToImageWriter.writeToFile(matrix, "PNG", file);
         logger.log(Level.INFO, "Wrote QR code tag {0}.", file.getAbsolutePath());
     }
-
+    
 } // end class

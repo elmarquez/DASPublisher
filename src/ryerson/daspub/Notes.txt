@@ -2,29 +2,39 @@
 DAS ARCHIVE PUBLISHER
 --------------------------------------------------------------------------------
 
-0.4.0 o Attempt to package mobile output as a self-contained app
-      o Include video
-      o Interactive and automatic slideshow presentation
+0.6.0 o Create an information page for tool
+
+0.5.0 o Package mobile output as a self-contained app
+      o Package all system items for open source distribution
+      
+0.4.0 o Thumbnails for video submissions, videos are viewable
       o Assignment pages have indexes for multi-page PDFs
       o Improve reporting
       o Make the report page public and obvious to all staff, faculty
+      o Archive initializer, updater
+      o Automatic slideshow presentation
+      o Add a command line option for rescaling images in a folder and writing 
+        them to another folder
 
 Current Work:
 
-0.3.0 o Assignment pages have thumbnails for videos
-      o Move all HTML export functions into classes separate from the model classes
-      o Custom log formatter, log file output
-      o Do all TODO tasks
-      o Need web authentication for artifact details lookup
-      x APR is converted to JPG image gallery (done manually in static file folder)
-      x APR image index is built automatically (done with python script)
+0.3.0 o Complete all TODO tasks
+      o Populate artifact template page with data by column name
+      o For artifact gallery, create subdirectories to place individual images
+      x Revised spreadsheet-submission parameter mapping
+      x Create separate build scripts
+      x Web authentication for artifact details lookup
+      x Remove all functions that copy static files
+      x Create separate command line option for generating PDF from QR code 
+        files
+      x Move all HTML export functions into classes separate from the model 
+        classes
+      x APR image index is built automatically (done with python script in 
+        static folder)
 
 0.2.0 x build course page with index of assignments
       x build assignment page with index of high and low pass submissions
       x build all thumbnails for images
-      - test security for artifact web accessible content
-        * needs an authentication form and session tracking
-            * web app and some other URL scheme
       x break up all operations into separate command line options, then execute 
         all options independently
       x need to make sure that all output in assignment folders is JPG
@@ -35,12 +45,3 @@ Current Work:
       x Insert current APR into review content
       x Break up the publish command into: mobile gallery, artifact gallery, web 
         presentation, etc. modes
-
---------------------------------------------------------------------------------
-NOTES
-
--- items for improvement
-    o Submission should be able to provide both output file names and paths?
-
--- need a PDF to JPG method that deals with single and multi-page output options
-   also, need to deal with output file name

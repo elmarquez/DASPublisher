@@ -31,21 +31,19 @@ import java.util.logging.Logger;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 
 /**
- * A dumb utility class with globals.
+ * A utility class for maintaining configuration data. Defaults are provided in
+ * the class. Overriding values can be loaded from a file.
  * @author dmarques
  */
 public class Config {
 
-    // program info
-    public static final String PROGRAM_NAME = "External Review Manager";
-    
     // file types
     public static final String PDF_TYPE = "pdf";
     public static final String[] IMAGE_TYPES = {"bmp","gif","jpg","jpeg","mp4","pdf","png","tif","tiff","webm"};
     public static final String[] PROCESSABLE_IMAGE_TYPES = {"bmp","gif","jpg","jpeg","png","tif","tiff"};
     public static final String[] NEAR_IMAGE_TYPES = {"3dm","3ds","avi","doc","docx","dwg","dxf","mov","mpg","odt","ppt","pptx","psd"};
 
-    // arguments
+    // parameters
     public static ArrayList<String> ARCHIVE_PATHS = new ArrayList<>();
     public static String ARCHIVE_PATH;
     public static String STATUS_REPORT_CONTENT_ONLY = "true";
@@ -57,13 +55,15 @@ public class Config {
     public static String ASSIGNMENT_DESCRIPTION_PDF_FILE = "assignment.pdf";
     public static String ASSIGNMENT_FILE_METADATA = "assignment.xls";
 
-    public static String STATIC_FILES_PATH;
     public static String ARTIFACT_TEMPLATE_PATH;
     public static String ASSIGNMENT_TEMPLATE_PATH;
     public static String COURSE_TEMPLATE_PATH;
-    public static String EXAM_TEMPLATE_PATH;
 
-    public static String ARTIFACT_BASE_URL = "http://www.arch.ryerson.ca/cacb/ag/index.php/";
+    public static String ARTIFACT_BASE_URL = "http://www.myserver.org/";
+    public static int ARTIFACT_IMAGE_MAX_HEIGHT = 640;
+    public static int ARTIFACT_IMAGE_MAX_WIDTH = 640;
+    public static int ARTIFACT_PREVIEW_MAX_HEIGHT = 640;
+    public static int ARTIFACT_PREVIEW_MAX_WIDTH = 640;
     public static int ARTIFACT_TAG_WIDTH = 100;
     public static int ARTIFACT_TAG_HEIGHT = 100;
             
@@ -71,10 +71,6 @@ public class Config {
     public static int IMAGE_MAX_WIDTH = 2000;     // full size image maximum width
     public static int THUMB_MAX_HEIGHT = 120;     // thumbnail image maximum height
     public static int THUMB_MAX_WIDTH = 90;       // thumbnail image maximum width
-
-    public static String PREPROCESS_SCRIPT_PATH;
-    public static String PROCESS_SCRIPT_PATH;
-    public static String POSTPROCESS_SCRIPT_PATH;
 
     private static HashMap<String,String> args = new HashMap<>();
 
@@ -84,13 +80,8 @@ public class Config {
     
     /**
      * Config constructor
-     * @param F Configuration file
-     * @throws Exception
      */
-    public Config(File F) throws Exception {
-        args = parseConfigurationFile(F);
-        setValues(args);
-    }
+    public Config() {}
 
     //--------------------------------------------------------------------------
 
@@ -108,11 +99,20 @@ public class Config {
     }
     
     /**
+     * Load configuration data from a file.
+     * @param F Configuration file
+     */
+    public static void load(File F) throws Exception {
+        args = parseConfigurationFile(F);
+        setValues(args);
+    }
+    
+    /**
      * Parse the configuration file
      * @param Path
      * @return Map of arguments
      */
-    private HashMap<String,String> parseConfigurationFile(File F) throws Exception {
+    private static HashMap<String,String> parseConfigurationFile(File F) throws Exception {
         _logger.log(Level.INFO,"Parsing configuration file {0}",F.getAbsolutePath());
         StringBuilder text = new StringBuilder();
         try (Scanner scanner = new Scanner(new FileInputStream(F), "UTF-8")) {
@@ -141,7 +141,7 @@ public class Config {
      * Parse arguments and assign variables
      * @param Args
      */
-    private void setValues(HashMap<String,String> Args) {
+    private static void setValues(HashMap<String,String> Args) {
         Set<String> keys = Args.keySet();
         Iterator<String> it = keys.iterator();
         String name = "";
@@ -154,9 +154,9 @@ public class Config {
                 field = aClass.getField(name.toUpperCase());
                 val = Args.get(name);
                 if (field.getType()==int.class) {
-                    field.setInt(this,Integer.valueOf(val));
+                    field.setInt(Config.class,Integer.valueOf(val));
                 } else {
-                    field.set(this,val);
+                    field.set(Config.class,val);
                 }
                 _logger.log(Level.INFO,"Set {0} as {1}",new Object[]{field.getName(),val.toString()});
             } catch (NoSuchFieldException | SecurityException | IllegalArgumentException | IllegalAccessException ex) {
