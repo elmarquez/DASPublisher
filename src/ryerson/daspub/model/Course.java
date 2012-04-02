@@ -28,6 +28,7 @@ import java.util.logging.Logger;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import ryerson.daspub.Config;
+import ryerson.daspub.Config.STATUS;
 import ryerson.daspub.utility.FolderFileFilter;
 
 /**
@@ -36,10 +37,7 @@ import ryerson.daspub.utility.FolderFileFilter;
  */
 public class Course {
 
-    public static enum STATUS {COMPLETE, INCOMPLETE, PARTIAL, ERROR};
-
-    private String path;
-    
+    private String path;    
     private String description = "";
     private String format = "";
     private ArrayList<String> instructors = new ArrayList<>();
@@ -147,14 +145,17 @@ public class Course {
      */
     public String getPathSafeName() {
         String name = getName();
-        return name.replace(" ", "_");
+        name = name.replace(" ", "_");
+        name = name.replace(".", "_");
+        name = name.replace("-", "_");
+        return name;
     }
 
     /**
      * Get publication status
      * @return
      */
-    public Course.STATUS getPublicationStatus() {
+    public STATUS getPublicationStatus() {
         if (!this.hasCourseMetadataFile()) {
             return STATUS.INCOMPLETE;
         }
@@ -168,11 +169,11 @@ public class Course {
         Iterator<Assignment> ita = assignments.iterator();
         while (ita.hasNext()) {
             Assignment a = ita.next();
-            Assignment.STATUS status = a.getPublicationStatus();
-            if (status == Assignment.STATUS.PARTIAL) {
+            STATUS status = a.getPublicationStatus();
+            if (status == STATUS.PARTIAL) {
                 return STATUS.PARTIAL;
-            } else if (status == Assignment.STATUS.INCOMPLETE ||
-                       status == Assignment.STATUS.ERROR) {
+            } else if (status == STATUS.INCOMPLETE ||
+                       status == STATUS.ERROR) {
                 return STATUS.INCOMPLETE;
             }
         }        

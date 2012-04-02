@@ -7,20 +7,24 @@ DAS ARCHIVE PUBLISHER
 0.5.0 o Package mobile output as a self-contained app
       o Package all system items for open source distribution
       
+Current Work:
+
+- need to count completed metadata versus submitted files
+- have to check to see if metadata files actually include any data!
+
 0.4.0 o Thumbnails for video submissions, videos are viewable
       o Assignment pages have indexes for multi-page PDFs
-      o Improve reporting
+      x Improve reporting
+      o Check for duplicate submission IDs
       o Make the report page public and obvious to all staff, faculty
       o Archive initializer, updater
       o Automatic slideshow presentation
       o Add a command line option for rescaling images in a folder and writing 
         them to another folder -- used for APR
-
-Current Work:
-
-0.3.0 o Complete all TODO tasks
+      o Complete all TODO tasks
       o For artifact gallery, create subdirectories to place individual images
-      x Populate artifact template page with data by column name
+
+0.3.0 x Populate artifact template page with data by column name
       x Revised spreadsheet-submission parameter mapping
       x Create separate build scripts
       x Web authentication for artifact details lookup

@@ -35,6 +35,7 @@ import jxl.read.biff.BiffException;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import ryerson.daspub.Config;
+import ryerson.daspub.Config.STATUS;
 import ryerson.daspub.utility.AssignmentDescriptionTextFileFilter;
 import ryerson.daspub.utility.AssignmentPDFFileFilter;
 import ryerson.daspub.utility.SubmissionMetadataFileFilter;
@@ -53,7 +54,6 @@ import ryerson.daspub.utility.MetadataFileFilter;
  */
 public class Assignment {
 
-    public static enum STATUS {COMPLETE, INCOMPLETE, PARTIAL, ERROR};
     private static String THUMBS = "thumbs/";
     
     private File path;
@@ -134,15 +134,17 @@ public class Assignment {
      */
     public String getPathSafeName() {
         String name = getName();
-        return name.replace(" ", "_");
+        name = name.replace(" ", "_");
+        name = name.replace(".", "_");
+        name = name.replace("-", "_");
+        return name;
     }
 
     /**
      * Get publication status
      * @return Assignment STATUS flag value.
      */
-    public Assignment.STATUS getPublicationStatus() {
-        boolean result = false;
+    public STATUS getPublicationStatus() {
         if (!this.hasAssignmentHandout()) {
             return STATUS.INCOMPLETE;
         }
@@ -150,6 +152,9 @@ public class Assignment {
             return STATUS.INCOMPLETE;
         }
         if (!this.hasSubmissionMetadataFile()) {
+            return STATUS.INCOMPLETE;
+        }
+        if (!this.hasConformingSubmissionMetadataFile()) {
             return STATUS.INCOMPLETE;
         }
         if (!this.hasSubmissions()) {
@@ -186,7 +191,7 @@ public class Assignment {
                 }            
             } catch (IOException | BiffException | IndexOutOfBoundsException ex) {
                 String stack = ExceptionUtils.getStackTrace(ex);
-                logger.log(Level.SEVERE,"Metadata for assignment {0} could not be loaded.\n\n{1}",
+                logger.log(Level.SEVERE,"Submission metadata for assignment {0} could not be loaded.\n\n{1}",
                         new Object[]{path.getAbsolutePath(),stack});
             }
         }
@@ -230,7 +235,41 @@ public class Assignment {
      * Determine if the assignment has complete submission metadata.
      */
     public boolean hasCompleteSubmissionMetadata() {
-       return false; 
+       return true; 
+    }
+    
+    /**
+     * Determine if the submission metadata file conforms to the requirements
+     * for parsing.
+     * TODO this is duplicate code!! factor it out!
+     */
+    public boolean hasConformingSubmissionMetadataFile() {
+        ArrayList<Submission> items = new ArrayList<>();
+        // load the metadata file
+        File file = new File(this.path,Config.SUBMISSION_METADATA_FILE);
+        if (file.exists()) {            
+            try {
+                WorkbookSettings ws = new WorkbookSettings();
+                ws.setLocale(new Locale("en","EN"));
+                FileInputStream fis = new FileInputStream(file);
+                Workbook workbook = Workbook.getWorkbook(fis,ws);
+                Sheet sheet = workbook.getSheet(0);
+                int rows = sheet.getRows();
+                for (int row=1;row<rows;row++) {
+                    Cell[] cells = sheet.getRow(row);
+                    Submission s = Submission.getSubmission(cells,path);
+                    if (s != null) {
+                        items.add(s);
+                    }
+                }            
+            } catch (IOException | BiffException | IndexOutOfBoundsException ex) {
+                String stack = ExceptionUtils.getStackTrace(ex);
+                logger.log(Level.SEVERE,"Submission metadata for assignment {0} could not be loaded.\n\n{1}",
+                        new Object[]{path.getAbsolutePath(),stack});
+                return false;
+            }
+        }
+       return true;
     }
     
     /**

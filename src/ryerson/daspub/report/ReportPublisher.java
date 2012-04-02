@@ -73,6 +73,8 @@ public class ReportPublisher implements Runnable {
             Archive archive = archives.next();
             content.append(ArchiveReport.GetHTML(archive));
         }
+        
+        // @TODO check for duplicate submission IDs!
         // get total number of complete, partial and incomplete items
         StatusCounter sc = new StatusCounter(Config.ARCHIVE_PATHS);
         sc.count();
@@ -89,6 +91,7 @@ public class ReportPublisher implements Runnable {
             output.delete();
         }
         output.mkdirs();
+        
         // place report data into html template, write output file
         String data = "";
         File file = null;
@@ -100,17 +103,22 @@ public class ReportPublisher implements Runnable {
             DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
             Date date = new Date();
             String title = "Status Report - Generated " + dateFormat.format(date);
+            
             data = data.replace("${title}", title);
-            data = data.replace("${content}", content.toString());
+            data = data.replace("${timestamp}", dateFormat.format(date));
 
             data = data.replace("${total.complete}", String.valueOf(complete));
             data = data.replace("${total.partial}", String.valueOf(partial));
             data = data.replace("${total.error}", String.valueOf(error));
             data = data.replace("${total.incomplete}", String.valueOf(incomplete));
             data = data.replace("${percent.complete}", String.valueOf(percent));
+            data = data.replace("${total}", String.valueOf(total));
             
+            data = data.replace("${content}", content.toString());
+
             logger.log(Level.INFO,"Writing report file {0}",file.getAbsolutePath());
             FileUtils.write(file, data);
+            
             // write support files
             // if the file is a binary file, we need to modify this code
             for (int i=0;i<supportFiles.length;i++) {

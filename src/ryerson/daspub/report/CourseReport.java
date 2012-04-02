@@ -18,15 +18,13 @@
  */
 package ryerson.daspub.report;
 
-import java.io.File;
-import java.util.Arrays;
-import java.util.Comparator;
+import java.util.Iterator;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import ryerson.daspub.Config;
 import ryerson.daspub.model.Assignment;
 import ryerson.daspub.model.Course;
-import ryerson.daspub.utility.FolderFileFilter;
 
 /**
  * Course object status report.
@@ -84,33 +82,18 @@ public class CourseReport {
         }
         sb.append(Config.COURSE_DESCRIPTION_PDF_FILE);
         sb.append(")</li>");
-        if (C.hasAssignments()) {
-            sb.append("\n\t\t\t\t<li class='checked'>Has assignment folders.");
-        } else {
-            sb.append("\n\t\t\t\t<li class='crossed'>Does not have assignment folders.");
+        if (!C.hasAssignments()) {
+            sb.append("\n\t\t\t\t<li class='crossed'>Does not have assignment folders.</li>");
         }
         sb.append("\n\t\t\t</ul>");
         sb.append("\n\t\t</div>");
-        // file reports
-        File dir = new File(C.getPath());
-        File[] dirs = dir.listFiles(new FolderFileFilter());
-        if (dirs.length > 0) {
-            Arrays.sort(dirs, new Comparator<File>() {
-                public int compare(File f1, File f2) {
-                    return f1.getName().compareTo(f2.getName());
-                }
-            });
-            for (int i = 0; i < dirs.length; i++) {
-                Assignment a = new Assignment(dirs[i]);
-                sb.append(AssignmentReport.GetHTML(a));
-            }
-        } else {
-            sb.append("\n\t\t<div class='assignment'>");
-            sb.append("\n\t\t\t<ul class='marked'>");
-            sb.append("\n\t\t\t\t<li class='cross'>No assignments have been provided for this course.</li>");
-            sb.append("\n\t\t\t</ul>");
-            sb.append("\n\t\t</div>");
-        }
+        // assignment reports
+        List<Assignment> assignments = C.getAssignments();
+        Iterator<Assignment> ita = assignments.iterator();
+        while (ita.hasNext()) {
+            Assignment a = ita.next();
+            sb.append(AssignmentReport.GetHTML(a));
+        } 
         // end
         sb.append("\n\t</div>");
         sb.append("\n</div><!-- /course -->");

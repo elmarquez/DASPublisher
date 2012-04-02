@@ -16,56 +16,47 @@
         </script>
     </head>
     <body>
-        <div id="left">
-            <div id="banner">
-                <h1>Program Review Tool</h1>
-                <i>Developed by the <a href="http://www.arch.ryerson.ca">Department of Architectural Science</a> at <a href="http://www.ryerson.ca">Ryerson University</a></i>
-            </div>
-            <div id="legend">
-				<table>
-					<tr>
-						<td colspan="2" style="font-size:120%;font-weight:bold;padding-bottom:10px;">Publication Status</td>
-					</tr>
-					<tr>
-						<td class="complete" style="text-align:center">${total.complete}</td>
-						<td>Complete</td>
-					</tr>
-					<tr>
-						<td class="partial" style="text-align:center">${total.partial}</td>
-						<td>Partially Complete</td>
-					</tr>
-					<tr>
-						<td class="incomplete" style="text-align:center">${total.incomplete}</td>
-						<td>Incomplete</td>
-					</tr>
-					<tr>
-						<td class="error" style="text-align:center">${total.error}</td>
-						<td>Error</td>
-					</tr>
-					<tr>
-						<td>&nbsp;</td>
-						<td>&nbsp;</td>
-					</tr>
-					<tr>
-						<td class="total" style="text-align:center">${percent.complete}%</td>
-						<td>Percentage Complete</td>
-					</tr>
-				</table>
-            </div>
-        </div><!--/left-->
-        <div id="right">
-            <div id="report">
-                <script type="text/javascript">
-                    //fires each time a DIV is expanded/contracted
-                    animatedcollapse.ontoggle=function($, divobj, state){
-                            //$: Access to jQuery
-                            //divobj: DOM reference to DIV being expanded/ collapsed. Use "divobj.id" to get its ID
-                            //state: "block" or "none", depending on state
-                    }
-                    animatedcollapse.init()
-                </script>
-                ${content}
-            </div><!--/report-->
-        </div><!--/right-->
+        <div id="banner">
+            <h1>Archive Report - ${timestamp}</h1>
+        </div><!-- /banner -->
+
+        <div id="legend">
+            <table>
+                    <tr>
+                            <td class="complete" style="text-align:center">${total.complete}</td>
+                            <td>Complete (${percent.complete}% of ${total})</td>
+                    </tr>
+                    <tr>
+                            <td class="partial" style="text-align:center">${total.partial}</td>
+                            <td>Partially Complete</td>
+                    </tr>
+                    <tr>
+                            <td class="incomplete" style="text-align:center">${total.incomplete}</td>
+                            <td>Incomplete</td>
+                    </tr>
+                    <tr>
+                            <td class="error" style="text-align:center">${total.error}</td>
+                            <td>Error</td>
+                    </tr>
+            </table>
+        </div><!-- /legend -->
+        
+        <div id="report">
+            <script type="text/javascript">
+                //fires each time a DIV is expanded/contracted
+                animatedcollapse.ontoggle=function($, divobj, state){
+                        //$: Access to jQuery
+                        //divobj: DOM reference to DIV being expanded/ collapsed. Use "divobj.id" to get its ID
+                        //state: "block" or "none", depending on state
+                }
+                animatedcollapse.init()
+            </script>
+            ${content}
+        </div><!--/report-->
+        
+        <div id="footer">
+            &copy; <a href="http://www.arch.ryerson.ca">Department of Architectural Science</a>, <a href="http://www.ryerson.ca">Ryerson University</a>
+        </div><!-- /footer -->
+
     </body>
 </html>

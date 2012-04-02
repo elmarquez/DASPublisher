@@ -1,11 +1,26 @@
 /*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
+ * Copyright (c) 2011 Davis Marques
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
+ * 02110-1301, USA.
  */
 package ryerson.daspub.report;
 
 import java.util.Iterator;
 import java.util.List;
+import ryerson.daspub.Config.STATUS;
 import ryerson.daspub.model.Archive;
 import ryerson.daspub.model.Course;
 import ryerson.daspub.model.Program;
@@ -51,14 +66,14 @@ public class StatusCounter {
                 Iterator<Course> ic = p.getCourses();
                 while (ic.hasNext()) {
                     Course c = ic.next();
-                    Course.STATUS status = c.getPublicationStatus();
-                    if (status == Course.STATUS.COMPLETE) {
+                    STATUS status = c.getPublicationStatus();
+                    if (status == STATUS.COMPLETE) {
                         complete++;                        
-                    } else if (status == Course.STATUS.ERROR) {
+                    } else if (status == STATUS.ERROR) {
                         error++;
-                    } else if (status == Course.STATUS.INCOMPLETE) {
+                    } else if (status == STATUS.INCOMPLETE) {
                         incomplete++;
-                    } else if (status == Course.STATUS.PARTIAL) {
+                    } else if (status == STATUS.PARTIAL) {
                         partial++;
                     }
                     total++;
@@ -101,12 +116,13 @@ public class StatusCounter {
     }
 
     /**
-     * Get total percentage representation of complete courses.
+     * Get total percentage representation of complete courses. Partially 
+     * complete courses count for half a percentage point.
      * @return 
      */
     public int getPercentageComplete() {
         if (total > 0) {
-            return Math.round(complete / getTotalCourseCount());        
+            return complete + (partial / 2) / getTotalCourseCount();
         }
         return 0;
     }

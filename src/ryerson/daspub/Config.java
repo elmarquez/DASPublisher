@@ -37,6 +37,9 @@ import org.apache.commons.lang3.exception.ExceptionUtils;
  */
 public class Config {
 
+    // publication status
+    public static enum STATUS {COMPLETE, INCOMPLETE, PARTIAL, ERROR};
+    
     // file types
     public static final String PDF_TYPE = "pdf";
     public static final String[] IMAGE_TYPES = {"bmp","gif","jpg","jpeg","mp4","pdf","png","tif","tiff","webm"};

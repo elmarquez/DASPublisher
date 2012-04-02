@@ -43,7 +43,7 @@ public class AssignmentReport {
         StringBuilder sb = new StringBuilder();
         // get the assignment status
         sb.append("\n\t<div class='assignment ");
-        sb.append(A.getPublicationStatus().toString().toLowerCase());
+        // sb.append(A.getPublicationStatus().toString().toLowerCase());
         sb.append("'>");
         // item title
         sb.append("\n\t\t<h1>");
@@ -52,30 +52,44 @@ public class AssignmentReport {
         // assignment metadata file
         sb.append("\n\t\t<ul class='marked'>");
         if (A.hasAssignmentMetadataFile()) {
-            sb.append("\n\t\t\t<li class='checked'>Has ");
+            sb.append("\n\t\t\t<li class='checked'>Has assignment metadata file (");
         } else {
-            sb.append("\n\t\t\t<li class='crossed'>Does not have ");
+            sb.append("\n\t\t\t<li class='crossed'>Does not have assignment metadata file (");
         }
         sb.append(Config.ASSIGNMENT_DESCRIPTION_TEXT_FILE);
-        sb.append(" file</li>");
+        sb.append(")</li>");
         // assignment handout file
         if (A.hasAssignmentHandout()) {
-            sb.append("\n\t\t\t<li class='checked'>Has ");
+            sb.append("\n\t\t\t<li class='checked'>Has assignment handout PDF (");
         } else {
-            sb.append("\n\t\t\t<li class='crossed'>Does not have ");
+            sb.append("\n\t\t\t<li class='crossed'>Does not have assignment handout PDF (");
         }
         sb.append(Config.ASSIGNMENT_PDF_FILE);
-        sb.append(" file</li>");
+        sb.append(")</li>");
         // submission metadata files
         if (A.hasSubmissionMetadataFile()) {
-            sb.append("\n\t\t\t<li class='checked'>Has ");
+            sb.append("\n\t\t\t<li class='checked'>Has submission metadata file (");
         } else {
-            sb.append("\n\t\t\t<li class='crossed'>Does not have ");
+            sb.append("\n\t\t\t<li class='crossed'>Does not have submission metadata file (");
         }
         sb.append(Config.SUBMISSION_METADATA_FILE);
-        sb.append(" file</li>");
+        sb.append(")</li>");
+        // submission metadata file conforms to requirement
+        boolean conforms = false;
+        if (A.hasConformingSubmissionMetadataFile()) {
+            conforms = true;
+            sb.append("\n\t\t\t<li class='checked'>Submission metadata file conforms to requirements for parsing.");
+        } else {
+            sb.append("\n\t\t\t<li class='crossed'>Submission metadata file does not conform to requirements for parsing.");
+        }
+        // completed submission metadata
+        if (conforms && A.hasSubmissions()) {
+            sb.append("\n\t\t\t<li class='checked'>Has completed submission metadata.</li>");
+        } else {
+            sb.append("\n\t\t\t<li class='crossed'>Does not have completed submission metadata.</li>");
+        }        
         // submission files
-        if (A.hasSubmissions()) {
+        if (conforms && A.hasSubmissions()) {
             List<Submission> ls = A.getSubmissions();
             int count = ls.size();
             sb.append("\n\t\t\t<li class='checked'>Has ");
@@ -84,17 +98,8 @@ public class AssignmentReport {
         } else {
             sb.append("\n\t\t\t<li class='crossed'>Does not have student work files.</li>");
         }        
-        // completed submission metadata
-        if (A.hasSubmissions()) {
-            sb.append("\n\t\t\t<li class='checked'>Has completed submission metadata in ");
-        } else {
-            sb.append("\n\t\t\t<li class='crossed'>Does not have completed submission metadata in ");
-        }        
-        sb.append(Config.SUBMISSION_METADATA_FILE);
-        sb.append(" file</li>");
-
-        sb.append("\n\t\t</ul>");
         // return results
+        sb.append("\n\t\t</ul>");
         sb.append("\n\t</div><!-- /assignment -->");
         return sb.toString();
     }
