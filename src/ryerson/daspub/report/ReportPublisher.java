@@ -41,8 +41,6 @@ public class ReportPublisher implements Runnable {
 
     private final String htmlFileName = "index.html";
     private final String[] supportFiles = {"animatedcollapse.js",
-                                           "configuration.html",
-                                           "help.html",
                                            "styles.css"};
 
     private Config config;
@@ -69,12 +67,22 @@ public class ReportPublisher implements Runnable {
      */
     public void run() {
         StringBuilder content = new StringBuilder();
-        // process archives
+        // get report content
         Iterator<Archive> archives = Archive.getArchives(Config.ARCHIVE_PATHS);
         while (archives.hasNext()) {
             Archive archive = archives.next();
             content.append(ArchiveReport.GetHTML(archive));
         }
+        // get total number of complete, partial and incomplete items
+        StatusCounter sc = new StatusCounter(Config.ARCHIVE_PATHS);
+        sc.count();
+        int complete = sc.getCompleteCourseCount();
+        int partial = sc.getPartialCourseCount();
+        int error = sc.getErrorCourseCount();
+        int incomplete = sc.getIncompleteCourseCount();
+        int total = sc.getTotalCourseCount();
+        int percent = sc.getPercentageComplete();
+        
         // delete existing report file
         File output = new File(path);
         if (output.exists()) {
@@ -94,6 +102,13 @@ public class ReportPublisher implements Runnable {
             String title = "Status Report - Generated " + dateFormat.format(date);
             data = data.replace("${title}", title);
             data = data.replace("${content}", content.toString());
+
+            data = data.replace("${total.complete}", String.valueOf(complete));
+            data = data.replace("${total.partial}", String.valueOf(partial));
+            data = data.replace("${total.error}", String.valueOf(error));
+            data = data.replace("${total.incomplete}", String.valueOf(incomplete));
+            data = data.replace("${percent.complete}", String.valueOf(percent));
+            
             logger.log(Level.INFO,"Writing report file {0}",file.getAbsolutePath());
             FileUtils.write(file, data);
             // write support files

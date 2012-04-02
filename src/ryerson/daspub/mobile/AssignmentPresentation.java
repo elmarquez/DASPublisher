@@ -6,6 +6,7 @@ package ryerson.daspub.mobile;
 
 import java.io.File;
 import java.util.Iterator;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.apache.commons.io.FileUtils;
@@ -35,7 +36,8 @@ public class AssignmentPresentation {
     public static String getHTMLSubmissionIndex(Assignment A, String E) {
         StringBuilder sb = new StringBuilder();
         sb.append("\n<ul id=\"Gallery\" class=\"gallery\">");
-        Iterator<Submission> its = A.getSubmissions();
+        List<Submission> ls = A.getSubmissions();
+        Iterator<Submission> its = ls.iterator();
         while (its.hasNext()) {
             Submission s = its.next();
             if (s.getEvaluation().toLowerCase().equals(E) &&
@@ -78,7 +80,8 @@ public class AssignmentPresentation {
             template = template.replace("${assignment.syllabus}", A.getSyllabusLink());
             // create thumbnails and scaled full size images
             File thumbnailOutputPath = new File(Output,THUMBS);
-            Iterator<Submission> its = A.getSubmissions();
+            List<Submission> ls = A.getSubmissions();
+            Iterator<Submission> its = ls.iterator();
             while (its.hasNext()) {
                 Submission s = its.next();
                 if (s.getSourceFile().exists()) {

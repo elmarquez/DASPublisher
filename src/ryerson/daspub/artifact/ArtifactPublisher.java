@@ -25,6 +25,7 @@ import com.google.zxing.qrcode.QRCodeWriter;
 import java.io.File;
 import java.io.IOException;
 import java.util.Iterator;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.apache.commons.io.FileUtils;
@@ -85,10 +86,12 @@ public class ArtifactPublisher implements Runnable {
                 Iterator<Course> itc = program.getCourses();
                 while (itc.hasNext()) {
                     Course course = itc.next();
-                    Iterator<Assignment> itas = course.getAssignments();
+                    List<Assignment> la = course.getAssignments();
+                    Iterator<Assignment> itas = la.iterator();
                     while (itas.hasNext()) {
                         Assignment assignment = itas.next();
-                        Iterator<Submission> its = assignment.getSubmissions();
+                        List<Submission> ls = assignment.getSubmissions();
+                        Iterator<Submission> its = ls.iterator();
                         while (its.hasNext()) {
                             Submission submission = its.next();
                             processSubmission(submission, output);

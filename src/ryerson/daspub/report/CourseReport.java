@@ -23,6 +23,7 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import ryerson.daspub.Config;
 import ryerson.daspub.model.Assignment;
 import ryerson.daspub.model.Course;
 import ryerson.daspub.utility.FolderFileFilter;
@@ -54,14 +55,13 @@ public class CourseReport {
         sb.append("\n<div class='course'>");
         // item title
         sb.append("\n\t<div class='title ");
-        sb.append(C.getPublicationStatus());
+        sb.append(C.getPublicationStatus().toString().toLowerCase());
         sb.append("'>");
-        sb.append("\n\t\t<h1>");
-        sb.append(C.getName());
-        sb.append("</h1>");
-        sb.append("\n\t\t<a href=\"javascript:animatedcollapse.toggle('");
+        sb.append("\n\t\t<h1><a href=\"javascript:animatedcollapse.toggle('");
         sb.append(C.getPathSafeName());
-        sb.append("\')\">+</a>");
+        sb.append("\')\">");
+        sb.append(C.getName());
+        sb.append("</a></h1>");
         sb.append("\n\t</div>");
         // toggle wrapper
         sb.append("\n\t<div id='");
@@ -70,8 +70,25 @@ public class CourseReport {
         // description and metadata files
         sb.append("\n\t\t<div class='metadata'>");
         sb.append("\n\t\t\t<ul class='marked'>");
-        sb.append("\n\t\t\t\t<li class='checkmark'>Course description file (course.txt)</li>");
-        sb.append("\n\t\t\t\t<li class='cross'>Course description PDF file (course.pdf)</li>");
+        if (C.hasCourseMetadataFile()) {
+            sb.append("\n\t\t\t\t<li class='checked'>Has course description file (");
+        } else {
+            sb.append("\n\t\t\t\t<li class='crossed'>Does not have course description file (");
+        }
+        sb.append(Config.COURSE_DESCRIPTION_TEXT_FILE);
+        sb.append(")</li>");
+        if (C.hasCourseHandoutFile()) {
+            sb.append("\n\t\t\t\t<li class='checked'>Has course handout PDF (");
+        } else {
+            sb.append("\n\t\t\t\t<li class='crossed'>Does not have course handout PDF (");
+        }
+        sb.append(Config.COURSE_DESCRIPTION_PDF_FILE);
+        sb.append(")</li>");
+        if (C.hasAssignments()) {
+            sb.append("\n\t\t\t\t<li class='checked'>Has assignment folders.");
+        } else {
+            sb.append("\n\t\t\t\t<li class='crossed'>Does not have assignment folders.");
+        }
         sb.append("\n\t\t\t</ul>");
         sb.append("\n\t\t</div>");
         // file reports

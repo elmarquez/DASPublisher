@@ -16,27 +16,29 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
  * 02110-1301, USA.
  */
-package ryerson.daspub.utility;
+package ryerson.daspub.report;
 
-import java.io.File;
-import java.io.FilenameFilter;
-import ryerson.daspub.Config;
+import java.util.logging.Logger;
+import ryerson.daspub.model.Submission;
 
 /**
- * Assignment description file filter.
+ * Submission object status report.
  * @author dmarques
  */
-public class AssignmentDescriptionPDFFileFilter implements FilenameFilter {
+public class SubmissionReport {
+    
+    private static final Logger logger = Logger.getLogger(SubmissionReport.class.getName());
+
+    //--------------------------------------------------------------------------
 
     /**
-     * Determine if a file is an assignment description.
-     * @param dir Parent directory
-     * @param name File name
-     * @return True if the file is an assignment description, false otherwise.
+     * Get status report.
+     * @param S Submission
+     * @return HTML status report
      */
-    public boolean accept(File dir, String name) {
-        if (name.toLowerCase().equals(Config.ASSIGNMENT_DESCRIPTION_PDF_FILE)) return true;
-        return false;
+    public static String GetHTML(Submission S) {
+        StringBuilder sb = new StringBuilder();
+        return sb.toString();
     }
-
+    
 } // end class

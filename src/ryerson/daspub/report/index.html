@@ -18,15 +18,39 @@
     <body>
         <div id="left">
             <div id="banner">
-                <h1>External Program Review Tool</h1>
+                <h1>Program Review Tool</h1>
                 <i>Developed by the <a href="http://www.arch.ryerson.ca">Department of Architectural Science</a> at <a href="http://www.ryerson.ca">Ryerson University</a></i>
             </div>
-            <div id="menu">
-                <ul>
-                    <li><a href="index.html">Status Report</a></li>
-                    <li><a href="configuration.html">Configuration</a></li>
-                    <li style="border-bottom:none;"><a href="help.html">Help</a></li>
-                </ul>
+            <div id="legend">
+				<table>
+					<tr>
+						<td colspan="2" style="font-size:120%;font-weight:bold;padding-bottom:10px;">Publication Status</td>
+					</tr>
+					<tr>
+						<td class="complete" style="text-align:center">${total.complete}</td>
+						<td>Complete</td>
+					</tr>
+					<tr>
+						<td class="partial" style="text-align:center">${total.partial}</td>
+						<td>Partially Complete</td>
+					</tr>
+					<tr>
+						<td class="incomplete" style="text-align:center">${total.incomplete}</td>
+						<td>Incomplete</td>
+					</tr>
+					<tr>
+						<td class="error" style="text-align:center">${total.error}</td>
+						<td>Error</td>
+					</tr>
+					<tr>
+						<td>&nbsp;</td>
+						<td>&nbsp;</td>
+					</tr>
+					<tr>
+						<td class="total" style="text-align:center">${percent.complete}%</td>
+						<td>Percentage Complete</td>
+					</tr>
+				</table>
             </div>
         </div><!--/left-->
         <div id="right">

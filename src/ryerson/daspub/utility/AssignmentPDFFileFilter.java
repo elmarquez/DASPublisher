@@ -23,21 +23,20 @@ import java.io.FilenameFilter;
 import ryerson.daspub.Config;
 
 /**
- * Assignment metadata file filter.
+ * Assignment PDF handout file filter
  * @author dmarques
  */
-public class AssignmentMetadataFileFilter implements FilenameFilter {
+public class AssignmentPDFFileFilter implements FilenameFilter {
 
     /**
-     * Determine if a file is an assignment metadata document.
+     * Determine if a file is an assignment PDF handout.
      * @param dir Parent directory
      * @param name File name
-     * @return True if the file is an assignment metadata document, false otherwise.
+     * @return True if the file is an assignment PDF handout, false otherwise.
      */
     public boolean accept(File dir, String name) {
-        if (name.toLowerCase().equals(Config.ASSIGNMENT_FILE_METADATA)) return true;
+        if (name.toLowerCase().equals(Config.ASSIGNMENT_PDF_FILE)) return true;
         return false;
     }
 
 } // end class
-

@@ -22,6 +22,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Iterator;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.apache.commons.io.IOUtils;
@@ -116,11 +117,12 @@ public class Initializer implements Runnable {
      */
     private static void tryInitCourse(Course C) {
         // if the course does not have a metadata file
-        if (!C.hasMetadata()) {
+        if (!C.hasCourseMetadataFile()) {
             // write the default metadata file
         }
         // try to initialize assignments
-        Iterator<Assignment> assignments = C.getAssignments();
+        List<Assignment> la = C.getAssignments();
+        Iterator<Assignment> assignments = la.iterator();
         while (assignments.hasNext()) {
             Assignment a = assignments.next();
             tryInitAssignment(a);

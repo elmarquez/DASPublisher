@@ -23,7 +23,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Iterator;
+import java.util.List;
 import java.util.Locale;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -36,16 +36,24 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import ryerson.daspub.Config;
 import ryerson.daspub.utility.AssignmentDescriptionTextFileFilter;
-import ryerson.daspub.utility.AssignmentMetadataFileFilter;
+import ryerson.daspub.utility.AssignmentPDFFileFilter;
+import ryerson.daspub.utility.SubmissionMetadataFileFilter;
 import ryerson.daspub.utility.MetadataFileFilter;
 
 /**
  * Assignment entity.
+ * An assignment has four types of subfiles:
+ * 
+ * - a text file containing metadata describing the assignment
+ * - a PDF file representing the handout that students received for the assignment
+ * - student submissions (images, PDFs, videos)
+ * - an Excel spreadsheet with metadata for all student submissions
+ * 
  * @author dmarques
  */
 public class Assignment {
 
-    public static enum STATUS {COMPLETE, INCOMPLETE, ERROR};
+    public static enum STATUS {COMPLETE, INCOMPLETE, PARTIAL, ERROR};
     private static String THUMBS = "thumbs/";
     
     private File path;
@@ -131,23 +139,36 @@ public class Assignment {
 
     /**
      * Get publication status
-     * @return
+     * @return Assignment STATUS flag value.
      */
-    public String getPublicationStatus() {
-        // if description
-        // if files.xls
-        // if files.xls is complete or partially complete
-        return "";
+    public Assignment.STATUS getPublicationStatus() {
+        boolean result = false;
+        if (!this.hasAssignmentHandout()) {
+            return STATUS.INCOMPLETE;
+        }
+        if (!this.hasAssignmentMetadataFile()) {
+            return STATUS.INCOMPLETE;
+        }
+        if (!this.hasSubmissionMetadataFile()) {
+            return STATUS.INCOMPLETE;
+        }
+        if (!this.hasSubmissions()) {
+            return STATUS.PARTIAL;
+        }
+        if (!this.hasCompleteSubmissionMetadata()) {
+            return STATUS.PARTIAL;
+        }
+        return STATUS.COMPLETE;
     }
 
     /**
-     * Get list of files.
-     * @return List of image files
+     * 
+     * @return 
      */
-    public Iterator<Submission> getSubmissions() {
+    public List<Submission> getSubmissions() {
         ArrayList<Submission> items = new ArrayList<>();
         // load the metadata file
-        File file = new File(this.path,Config.ASSIGNMENT_FILE_METADATA);
+        File file = new File(this.path,Config.SUBMISSION_METADATA_FILE);
         if (file.exists()) {            
             try {
                 WorkbookSettings ws = new WorkbookSettings();
@@ -169,7 +190,7 @@ public class Assignment {
                         new Object[]{path.getAbsolutePath(),stack});
             }
         }
-        return items.iterator();
+        return items;        
     }
 
     /**
@@ -177,39 +198,60 @@ public class Assignment {
      * @return 
      */
     public String getSyllabusLink() {
-        File file = new File(path.getAbsolutePath(),Config.ASSIGNMENT_DESCRIPTION_PDF_FILE);
+        File file = new File(path.getAbsolutePath(),Config.ASSIGNMENT_PDF_FILE);
         if (file.exists()) {
-            return "<a href='" + Config.ASSIGNMENT_DESCRIPTION_PDF_FILE + "'>Assignment handout</a>";
+            return "<a href='" + Config.ASSIGNMENT_PDF_FILE + "'>Assignment handout</a>";
         } else {
             return "Assignment handout not available.";
         }
      }
     
     /**
-     * Determine if assignment has a description file.
+     * Determine if the assignment has a PDF file assignment handout.
      * @return True if file exists, false otherwise.
      */
-    public boolean hasDescriptionFile() {
+    public boolean hasAssignmentHandout() {
+        File[] files = path.listFiles(new AssignmentPDFFileFilter());
+        if (files.length > 0) return true;
+        return false;
+    }
+
+    /**
+     * Determine if the assignment contains a text file with assignment metadata.
+     * @return True if file exists, false otherwise.
+     */
+    public boolean hasAssignmentMetadataFile() {
         File[] files = path.listFiles(new AssignmentDescriptionTextFileFilter());
         if (files.length > 0) return true;
         return false;
     }
 
     /**
-     * Determine if assignment has a metadata file.
-     * @return True if file exists, false otherwise.
+     * Determine if the assignment has complete submission metadata.
      */
-    public boolean hasMetadataFile() {
-        File[] files = path.listFiles(new AssignmentMetadataFileFilter());
+    public boolean hasCompleteSubmissionMetadata() {
+       return false; 
+    }
+    
+    /**
+     * Determine if the assignment has a submission metadata file
+     * @return 
+     */
+    public boolean hasSubmissionMetadataFile() {
+        File[] files = path.listFiles(new SubmissionMetadataFileFilter());
         if (files.length > 0) return true;
         return false;
     }
-
+    
     /**
-     * Determine if the file metadata is complete
-     * @return
+     * Determine if the assignment has student submissions
+     * @return 
      */
-    public boolean isCompletedMetadata() {
+    public boolean hasSubmissions() {
+        List<Submission> items = getSubmissions();
+        if (items.size() > 0) {
+            return true;
+        }
         return false;
     }
 

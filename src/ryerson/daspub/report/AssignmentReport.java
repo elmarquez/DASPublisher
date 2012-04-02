@@ -18,10 +18,11 @@
  */
 package ryerson.daspub.report;
 
-import java.io.File;
+import java.util.List;
 import java.util.logging.Logger;
+import ryerson.daspub.Config;
 import ryerson.daspub.model.Assignment;
-import ryerson.daspub.utility.NonImageFileFilter;
+import ryerson.daspub.model.Submission;
 
 /**
  * Assignment object status report.
@@ -40,47 +41,59 @@ public class AssignmentReport {
      */
     public static String GetHTML(Assignment A) {
         StringBuilder sb = new StringBuilder();
-        // if the folder is 100%, show green
-        // if it has the required description/metadata/student work files, show yellow
-        // if it is missing all files, show red
+        // get the assignment status
         sb.append("\n\t<div class='assignment ");
-        sb.append(A.getPublicationStatus());
+        sb.append(A.getPublicationStatus().toString().toLowerCase());
         sb.append("'>");
         // item title
         sb.append("\n\t\t<h1>");
         sb.append(A.getName());
         sb.append("</h1>");
-        // description and metadata files
+        // assignment metadata file
         sb.append("\n\t\t<ul class='marked'>");
-        if (A.hasDescriptionFile()) {
-            sb.append("\n\t\t\t<li class='checked'>Has assignment_description.txt file</li>");
+        if (A.hasAssignmentMetadataFile()) {
+            sb.append("\n\t\t\t<li class='checked'>Has ");
         } else {
-            sb.append("\n\t\t\t<li class='crossed'>Does not have assignment_description.txt file</li>");
+            sb.append("\n\t\t\t<li class='crossed'>Does not have ");
         }
-        if (A.hasMetadataFile()) {
-            sb.append("\n\t\t\t<li class='checked'>Has files.xls file</li>");
+        sb.append(Config.ASSIGNMENT_DESCRIPTION_TEXT_FILE);
+        sb.append(" file</li>");
+        // assignment handout file
+        if (A.hasAssignmentHandout()) {
+            sb.append("\n\t\t\t<li class='checked'>Has ");
         } else {
-            sb.append("\n\t\t\t<li class='crossed'>Does not have files.xls file</li>");
+            sb.append("\n\t\t\t<li class='crossed'>Does not have ");
         }
+        sb.append(Config.ASSIGNMENT_PDF_FILE);
+        sb.append(" file</li>");
+        // submission metadata files
+        if (A.hasSubmissionMetadataFile()) {
+            sb.append("\n\t\t\t<li class='checked'>Has ");
+        } else {
+            sb.append("\n\t\t\t<li class='crossed'>Does not have ");
+        }
+        sb.append(Config.SUBMISSION_METADATA_FILE);
+        sb.append(" file</li>");
+        // submission files
+        if (A.hasSubmissions()) {
+            List<Submission> ls = A.getSubmissions();
+            int count = ls.size();
+            sb.append("\n\t\t\t<li class='checked'>Has ");
+            sb.append(String.valueOf(count));
+            sb.append(" student work files.</li>");
+        } else {
+            sb.append("\n\t\t\t<li class='crossed'>Does not have student work files.</li>");
+        }        
+        // completed submission metadata
+        if (A.hasSubmissions()) {
+            sb.append("\n\t\t\t<li class='checked'>Has completed submission metadata in ");
+        } else {
+            sb.append("\n\t\t\t<li class='crossed'>Does not have completed submission metadata in ");
+        }        
+        sb.append(Config.SUBMISSION_METADATA_FILE);
+        sb.append(" file</li>");
+
         sb.append("\n\t\t</ul>");
-        // student work files
-        sb.append("\n\t\t<div class='files'>");
-        File[] files = A.getPath().listFiles();
-        int count = files.length;
-        sb.append("\n\t\t\t<p>There are ");
-        sb.append(count);
-        sb.append(" files in the assignment folder.");
-        sb.append("</p>");
-        sb.append("\n\t\t\t<ul>");
-        files = A.getPath().listFiles(new NonImageFileFilter());
-        for (int i=0;i<files.length;i++) {
-            // if description or metadata file then pass
-            sb.append("\n\t\t\t\t<li>");
-            sb.append(files[i].getName());
-            sb.append("</li>");
-        }
-        sb.append("\n\t\t\t</ul>");
-        sb.append("\n\t\t</div>");
         // return results
         sb.append("\n\t</div><!-- /assignment -->");
         return sb.toString();

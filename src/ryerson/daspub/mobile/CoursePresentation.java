@@ -80,7 +80,8 @@ public class CoursePresentation {
             template = template.replace("${course.instructors}", getHTMLFormattedList(C.getInstructors()));
             template = template.replace("${course.cacb.criteria}", getHTMLFormattedList(C.getCACBCriteria()));
             // build assignment index
-            Iterator<Assignment> assignments = C.getAssignments();
+            List<Assignment> la = C.getAssignments();
+            Iterator<Assignment> assignments = la.iterator();
             StringBuilder sb = new StringBuilder();
             sb.append("<ul data-role=\"listview\" data-inset=\"true\" data-theme=\"c\">");
             File assignmentOutputPath = null;

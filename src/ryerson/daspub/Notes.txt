@@ -14,7 +14,7 @@ DAS ARCHIVE PUBLISHER
       o Archive initializer, updater
       o Automatic slideshow presentation
       o Add a command line option for rescaling images in a folder and writing 
-        them to another folder
+        them to another folder -- used for APR
 
 Current Work:
 

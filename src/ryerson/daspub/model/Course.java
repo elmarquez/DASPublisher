@@ -36,6 +36,8 @@ import ryerson.daspub.utility.FolderFileFilter;
  */
 public class Course {
 
+    public static enum STATUS {COMPLETE, INCOMPLETE, PARTIAL, ERROR};
+
     private String path;
     
     private String description = "";
@@ -61,7 +63,7 @@ public class Course {
     /**
      * Get assignment iterator.
      */
-    public Iterator<Assignment> getAssignments() {
+    public List<Assignment> getAssignments() {
         File dir = new File(path);
         ArrayList<Assignment> items = new ArrayList<>();
         File[] files = dir.listFiles(new FolderFileFilter());
@@ -69,12 +71,13 @@ public class Course {
             Assignment a = new Assignment(files[i]);
             items.add(a);
         }
-        return items.iterator();
+        return items;
     }
 
     /**
      * Get SPC items
      * @return 
+     * TODO complete this method
      */
     public List<String> getCACBCriteria() {
         return new ArrayList<String>();
@@ -108,6 +111,7 @@ public class Course {
     /**
      * Get course format
      * @return 
+     * TODO complete this method
      */
     public String getFormat() {
         return "course format";
@@ -115,6 +119,7 @@ public class Course {
 
     /**
      * Get list of instructors
+     * TODO complete this method
      */
     public List<String> getInstructors() {
         return new ArrayList<String>();
@@ -146,11 +151,32 @@ public class Course {
     }
 
     /**
-     * Get publication status flag
+     * Get publication status
      * @return
      */
-    public String getPublicationStatus() {
-        return "incomplete";
+    public Course.STATUS getPublicationStatus() {
+        if (!this.hasCourseMetadataFile()) {
+            return STATUS.INCOMPLETE;
+        }
+        if (!this.hasCourseHandoutFile()) {
+            return STATUS.INCOMPLETE;
+        }
+        if (!this.hasAssignments()) {
+            return STATUS.INCOMPLETE;
+        }
+        List<Assignment> assignments = this.getAssignments();
+        Iterator<Assignment> ita = assignments.iterator();
+        while (ita.hasNext()) {
+            Assignment a = ita.next();
+            Assignment.STATUS status = a.getPublicationStatus();
+            if (status == Assignment.STATUS.PARTIAL) {
+                return STATUS.PARTIAL;
+            } else if (status == Assignment.STATUS.INCOMPLETE ||
+                       status == Assignment.STATUS.ERROR) {
+                return STATUS.INCOMPLETE;
+            }
+        }        
+        return STATUS.COMPLETE;
     }
 
     /**
@@ -167,10 +193,29 @@ public class Course {
     }
 
     /**
-     * Determine if the course metadata file exists
+     * Determine if Course has assignment folders
+     */
+    public boolean hasAssignments() {
+        List<Assignment> assignments = this.getAssignments();
+        if (assignments.size() > 0) {
+            return true;
+        }
+        return false;
+    }
+    
+    /**
+     * Determine if course has handout file
+     */
+    public boolean hasCourseHandoutFile() {
+        File file = new File(path,Config.COURSE_DESCRIPTION_PDF_FILE);
+        return file.exists();
+    }
+    
+    /**
+     * Determine if the course has metadata file
      * @return 
      */
-    public boolean hasMetadata() {
+    public boolean hasCourseMetadataFile() {
         File file = new File(path,Config.COURSE_DESCRIPTION_TEXT_FILE);
         return file.exists();
     }

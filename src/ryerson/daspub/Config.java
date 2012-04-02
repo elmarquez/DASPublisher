@@ -52,8 +52,8 @@ public class Config {
     public static String COURSE_DESCRIPTION_TEXT_FILE = "course.txt";
     public static String COURSE_DESCRIPTION_PDF_FILE = "course.pdf";
     public static String ASSIGNMENT_DESCRIPTION_TEXT_FILE = "assignment.txt";
-    public static String ASSIGNMENT_DESCRIPTION_PDF_FILE = "assignment.pdf";
-    public static String ASSIGNMENT_FILE_METADATA = "assignment.xls";
+    public static String ASSIGNMENT_PDF_FILE = "assignment.pdf";
+    public static String SUBMISSION_METADATA_FILE = "assignment.xls";
 
     public static String ARTIFACT_TEMPLATE_PATH;
     public static String ASSIGNMENT_TEMPLATE_PATH;
@@ -93,8 +93,8 @@ public class Config {
         String[] files = {COURSE_DESCRIPTION_TEXT_FILE,
                             COURSE_DESCRIPTION_PDF_FILE,
                             ASSIGNMENT_DESCRIPTION_TEXT_FILE,
-                            ASSIGNMENT_DESCRIPTION_PDF_FILE,
-                            ASSIGNMENT_FILE_METADATA};
+                            ASSIGNMENT_PDF_FILE,
+                            SUBMISSION_METADATA_FILE};
         return files;
     }
     
