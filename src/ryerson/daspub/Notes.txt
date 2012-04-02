@@ -19,8 +19,8 @@ DAS ARCHIVE PUBLISHER
 Current Work:
 
 0.3.0 o Complete all TODO tasks
-      o Populate artifact template page with data by column name
       o For artifact gallery, create subdirectories to place individual images
+      x Populate artifact template page with data by column name
       x Revised spreadsheet-submission parameter mapping
       x Create separate build scripts
       x Web authentication for artifact details lookup
