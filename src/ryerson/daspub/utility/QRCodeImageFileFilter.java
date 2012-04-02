@@ -34,9 +34,10 @@ public class QRCodeImageFileFilter implements FilenameFilter {
      * @param dir
      * @param name
      * @return True if the file is a QR barcode, false otherwise.
+     * @TODO should check to see that the image dimensions matche what is specified in the config
      */
     public boolean accept(File dir, String name) {
-        if (name.endsWith("_qr.png")) {
+        if (name.endsWith(".png")) {
             return true;
         }
         return false;

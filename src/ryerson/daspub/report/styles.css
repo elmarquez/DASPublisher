@@ -33,7 +33,6 @@ p {
 }
 #banner h1 {
     border-bottom:1px solid #ccc;
-    font-size:150%;
     font-weight:bold;
     margin:0;
     padding:0;
@@ -97,6 +96,7 @@ p {
 
 .archive>h1 {
     border-bottom:1px solid #ccc;
+    font-size:150%;
     padding-bottom:5px;
 }
 

@@ -86,7 +86,7 @@ public class ArtifactTagSheetPublisher implements Runnable {
         config = Config;
         inputDir = Input;
         outputDir = Output;
-        outputFile = new File(Output, "tagsheet.pdf");
+        outputFile = new File(Output, "tagsheet-avery-22806.pdf");
     }
 
     //--------------------------------------------------------------------------
@@ -216,7 +216,7 @@ public class ArtifactTagSheetPublisher implements Runnable {
         // place label @72,16
         if (PRINT_ID_STRING) {
             String name = Img.getName();
-            name = name.replace("_qr.png", "");
+            name = name.replace(".png", "");
             drawLabel(Writer,name,P.x+72,P.y+16);
         }
     }

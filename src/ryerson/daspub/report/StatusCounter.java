@@ -18,12 +18,16 @@
  */
 package ryerson.daspub.report;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import ryerson.daspub.Config.STATUS;
 import ryerson.daspub.model.Archive;
+import ryerson.daspub.model.Assignment;
 import ryerson.daspub.model.Course;
 import ryerson.daspub.model.Program;
+import ryerson.daspub.model.Submission;
 
 /**
  *
@@ -38,8 +42,10 @@ public class StatusCounter {
     private int incomplete;
     private int error;
     private int total;
-    
     private int percentage;
+    
+    private HashMap<String,Submission> unique = new HashMap<>();
+    private ArrayList<Submission> duplicates = new ArrayList<>();
     
     //--------------------------------------------------------------------------
 
@@ -67,20 +73,19 @@ public class StatusCounter {
                 while (ic.hasNext()) {
                     Course c = ic.next();
                     STATUS status = c.getPublicationStatus();
-                    if (status == STATUS.COMPLETE) {
+                    if (hasDuplicateSubmissionID(c) || status == STATUS.ERROR) {
+                        status = STATUS.ERROR;
+                    } else if (status == STATUS.COMPLETE) {
                         complete++;                        
-                    } else if (status == STATUS.ERROR) {
-                        error++;
                     } else if (status == STATUS.INCOMPLETE) {
                         incomplete++;
                     } else if (status == STATUS.PARTIAL) {
                         partial++;
                     }
-                    total++;
+                    total++;                    
                 }
             }
         }
-
     }
     
     /**
@@ -89,6 +94,14 @@ public class StatusCounter {
      */
     public int getCompleteCourseCount() {
         return complete;
+    }
+    
+    /**
+     * Get submission items with duplicate IDs
+     * @return 
+     */
+    public List<Submission> getDuplicates() {
+        return duplicates;
     }
     
     /**
@@ -133,6 +146,31 @@ public class StatusCounter {
      */
     public int getTotalCourseCount() {
         return total;
+    }
+    
+    /**
+     * Determine if the course has a submission ID used elsewhere.
+     * @return True if the course has submission IDs that are duplicated elsewhere, false otherwise.
+     */
+    private boolean hasDuplicateSubmissionID(Course C) {
+        boolean hasduplicates = false;
+        List<Assignment> assignments = C.getAssignments();
+        Iterator<Assignment> ita = assignments.iterator();
+        while (ita.hasNext()) {
+            Assignment a = ita.next();
+            List<Submission> ls = a.getSubmissions();
+            Iterator<Submission> its = ls.iterator();
+            while (its.hasNext()) {
+                Submission s = its.next();
+                if (!unique.containsKey(s.getSubmissionId())) {
+                    unique.put(s.getSubmissionId(), s);
+                } else {
+                    duplicates.add(s);
+                    hasduplicates = true;
+                }
+            }
+        }
+        return hasduplicates;
     }
     
 } // end class

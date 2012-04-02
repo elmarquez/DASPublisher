@@ -14,15 +14,15 @@ Current Work:
 
 0.4.0 o Thumbnails for video submissions, videos are viewable
       o Assignment pages have indexes for multi-page PDFs
-      x Improve reporting
-      o Check for duplicate submission IDs
-      o Make the report page public and obvious to all staff, faculty
       o Archive initializer, updater
       o Automatic slideshow presentation
       o Add a command line option for rescaling images in a folder and writing 
         them to another folder -- used for APR
       o Complete all TODO tasks
       o For artifact gallery, create subdirectories to place individual images
+      x Improve reporting
+      x Check for duplicate submission IDs
+      x Make the report page public and obvious to all staff, faculty
 
 0.3.0 x Populate artifact template page with data by column name
       x Revised spreadsheet-submission parameter mapping

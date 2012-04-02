@@ -25,6 +25,7 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Iterator;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.apache.commons.io.FileUtils;
@@ -32,6 +33,7 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import ryerson.daspub.model.Archive;
 import ryerson.daspub.Config;
+import ryerson.daspub.model.Submission;
 
 /**
  * Writes HTML status report for a content archive.
@@ -66,15 +68,19 @@ public class ReportPublisher implements Runnable {
      * Generate report.
      */
     public void run() {
-        StringBuilder content = new StringBuilder();
+        // delete existing report file
+        File output = new File(path);
+        if (output.exists()) {
+            output.delete();
+        }
+        output.mkdirs();
         // get report content
+        StringBuilder content = new StringBuilder();
         Iterator<Archive> archives = Archive.getArchives(Config.ARCHIVE_PATHS);
         while (archives.hasNext()) {
             Archive archive = archives.next();
             content.append(ArchiveReport.GetHTML(archive));
         }
-        
-        // @TODO check for duplicate submission IDs!
         // get total number of complete, partial and incomplete items
         StatusCounter sc = new StatusCounter(Config.ARCHIVE_PATHS);
         sc.count();
@@ -84,14 +90,8 @@ public class ReportPublisher implements Runnable {
         int incomplete = sc.getIncompleteCourseCount();
         int total = sc.getTotalCourseCount();
         int percent = sc.getPercentageComplete();
-        
-        // delete existing report file
-        File output = new File(path);
-        if (output.exists()) {
-            output.delete();
-        }
-        output.mkdirs();
-        
+        // get list of duplicate submissions
+        List<Submission> duplicates = sc.getDuplicates();
         // place report data into html template, write output file
         String data = "";
         File file = null;
@@ -116,6 +116,28 @@ public class ReportPublisher implements Runnable {
             
             data = data.replace("${content}", content.toString());
 
+            if (duplicates.size() > 0) {
+                StringBuilder sb2 = new StringBuilder();
+                sb2.append("There are ");
+                sb2.append(String.valueOf(duplicates.size()));
+                sb2.append(" duplicate submission ids.");
+                sb2.append("<table width='100%'>");
+                Iterator<Submission> its = duplicates.iterator();
+                while (its.hasNext()) {
+                    Submission s = its.next();
+                    sb2.append("<tr><td>");
+                    sb2.append(s.getSubmissionId());
+                    sb2.append("</td><td>in</td><td>");
+                    sb2.append(s.getSourceFile().getParent());
+                    sb2.append("</td></tr>");
+                }
+                sb2.append("</table>");
+                data = data.replace("${duplicates}", sb2.toString());
+            } else {
+                // data = data.replace("${duplicates}", "There are 0 duplicated submission IDs.");
+                data = data.replace("${duplicates}", " ");
+            }
+            
             logger.log(Level.INFO,"Writing report file {0}",file.getAbsolutePath());
             FileUtils.write(file, data);
             

@@ -42,6 +42,11 @@
         </div><!-- /legend -->
         
         <div id="report">
+            
+            <div id="duplicates">
+                ${duplicates}
+            </div>
+            
             <script type="text/javascript">
                 //fires each time a DIV is expanded/contracted
                 animatedcollapse.ontoggle=function($, divobj, state){
@@ -51,7 +56,11 @@
                 }
                 animatedcollapse.init()
             </script>
-            ${content}
+            
+            <div id="content">
+                ${content}
+            </div>
+            
         </div><!--/report-->
         
         <div id="footer">
