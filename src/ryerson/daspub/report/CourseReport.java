@@ -58,7 +58,9 @@ public class CourseReport {
         sb.append("\n\t\t<h1><a href=\"javascript:animatedcollapse.toggle('");
         sb.append(C.getPathSafeName());
         sb.append("\')\">");
-        sb.append(C.getName());
+        sb.append(C.getCourseCode());
+        sb.append(" - ");
+        sb.append(C.getCourseName());
         sb.append("</a></h1>");
         sb.append("\n\t</div>");
         // toggle wrapper

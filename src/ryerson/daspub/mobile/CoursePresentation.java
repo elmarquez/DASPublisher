@@ -73,12 +73,12 @@ public class CoursePresentation {
             // load index page template file
             String template = FileUtils.readFileToString(new File(Config.COURSE_TEMPLATE_PATH));
             // build index page
-            template = template.replace("${course.title}", C.getName());
+            template = template.replace("${course.title}", C.getCourseName());
             template = template.replace("${course.description}", C.getDescription());
             template = template.replace("${course.format}", C.getFormat());
             template = template.replace("${course.syllabus}", C.getSyllabusLink());
             template = template.replace("${course.instructors}", getHTMLFormattedList(C.getInstructors()));
-            template = template.replace("${course.cacb.criteria}", getHTMLFormattedList(C.getCACBCriteria()));
+            template = template.replace("${course.cacb.criteria}", getHTMLFormattedList(C.getSPCFulfilled()));
             // build assignment index
             List<Assignment> la = C.getAssignments();
             Iterator<Assignment> assignments = la.iterator();

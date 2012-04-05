@@ -7,15 +7,19 @@ DAS ARCHIVE PUBLISHER
       
 0.9.0 o Automatic slideshow presentation with QR tag in corner
 
+
 0.6.0 o Thumbnails for video submissions
       o Videos are viewable
       o Package mobile output as a self-contained app
+      o Problem with colour tinting of images after rescaling
 
 Current Work:
 
-0.5.0 o Multi-page PDFs!
-      o Assignment pages have indexes for multi-page PDFs
-      o Build course index automatically
+0.5.0 o Fix APR gallery!
+      o Multi-page PDFs and indexes for them!
+      o Create separate assignment indexes for single page submissions, 
+        multi-page and videos
+      o Build course index automatically, with SPC codes for lookups
       o Extract CACB criteria from courses and add them to index for search
       o Status check: count completed metadata versus submitted files, confirm 
         that metadata files actually include data!
@@ -25,10 +29,12 @@ Current Work:
       o Complete all current TODO tasks
       
       - Artifact pages have appropriate tag in full screen mode
-      - Fix path problem for artifact pages that don't have any images associated (skip them!)
+      - Fix path problem for artifact pages that don't have any images 
+        associated (skip them!)
       - Fix scaling for artifact page previews
       - Update one or two map pages with sample areas of interest highlighted
-      - Run full publication and make sure that the sample course page is 100% filled in
+      - Run full publication and make sure that the sample course page is 100% 
+        filled in
 
 0.4.0 x For artifact gallery, create subdirectories to place individual images
       x Improve reporting

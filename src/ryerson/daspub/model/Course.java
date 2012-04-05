@@ -19,17 +19,15 @@
 package ryerson.daspub.model;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.logging.Level;
+import java.util.Map;
 import java.util.logging.Logger;
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang3.exception.ExceptionUtils;
 import ryerson.daspub.Config;
 import ryerson.daspub.Config.STATUS;
 import ryerson.daspub.utility.FolderFileFilter;
+import ryerson.daspub.utility.MarkupParser;
 
 /**
  * Course entity. Lazy loads data from the file system.
@@ -40,8 +38,8 @@ public class Course {
     private String path;    
     private String description = "";
     private String format = "";
-    private ArrayList<String> instructors = new ArrayList<>();
-    private ArrayList<String> cacbcriteria = new ArrayList<>();
+    private List<String> instructors = new ArrayList<>();
+    private List<String> cacbcriteria = new ArrayList<>();
     
     private static final Logger logger = Logger.getLogger(Course.class.getName());
 
@@ -73,19 +71,35 @@ public class Course {
     }
 
     /**
-     * Get SPC items
-     * @return 
-     * TODO complete this method
+     * Get course code
      */
-    public List<String> getCACBCriteria() {
-        return new ArrayList<String>();
+    public String getCourseCode() {
+        String result = "";
+        String[] s = this.getFolderName().split("-");
+        if (s.length > 1) {
+            result = s[0];
+        }
+        return result;
+    }
+    
+    /**
+     * Get course name
+     * @return 
+     */
+    public String getCourseName() {
+        String result = "";
+        String[] s = this.getFolderName().split("-");
+        if (s.length > 1) {
+            result = s[1];
+        }
+        return result;
     }
     
     /**
      * Get course description.
      */
     public String getDescription(){ 
-        return "course description";
+        return description;
     }
     
     /**
@@ -107,12 +121,21 @@ public class Course {
     }
 
     /**
+     * Get course title. The course title is the folder name.
+     * @return
+     */
+    public String getFolderName() {
+        File dir = new File(path);
+        return dir.getName();
+    }
+
+    /**
      * Get course format
      * @return 
      * TODO complete this method
      */
     public String getFormat() {
-        return "course format";
+        return format;
     }
 
     /**
@@ -120,18 +143,9 @@ public class Course {
      * TODO complete this method
      */
     public List<String> getInstructors() {
-        return new ArrayList<String>();
+        return instructors;
     }
     
-    /**
-     * Get course title. The course title is the folder name.
-     * @return
-     */
-    public String getName() {
-        File dir = new File(path);
-        return dir.getName();
-    }
-
     /**
      * Get course folder path
      * @return 
@@ -144,7 +158,7 @@ public class Course {
      * Get path safe name.
      */
     public String getPathSafeName() {
-        String name = getName();
+        String name = getFolderName();
         name = name.replace(" ", "_");
         name = name.replace(".", "_");
         name = name.replace("-", "_");
@@ -180,6 +194,14 @@ public class Course {
         return STATUS.COMPLETE;
     }
 
+    /**
+     * Get list of SPC criteria that this course fulfills.
+     * @return 
+     */
+    public List<String> getSPCFulfilled() {
+        return cacbcriteria;
+    }
+    
     /**
      * Get link to course description PDF 
      * @return 
@@ -227,46 +249,24 @@ public class Course {
      * 1 - Course format, hours
      * 2 - Instructors
      * 3 - CACB Criteria
-     * TODO this should be implemented for lazy loading instead
      */
     private void parseDescriptionFile() {
         File file = new File(path,Config.COURSE_DESCRIPTION_TEXT_FILE);
         if (file.exists()) {
-            try {
-                String text = FileUtils.readFileToString(file);
-                String[] block = text.split("==");
-                // get rid of empty elements
-                int n = 0;
-                if (block[0].equals("")) {
-                    n++;
-                }
-                // process elements
-                if (block.length>n+1) {
-                    description = block[n+1].replaceAll("\r\n","").trim();
-                }
-                if (block.length>n+3) {
-                    format = block[n+3].replaceAll("\r\n","").trim();
-                }
-                if (block.length>n+5) {
-                    String[] items = block[n+5].split("-");
-                    for (int i=0;i<items.length;i++) {
-                        if (!items[i].equals("") && !items[i].equals("\r\n") && !items[i].contains("\r\n\r\n")) {
-                            instructors.add(items[i].replaceAll("\r\n",""));
-                        }
-                    }
-                }
-                if (block.length>=n+7) {
-                    String[] items = block[n+7].split("-");
-                    for (int i=0;i<items.length;i++) {
-                        if (!items[i].equals("") && !items[i].equals("\r\n") && !items[i].contains("\r\n\r\n")) {
-                            cacbcriteria.add(items[i].replaceAll("\r\n",""));
-                        }
-                    }
-                }
-            } catch (IOException ex) {
-                String stack = ExceptionUtils.getStackTrace(ex);
-                logger.log(Level.SEVERE,"Could not parse course description file {0}\n\n{1}",
-                        new Object[]{file.getAbsolutePath(),stack});
+            Map<String,String> vals = MarkupParser.parse(file);
+            if (vals.containsKey("Description")) {
+                description = vals.get("Description");
+            }
+            if (vals.containsKey("Format")) {
+                format = vals.get("Format");
+            }
+            if (vals.containsKey("Instructors")) {
+                String text = vals.get("Instructors");
+                instructors = MarkupParser.getList(text, "\\*");
+            }
+            if (vals.containsKey("CACB Criteria")) {
+                String text = vals.get("CACB Criteria");
+                cacbcriteria = MarkupParser.getList(text, "\\*");
             }
         }
     }

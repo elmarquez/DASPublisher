@@ -40,8 +40,8 @@ import ryerson.daspub.slideshow.SlideshowPublisher;
  */
 public class Main implements Runnable {
 
-    private static final int FAIL = -1;
-    private static final int SUCCESS = 0;
+    public static final int FAIL = -1;
+    public static final int SUCCESS = 0;
     
     private static final String CMD_CONFIG = "config";
     private static final String CMD_HELP = "help";
