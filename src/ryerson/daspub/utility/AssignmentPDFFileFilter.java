@@ -35,7 +35,7 @@ public class AssignmentPDFFileFilter implements FilenameFilter {
      * @return True if the file is an assignment PDF handout, false otherwise.
      */
     public boolean accept(File dir, String name) {
-        if (name.toLowerCase().equals(Config.ASSIGNMENT_PDF_FILE)) return true;
+        if (name.toLowerCase().equals(Config.ASSIGNMENT_HANDOUT_FILE)) return true;
         return false;
     }
 

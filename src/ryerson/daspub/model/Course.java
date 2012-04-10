@@ -203,15 +203,15 @@ public class Course {
     }
     
     /**
-     * Get link to course description PDF 
-     * @return 
+     * Get link to course handout
+     * @return Returns null if there is no syllabus file to link to
      */
-    public String getSyllabusLink() {
-        File file = new File(path, Config.COURSE_DESCRIPTION_PDF_FILE);
+    public String getSyllabusRelativePath() {
+        File file = new File(path, Config.COURSE_HANDOUT_FILE);
         if (file.exists()) {
-            return "<a href='" + Config.COURSE_DESCRIPTION_PDF_FILE + "'>Course syllabus</a>";
+            return Config.COURSE_HANDOUT_FILE;
         } else {
-            return "Course syllabus file not available.";
+            return null;
         }
     }
 
@@ -230,7 +230,7 @@ public class Course {
      * Determine if course has handout file
      */
     public boolean hasCourseHandoutFile() {
-        File file = new File(path,Config.COURSE_DESCRIPTION_PDF_FILE);
+        File file = new File(path,Config.COURSE_HANDOUT_FILE);
         return file.exists();
     }
     
@@ -239,19 +239,15 @@ public class Course {
      * @return 
      */
     public boolean hasCourseMetadataFile() {
-        File file = new File(path,Config.COURSE_DESCRIPTION_TEXT_FILE);
+        File file = new File(path,Config.COURSE_METADATA_FILE);
         return file.exists();
     }
     
     /**
-     * Parse the course description file and assign values to local variables.
-     * 0 - Description
-     * 1 - Course format, hours
-     * 2 - Instructors
-     * 3 - CACB Criteria
+     * Parse the course metadata file and assign values to local variables.
      */
     private void parseDescriptionFile() {
-        File file = new File(path,Config.COURSE_DESCRIPTION_TEXT_FILE);
+        File file = new File(path,Config.COURSE_METADATA_FILE);
         if (file.exists()) {
             Map<String,String> vals = MarkupParser.parse(file);
             if (vals.containsKey("Description")) {

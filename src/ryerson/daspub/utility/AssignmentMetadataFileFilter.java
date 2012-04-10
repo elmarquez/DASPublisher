@@ -26,7 +26,7 @@ import ryerson.daspub.Config;
  * Assignment description file filter.
  * @author dmarques
  */
-public class AssignmentDescriptionTextFileFilter implements FilenameFilter {
+public class AssignmentMetadataFileFilter implements FilenameFilter {
 
     /**
      * Determine if a file is an assignment description.
@@ -35,7 +35,7 @@ public class AssignmentDescriptionTextFileFilter implements FilenameFilter {
      * @return True if the file is an assignment description, false otherwise.
      */
     public boolean accept(File dir, String name) {
-        if (name.toLowerCase().equals(Config.ASSIGNMENT_DESCRIPTION_TEXT_FILE)) return true;
+        if (name.toLowerCase().equals(Config.ASSIGNMENT_METADATA_FILE)) return true;
         return false;
     }
 

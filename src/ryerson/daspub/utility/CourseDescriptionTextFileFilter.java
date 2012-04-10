@@ -35,7 +35,7 @@ public class CourseDescriptionTextFileFilter implements FilenameFilter {
      * @return True if the file is a course description, false otherwise.
      */
     public boolean accept(File dir, String name) {
-        if (name.toLowerCase().equals(Config.COURSE_DESCRIPTION_TEXT_FILE)) return true;
+        if (name.toLowerCase().equals(Config.COURSE_METADATA_FILE)) return true;
         return false;
     }
 

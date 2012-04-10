@@ -21,7 +21,6 @@ package ryerson.daspub.utility;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -40,18 +39,27 @@ public class MarkupParser {
 
     private static final Logger logger = Logger.getLogger(MarkupParser.class.getName());
     
-    private static String getHTMLList(String Markup, String Tag) {
-        // split the string into blocks
-        String[] items = Markup.split("\\*");
-        // build output
+    //--------------------------------------------------------------------------
+
+    /**
+     * Build HTML list from list items.
+     * @param Items
+     * @param Tag
+     * @return 
+     */
+    private static String getHTMLList(List<String> Items, String Tag) {
         StringBuilder sb = new StringBuilder();
         sb.append("<");
         sb.append(Tag);
         sb.append(">");
-        for (int i=0;i<items.length;i++) {
-            sb.append("\n\t<li>");
-            sb.append(items[i].trim());
-            sb.append("</li>");
+        Iterator<String> its = Items.iterator();
+        while (its.hasNext()) {
+            String item = its.next();
+            if (!item.equals("") || !item.equals(" ")) {
+                sb.append("\n\t<li>");
+                sb.append(item.trim());
+                sb.append("</li>");
+            }
         }
         sb.append("\n</");
         sb.append(Tag);
@@ -64,8 +72,8 @@ public class MarkupParser {
      * @param Markup
      * @return 
      */
-    public static String getHTMLOrderedList(String Markup) {
-        return getHTMLList(Markup,"ol");
+    public static String getHTMLOrderedList(List<String> Items) {
+        return getHTMLList(Items,"ol");
     }
     
     /**
@@ -73,8 +81,8 @@ public class MarkupParser {
      * @param Markup
      * @return 
      */
-    public static String getHTMLUnorderedList(String Markup) {
-        return getHTMLList(Markup,"ul");
+    public static String getHTMLUnorderedList(List<String> Items) {
+        return getHTMLList(Items,"ul");
     }
     
     /**
@@ -82,9 +90,11 @@ public class MarkupParser {
      */
     public static List<String> getList(String Markup, String ItemMarker) {
         ArrayList<String> result = new ArrayList<>();
-        String[] items = Markup.split(ItemMarker);    
-        for (int i=0;i<items.length;i++) {
-            result.add(items[i].trim());
+        String[] item = Markup.split(ItemMarker);    
+        for (int i=0;i<item.length;i++) {
+            if (!item[i].equals("") && !item[i].equals(" ")) {
+                result.add(item[i].trim());
+            }
         }
         return result;
     }

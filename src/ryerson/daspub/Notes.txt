@@ -15,7 +15,10 @@ DAS ARCHIVE PUBLISHER
 
 Current Work:
 
-0.5.0 o Fix APR gallery!
+0.5.0 o Convert course and assignment pages into images, add an expandable
+        content block, insert galleries into content block
+      o Fix APR gallery!
+      o Review report page to use JQuery Mobile layout
       o Multi-page PDFs and indexes for them!
       o Create separate assignment indexes for single page submissions, 
         multi-page and videos
@@ -28,7 +31,7 @@ Current Work:
         them to another folder -- used for APR
       o Complete all current TODO tasks
       
-      - Artifact pages have appropriate tag in full screen mode
+      - Artifact pages have appropriate labeling in full screen mode
       - Fix path problem for artifact pages that don't have any images 
         associated (skip them!)
       - Fix scaling for artifact page previews

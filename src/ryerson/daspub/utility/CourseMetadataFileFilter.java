@@ -26,7 +26,7 @@ import ryerson.daspub.Config;
  * Course description PDF file filter.
  * @author dmarques
  */
-public class CourseDescriptionPDFFileFilter implements FilenameFilter {
+public class CourseMetadataFileFilter implements FilenameFilter {
 
     /**
      * Determine if a file is a course description PDF document.
@@ -35,7 +35,7 @@ public class CourseDescriptionPDFFileFilter implements FilenameFilter {
      * @return True if the file is a course description PDF, false otherwise.
      */
     public boolean accept(File dir, String name) {
-        if (name.toLowerCase().equals(Config.COURSE_DESCRIPTION_PDF_FILE)) return true;
+        if (name.toLowerCase().equals(Config.COURSE_HANDOUT_FILE)) return true;
         return false;
     }
 

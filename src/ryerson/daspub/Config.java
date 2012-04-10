@@ -52,10 +52,10 @@ public class Config {
     public static String STATUS_REPORT_CONTENT_ONLY = "true";
     public static String LOGGING_PATH;
     
-    public static String COURSE_DESCRIPTION_TEXT_FILE = "course.txt";
-    public static String COURSE_DESCRIPTION_PDF_FILE = "course.pdf";
-    public static String ASSIGNMENT_DESCRIPTION_TEXT_FILE = "assignment.txt";
-    public static String ASSIGNMENT_PDF_FILE = "assignment.pdf";
+    public static String COURSE_METADATA_FILE = "course.txt";
+    public static String COURSE_HANDOUT_FILE = "course.pdf";
+    public static String ASSIGNMENT_METADATA_FILE = "assignment.txt";
+    public static String ASSIGNMENT_HANDOUT_FILE = "assignment.pdf";
     public static String SUBMISSION_METADATA_FILE = "assignment.xls";
 
     public static String ARTIFACT_TEMPLATE_PATH;
@@ -93,10 +93,10 @@ public class Config {
      * @return
      */
     public static String[] getMetadataFileTypes() {
-        String[] files = {COURSE_DESCRIPTION_TEXT_FILE,
-                            COURSE_DESCRIPTION_PDF_FILE,
-                            ASSIGNMENT_DESCRIPTION_TEXT_FILE,
-                            ASSIGNMENT_PDF_FILE,
+        String[] files = {COURSE_METADATA_FILE,
+                            COURSE_HANDOUT_FILE,
+                            ASSIGNMENT_METADATA_FILE,
+                            ASSIGNMENT_HANDOUT_FILE,
                             SUBMISSION_METADATA_FILE};
         return files;
     }

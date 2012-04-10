@@ -56,7 +56,7 @@ public class AssignmentReport {
         } else {
             sb.append("\n\t\t\t<li class='crossed'>Does not have assignment metadata file (");
         }
-        sb.append(Config.ASSIGNMENT_DESCRIPTION_TEXT_FILE);
+        sb.append(Config.ASSIGNMENT_METADATA_FILE);
         sb.append(")</li>");
         // assignment handout file
         if (A.hasAssignmentHandout()) {
@@ -64,7 +64,7 @@ public class AssignmentReport {
         } else {
             sb.append("\n\t\t\t<li class='crossed'>Does not have assignment handout PDF (");
         }
-        sb.append(Config.ASSIGNMENT_PDF_FILE);
+        sb.append(Config.ASSIGNMENT_HANDOUT_FILE);
         sb.append(")</li>");
         // submission metadata files
         if (A.hasSubmissionMetadataFile()) {

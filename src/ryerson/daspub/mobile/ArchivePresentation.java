@@ -45,8 +45,7 @@ public class ArchivePresentation {
     public static void Write(Archive A, File F) {
         try {
             Program program = null;
-            File archiveOutPath = new File(F.getAbsolutePath(),"program");
-            archiveOutPath = new File(archiveOutPath,A.getPathSafeName());
+            File archiveOutPath = new File(F,A.getPathSafeName());
             // process programs
             Iterator<Program> programs = A.getPrograms();
             while (programs.hasNext()) {

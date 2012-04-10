@@ -25,6 +25,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import jxl.Cell;
@@ -32,18 +33,17 @@ import jxl.Sheet;
 import jxl.Workbook;
 import jxl.WorkbookSettings;
 import jxl.read.biff.BiffException;
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import ryerson.daspub.Config;
 import ryerson.daspub.Config.STATUS;
-import ryerson.daspub.utility.AssignmentDescriptionTextFileFilter;
+import ryerson.daspub.utility.AssignmentMetadataFileFilter;
 import ryerson.daspub.utility.AssignmentPDFFileFilter;
+import ryerson.daspub.utility.MarkupParser;
 import ryerson.daspub.utility.SubmissionMetadataFileFilter;
 import ryerson.daspub.utility.MetadataFileFilter;
 
 /**
- * Assignment entity.
- * An assignment has four types of subfiles:
+ * Assignment entity. An assignment has four types of subfiles:
  * 
  * - a text file containing metadata describing the assignment
  * - a PDF file representing the handout that students received for the assignment
@@ -54,8 +54,6 @@ import ryerson.daspub.utility.MetadataFileFilter;
  */
 public class Assignment {
 
-    private static String THUMBS = "thumbs/";
-    
     private File path;
     private String description = "";
 
@@ -69,6 +67,7 @@ public class Assignment {
      */
     public Assignment(File D) {
         path = D;
+        parseMetadataFile();
     }
    
     //--------------------------------------------------------------------------
@@ -80,14 +79,7 @@ public class Assignment {
      * @throws Exception
      */
     public String getDescription() {
-        try {
-            String text[] = parseDescriptionFile();
-            return text[0];
-        } catch (Exception ex) {
-            String stack = ExceptionUtils.getStackTrace(ex);
-            logger.log(Level.SEVERE,"Could not parse description.\n\n{0}",stack);
-            return "";
-        }
+        return description;
     }
 
     /**
@@ -203,9 +195,9 @@ public class Assignment {
      * @return 
      */
     public String getSyllabusLink() {
-        File file = new File(path.getAbsolutePath(),Config.ASSIGNMENT_PDF_FILE);
+        File file = new File(path.getAbsolutePath(),Config.ASSIGNMENT_HANDOUT_FILE);
         if (file.exists()) {
-            return "<a href='" + Config.ASSIGNMENT_PDF_FILE + "'>Assignment handout</a>";
+            return "<a href='" + Config.ASSIGNMENT_HANDOUT_FILE + "'>Assignment handout</a>";
         } else {
             return "Assignment handout not available.";
         }
@@ -226,7 +218,7 @@ public class Assignment {
      * @return True if file exists, false otherwise.
      */
     public boolean hasAssignmentMetadataFile() {
-        File[] files = path.listFiles(new AssignmentDescriptionTextFileFilter());
+        File[] files = path.listFiles(new AssignmentMetadataFileFilter());
         if (files.length > 0) return true;
         return false;
     }
@@ -235,6 +227,7 @@ public class Assignment {
      * Determine if the assignment has complete submission metadata.
      */
     public boolean hasCompleteSubmissionMetadata() {
+       logger.log(Level.WARNING,"Assignment.hasCompleteSubmissionMetadata is not implemented and does not return correct results.");
        return true; 
     }
     
@@ -295,33 +288,16 @@ public class Assignment {
     }
 
     /**
-     * The content is raw and unprocessed.
-     * 0 - Description
-     * 1 - 
-     * @return Array of content values
+     * Parse the metadata file.
      */
-    private String[] parseDescriptionFile() throws Exception {
-       String[] vals = {"", "", "", ""};
-       File file = new File(path.getAbsolutePath(),Config.ASSIGNMENT_DESCRIPTION_TEXT_FILE);
+    private void parseMetadataFile() {
+        File file = new File(path,Config.ASSIGNMENT_METADATA_FILE);
         if (file.exists()) {
-           String text = FileUtils.readFileToString(file);
-           text = text.replace("\"", "&quot;");
-           String[] blocks = text.split("==");
-           String line = "";
-           int count = 0;
-           for (int i=0;i<blocks.length && count<vals.length;i++) {
-               line = blocks[i];
-               if (!line.equals("")) {
-                   if (line.startsWith("\r\n")) {
-                       line = line.replace("\r\n"," ");
-                       line = line.trim();
-                       vals[count] = line;
-                       count++;
-                   }
-               }
-           }
-        } 
-        return vals;
+            Map<String,String> vals = MarkupParser.parse(file);
+            if (vals.containsKey("Description")) {
+                description = vals.get("Description");
+            }
+        }
     }
     
 } // end class

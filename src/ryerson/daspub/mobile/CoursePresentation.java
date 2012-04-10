@@ -28,6 +28,7 @@ import org.apache.commons.lang3.exception.ExceptionUtils;
 import ryerson.daspub.Config;
 import ryerson.daspub.model.Assignment;
 import ryerson.daspub.model.Course;
+import ryerson.daspub.utility.MarkupParser;
 import ryerson.daspub.utility.PDFFileFilter;
 
 /**
@@ -39,21 +40,6 @@ public class CoursePresentation {
     private static final Logger logger = Logger.getLogger(CoursePresentation.class.getName());
 
     //--------------------------------------------------------------------------
-    
-    /**
-     * Generate a comma separated list of items.
-     * @param L List of items
-     * @return 
-     */
-    private static String getHTMLFormattedList(List<String> L) {
-        StringBuilder sb = new StringBuilder();
-        int count = L.size();
-        for (int i=0;i<count-1;i++) {
-            sb.append(L.get(i));
-            sb.append(", ");
-        }
-        return sb.toString();
-    }
     
     /**
      * Write course data and HTML index file to specified output folder
@@ -73,22 +59,30 @@ public class CoursePresentation {
             // load index page template file
             String template = FileUtils.readFileToString(new File(Config.COURSE_TEMPLATE_PATH));
             // build index page
-            template = template.replace("${course.title}", C.getCourseName());
+            String title = C.getCourseCode() + " - " + C.getCourseName();
+            template = template.replace("${course.title}", title);
             template = template.replace("${course.description}", C.getDescription());
             template = template.replace("${course.format}", C.getFormat());
-            template = template.replace("${course.syllabus}", C.getSyllabusLink());
-            template = template.replace("${course.instructors}", getHTMLFormattedList(C.getInstructors()));
-            template = template.replace("${course.cacb.criteria}", getHTMLFormattedList(C.getSPCFulfilled()));
+            String link = C.getSyllabusRelativePath();
+            if (link != null) {
+                link = "\n<a href=\"" + link + "\">Syllabus</a>";
+            } else {
+                link = "Course syllabus not available.";
+            }
+            template = template.replace("${course.syllabus}", link);
+            template = template.replace("${course.instructors}", MarkupParser.getHTMLUnorderedList(C.getInstructors()));
+            template = template.replace("${course.cacb.criteria}", MarkupParser.getHTMLUnorderedList(C.getSPCFulfilled()));
             // build assignment index
             List<Assignment> la = C.getAssignments();
             Iterator<Assignment> assignments = la.iterator();
             StringBuilder sb = new StringBuilder();
-            sb.append("<ul data-role=\"listview\" data-inset=\"true\" data-theme=\"c\">");
+            sb.append("\n<ul data-role=\"listview\" data-inset=\"true\" data-theme=\"c\">");
             File assignmentOutputPath = null;
             while (assignments.hasNext()) {
                 Assignment a = assignments.next();
                 // add assignment to index
                 sb.append("\n\t<li><a href=\"");
+                link = a.getPathSafeName() + "\\" + C.getSyllabusRelativePath();
                 sb.append(a.getPathSafeName());
                 sb.append("\">");
                 sb.append(a.getName());
@@ -101,7 +95,7 @@ public class CoursePresentation {
             template = template.replace("${course.assignments}",sb.toString());
             // build exam list
             // TODO revise formatted lists method for more flexibility
-            template = template.replace("${course.exams}", getHTMLFormattedList(C.getExams()));
+            // template = template.replace("${course.exams}", getHTMLBulletList(C.getExams()));
             // write index page
             File index = new File(F.getAbsolutePath(), "index.html");
             FileUtils.write(index, template);

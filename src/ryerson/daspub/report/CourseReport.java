@@ -75,14 +75,14 @@ public class CourseReport {
         } else {
             sb.append("\n\t\t\t\t<li class='crossed'>Does not have course description file (");
         }
-        sb.append(Config.COURSE_DESCRIPTION_TEXT_FILE);
+        sb.append(Config.COURSE_METADATA_FILE);
         sb.append(")</li>");
         if (C.hasCourseHandoutFile()) {
             sb.append("\n\t\t\t\t<li class='checked'>Has course handout PDF (");
         } else {
             sb.append("\n\t\t\t\t<li class='crossed'>Does not have course handout PDF (");
         }
-        sb.append(Config.COURSE_DESCRIPTION_PDF_FILE);
+        sb.append(Config.COURSE_HANDOUT_FILE);
         sb.append(")</li>");
         if (!C.hasAssignments()) {
             sb.append("\n\t\t\t\t<li class='crossed'>Does not have assignment folders.</li>");
