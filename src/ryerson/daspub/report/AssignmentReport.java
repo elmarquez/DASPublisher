@@ -51,7 +51,7 @@ public class AssignmentReport {
         sb.append("</h1>");
         // assignment metadata file
         sb.append("\n\t\t<ul class='marked'>");
-        if (A.hasAssignmentMetadataFile()) {
+        if (A.hasMetadataFile()) {
             sb.append("\n\t\t\t<li class='checked'>Has assignment metadata file (");
         } else {
             sb.append("\n\t\t\t<li class='crossed'>Does not have assignment metadata file (");
@@ -59,12 +59,12 @@ public class AssignmentReport {
         sb.append(Config.ASSIGNMENT_METADATA_FILE);
         sb.append(")</li>");
         // assignment handout file
-        if (A.hasAssignmentHandout()) {
+        if (A.hasSyllabusFile()) {
             sb.append("\n\t\t\t<li class='checked'>Has assignment handout PDF (");
         } else {
             sb.append("\n\t\t\t<li class='crossed'>Does not have assignment handout PDF (");
         }
-        sb.append(Config.ASSIGNMENT_HANDOUT_FILE);
+        sb.append(Config.ASSIGNMENT_SYLLABUS_FILE);
         sb.append(")</li>");
         // submission metadata files
         if (A.hasSubmissionMetadataFile()) {

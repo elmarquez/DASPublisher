@@ -117,7 +117,7 @@ public class Initializer implements Runnable {
      */
     private static void tryInitCourse(Course C) {
         // if the course does not have a metadata file
-        if (!C.hasCourseMetadataFile()) {
+        if (!C.hasMetadataFile()) {
             // write the default metadata file
         }
         // try to initialize assignments

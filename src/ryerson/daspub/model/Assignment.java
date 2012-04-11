@@ -54,7 +54,7 @@ import ryerson.daspub.utility.MetadataFileFilter;
  */
 public class Assignment {
 
-    private File path;
+    private File source;
     private String description = "";
 
     private static final Logger logger = Logger.getLogger(Assignment.class.getName());
@@ -63,10 +63,10 @@ public class Assignment {
 
     /**
      * Assignment constructor
-     * @param D Directory
+     * @param F Source folder
      */
-    public Assignment(File D) {
-        path = D;
+    public Assignment(File F) {
+        source = F;
         parseMetadataFile();
     }
    
@@ -83,12 +83,11 @@ public class Assignment {
     }
 
     /**
-     * Get HTML anchor safe identifier
-     * @return
+     * Get path
+     * @return 
      */
-    private String getHTMLSafeID() {
-        String name = path.getName();
-        return name.replace(" ", "_");
+    public File getFolder() {
+       return source; 
     }
 
     /**
@@ -96,7 +95,7 @@ public class Assignment {
      * @return Metadata file. Null if no file is found.
      */
     private File getMetadataFile() {
-        File[] files = path.listFiles(new MetadataFileFilter());
+        File[] files = source.listFiles(new MetadataFileFilter());
         File file = null;
         if (files.length>0) {
             file = files[0];
@@ -109,38 +108,18 @@ public class Assignment {
      * @return Assignment name
      */
     public String getName() {
-        return path.getName();
-    }
-
-    /**
-     * Get path
-     * @return 
-     */
-    public File getPath() {
-       return path; 
-    }
-
-    /**
-     * Get path safe name.
-     * TODO consider replacing _ with %20
-     */
-    public String getPathSafeName() {
-        String name = getName();
-        name = name.replace(" ", "_");
-        name = name.replace(".", "_");
-        name = name.replace("-", "_");
-        return name;
+        return source.getName();
     }
 
     /**
      * Get publication status
      * @return Assignment STATUS flag value.
      */
-    public STATUS getPublicationStatus() {
-        if (!this.hasAssignmentHandout()) {
+    public STATUS getStatus() {
+        if (!this.hasSyllabusFile()) {
             return STATUS.INCOMPLETE;
         }
-        if (!this.hasAssignmentMetadataFile()) {
+        if (!this.hasMetadataFile()) {
             return STATUS.INCOMPLETE;
         }
         if (!this.hasSubmissionMetadataFile()) {
@@ -165,7 +144,7 @@ public class Assignment {
     public List<Submission> getSubmissions() {
         ArrayList<Submission> items = new ArrayList<>();
         // load the metadata file
-        File file = new File(this.path,Config.SUBMISSION_METADATA_FILE);
+        File file = new File(this.source,Config.SUBMISSION_METADATA_FILE);
         if (file.exists()) {            
             try {
                 WorkbookSettings ws = new WorkbookSettings();
@@ -176,7 +155,7 @@ public class Assignment {
                 int rows = sheet.getRows();
                 for (int row=1;row<rows;row++) {
                     Cell[] cells = sheet.getRow(row);
-                    Submission s = Submission.getSubmission(cells,path);
+                    Submission s = Submission.getSubmission(cells,source);
                     if (s != null) {
                         items.add(s);
                     }
@@ -184,7 +163,7 @@ public class Assignment {
             } catch (IOException | BiffException | IndexOutOfBoundsException ex) {
                 String stack = ExceptionUtils.getStackTrace(ex);
                 logger.log(Level.SEVERE,"Submission metadata for assignment {0} could not be loaded.\n\n{1}",
-                        new Object[]{path.getAbsolutePath(),stack});
+                        new Object[]{source.getAbsolutePath(),stack});
             }
         }
         return items;        
@@ -192,35 +171,23 @@ public class Assignment {
 
     /**
      * Get link to assignment syllabus file.
-     * @return 
+     * @return Returns null if file does not exist.
      */
-    public String getSyllabusLink() {
-        File file = new File(path.getAbsolutePath(),Config.ASSIGNMENT_HANDOUT_FILE);
-        if (file.exists()) {
-            return "<a href='" + Config.ASSIGNMENT_HANDOUT_FILE + "'>Assignment handout</a>";
-        } else {
-            return "Assignment handout not available.";
-        }
+    public File getSyllabusFile() {
+        File file = new File(source,Config.ASSIGNMENT_SYLLABUS_FILE);
+        if (file.exists()) return file;
+        return null;
      }
     
     /**
-     * Determine if the assignment has a PDF file assignment handout.
-     * @return True if file exists, false otherwise.
+     * Get path safe name.
      */
-    public boolean hasAssignmentHandout() {
-        File[] files = path.listFiles(new AssignmentPDFFileFilter());
-        if (files.length > 0) return true;
-        return false;
-    }
-
-    /**
-     * Determine if the assignment contains a text file with assignment metadata.
-     * @return True if file exists, false otherwise.
-     */
-    public boolean hasAssignmentMetadataFile() {
-        File[] files = path.listFiles(new AssignmentMetadataFileFilter());
-        if (files.length > 0) return true;
-        return false;
+    public String getURLSafeName() {
+        String name = getName();
+        name = name.replace(" ", "_");
+        name = name.replace(".", "_");
+        name = name.replace("-", "_");
+        return name;
     }
 
     /**
@@ -239,7 +206,7 @@ public class Assignment {
     public boolean hasConformingSubmissionMetadataFile() {
         ArrayList<Submission> items = new ArrayList<>();
         // load the metadata file
-        File file = new File(this.path,Config.SUBMISSION_METADATA_FILE);
+        File file = new File(this.source,Config.SUBMISSION_METADATA_FILE);
         if (file.exists()) {            
             try {
                 WorkbookSettings ws = new WorkbookSettings();
@@ -250,7 +217,7 @@ public class Assignment {
                 int rows = sheet.getRows();
                 for (int row=1;row<rows;row++) {
                     Cell[] cells = sheet.getRow(row);
-                    Submission s = Submission.getSubmission(cells,path);
+                    Submission s = Submission.getSubmission(cells,source);
                     if (s != null) {
                         items.add(s);
                     }
@@ -258,19 +225,37 @@ public class Assignment {
             } catch (IOException | BiffException | IndexOutOfBoundsException ex) {
                 String stack = ExceptionUtils.getStackTrace(ex);
                 logger.log(Level.SEVERE,"Submission metadata for assignment {0} could not be loaded.\n\n{1}",
-                        new Object[]{path.getAbsolutePath(),stack});
+                        new Object[]{source.getAbsolutePath(),stack});
                 return false;
             }
         }
        return true;
     }
+
+    /**
+     * Determine if the assignment has any submissions with image files.
+     * @return True if the assignment includes on or more submissions with images, false otherwise.
+     */
+    public boolean hasDocumentSubmission() {
+       return true;
+    }
     
+    /**
+     * Determine if the assignment contains a text file with assignment metadata.
+     * @return True if file exists, false otherwise.
+     */
+    public boolean hasMetadataFile() {
+        File[] files = source.listFiles(new AssignmentMetadataFileFilter());
+        if (files.length > 0) return true;
+        return false;
+    }
+
     /**
      * Determine if the assignment has a submission metadata file
      * @return 
      */
     public boolean hasSubmissionMetadataFile() {
-        File[] files = path.listFiles(new SubmissionMetadataFileFilter());
+        File[] files = source.listFiles(new SubmissionMetadataFileFilter());
         if (files.length > 0) return true;
         return false;
     }
@@ -288,10 +273,29 @@ public class Assignment {
     }
 
     /**
+     * Determine if the assignment has a PDF file assignment handout.
+     * @return True if file exists, false otherwise.
+     */
+    public boolean hasSyllabusFile() {
+        File[] files = source.listFiles(new AssignmentPDFFileFilter());
+        if (files.length > 0) return true;
+        return false;
+    }
+
+    /**
+     * Determine if the assignment has any animations or video files.
+     * @return True if the assignment includes on or more submissions with video, false otherwise.
+     */
+    public boolean hasVideoSubmission() {
+        // @TODO complete this
+        return false;
+    }
+    
+    /**
      * Parse the metadata file.
      */
     private void parseMetadataFile() {
-        File file = new File(path,Config.ASSIGNMENT_METADATA_FILE);
+        File file = new File(source,Config.ASSIGNMENT_METADATA_FILE);
         if (file.exists()) {
             Map<String,String> vals = MarkupParser.parse(file);
             if (vals.containsKey("Description")) {
@@ -301,4 +305,3 @@ public class Assignment {
     }
     
 } // end class
-

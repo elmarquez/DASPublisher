@@ -35,7 +35,7 @@ public class CourseMetadataFileFilter implements FilenameFilter {
      * @return True if the file is a course description PDF, false otherwise.
      */
     public boolean accept(File dir, String name) {
-        if (name.toLowerCase().equals(Config.COURSE_HANDOUT_FILE)) return true;
+        if (name.toLowerCase().equals(Config.COURSE_SYLLABUS_FILE)) return true;
         return false;
     }
 

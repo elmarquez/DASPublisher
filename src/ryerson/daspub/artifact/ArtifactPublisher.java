@@ -71,9 +71,8 @@ public class ArtifactPublisher implements Runnable {
         largeDir = new File(output,"large");
         mediumDir = new File(output,"medium");
         smallDir = new File(output,"small");
-        qrDir = new File(output,"qr");
-        
-        //@TODO consider storing and loading it from the config class instead
+        qrDir = new File(output,"qr");        
+        //@TODO consider storing and loading it from the JAR instead
         template = FileUtils.readFileToString(new File(Config.ARTIFACT_TEMPLATE_PATH));
     }
 
@@ -111,7 +110,9 @@ public class ArtifactPublisher implements Runnable {
                         Iterator<Submission> its = ls.iterator();
                         while (its.hasNext()) {
                             Submission submission = its.next();
-                            processSubmission(submission, output);
+                            if (submission.hasSourceFile()) {
+                                processSubmission(submission, output);                                
+                            }
                         }
                     }
                 }
@@ -161,6 +162,10 @@ public class ArtifactPublisher implements Runnable {
                 artifact_page = artifact_page.replace("${studentName}", S.getStudentName());
                 artifact_page = artifact_page.replace("${submissionId}", S.getSubmissionId());
                 artifact_page = artifact_page.replace("${evaluation}", S.getEvaluation());
+                String caption = S.getAssignmentName() + " - " +
+                                 S.getStudentName() + ", " + 
+                                 S.getEvaluation();
+                artifact_page = artifact_page.replace("${caption}", caption);
                 // substitute image path template values
                 
                 

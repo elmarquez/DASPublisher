@@ -42,47 +42,47 @@ public class CourseReport {
      * @return 
      */
     public static String GetHTML(Course C) {
-        logger.log(Level.INFO,"Building report for course {0}",C.getPath());
+        logger.log(Level.INFO,"Building report for course {0}",C.getFolder().getAbsolutePath());
         // toggle block
         StringBuilder sb = new StringBuilder();
         sb.append("\n<script type='text/javascript'>");
         sb.append("animatedcollapse.addDiv('");
-        sb.append(C.getPathSafeName());
+        sb.append(C.getURLSafeName());
         sb.append("','fade=1')");
         sb.append("</script>");
         sb.append("\n<div class='course'>");
         // item title
         sb.append("\n\t<div class='title ");
-        sb.append(C.getPublicationStatus().toString().toLowerCase());
+        sb.append(C.getStatus().toString().toLowerCase());
         sb.append("'>");
         sb.append("\n\t\t<h1><a href=\"javascript:animatedcollapse.toggle('");
-        sb.append(C.getPathSafeName());
+        sb.append(C.getURLSafeName());
         sb.append("\')\">");
         sb.append(C.getCourseCode());
         sb.append(" - ");
-        sb.append(C.getCourseName());
+        sb.append(C.getName());
         sb.append("</a></h1>");
         sb.append("\n\t</div>");
         // toggle wrapper
         sb.append("\n\t<div id='");
-        sb.append(C.getPathSafeName());
+        sb.append(C.getURLSafeName());
         sb.append("' style='display:none;'>");
         // description and metadata files
         sb.append("\n\t\t<div class='metadata'>");
         sb.append("\n\t\t\t<ul class='marked'>");
-        if (C.hasCourseMetadataFile()) {
+        if (C.hasMetadataFile()) {
             sb.append("\n\t\t\t\t<li class='checked'>Has course description file (");
         } else {
             sb.append("\n\t\t\t\t<li class='crossed'>Does not have course description file (");
         }
         sb.append(Config.COURSE_METADATA_FILE);
         sb.append(")</li>");
-        if (C.hasCourseHandoutFile()) {
+        if (C.hasSyllabusFile()) {
             sb.append("\n\t\t\t\t<li class='checked'>Has course handout PDF (");
         } else {
             sb.append("\n\t\t\t\t<li class='crossed'>Does not have course handout PDF (");
         }
-        sb.append(Config.COURSE_HANDOUT_FILE);
+        sb.append(Config.COURSE_SYLLABUS_FILE);
         sb.append(")</li>");
         if (!C.hasAssignments()) {
             sb.append("\n\t\t\t\t<li class='crossed'>Does not have assignment folders.</li>");

@@ -32,7 +32,9 @@ import org.apache.commons.lang3.exception.ExceptionUtils;
 
 /**
  * A utility class for maintaining configuration data. Defaults are provided in
- * the class. Overriding values can be loaded from a file.
+ * the class. Overriding values can be loaded from a file.  When specifying an
+ * overriding value, it should match the name of the corresponding variable
+ * in the Config class.
  * @author dmarques
  */
 public class Config {
@@ -44,6 +46,7 @@ public class Config {
     public static final String PDF_TYPE = "pdf";
     public static final String[] IMAGE_TYPES = {"bmp","gif","jpg","jpeg","mp4","pdf","png","tif","tiff","webm"};
     public static final String[] PROCESSABLE_IMAGE_TYPES = {"bmp","gif","jpg","jpeg","png","tif","tiff"};
+    
     public static final String[] NEAR_IMAGE_TYPES = {"3dm","3ds","avi","doc","docx","dwg","dxf","mov","mpg","odt","ppt","pptx","psd"};
 
     // parameters
@@ -53,9 +56,9 @@ public class Config {
     public static String LOGGING_PATH;
     
     public static String COURSE_METADATA_FILE = "course.txt";
-    public static String COURSE_HANDOUT_FILE = "course.pdf";
+    public static String COURSE_SYLLABUS_FILE = "course.pdf";
     public static String ASSIGNMENT_METADATA_FILE = "assignment.txt";
-    public static String ASSIGNMENT_HANDOUT_FILE = "assignment.pdf";
+    public static String ASSIGNMENT_SYLLABUS_FILE = "assignment.pdf";
     public static String SUBMISSION_METADATA_FILE = "assignment.xls";
 
     public static String ARTIFACT_TEMPLATE_PATH;
@@ -63,10 +66,12 @@ public class Config {
     public static String COURSE_TEMPLATE_PATH;
 
     public static String ARTIFACT_BASE_URL = "http://www.myserver.org/";
+    
     public static int ARTIFACT_IMAGE_MAX_HEIGHT = 640;
     public static int ARTIFACT_IMAGE_MAX_WIDTH = 640;
     public static int ARTIFACT_PREVIEW_MAX_HEIGHT = 640;
     public static int ARTIFACT_PREVIEW_MAX_WIDTH = 640;
+
     public static int ARTIFACT_TAG_WIDTH = 100;
     public static int ARTIFACT_TAG_HEIGHT = 100;
             
@@ -94,9 +99,9 @@ public class Config {
      */
     public static String[] getMetadataFileTypes() {
         String[] files = {COURSE_METADATA_FILE,
-                            COURSE_HANDOUT_FILE,
+                            COURSE_SYLLABUS_FILE,
                             ASSIGNMENT_METADATA_FILE,
-                            ASSIGNMENT_HANDOUT_FILE,
+                            ASSIGNMENT_SYLLABUS_FILE,
                             SUBMISSION_METADATA_FILE};
         return files;
     }

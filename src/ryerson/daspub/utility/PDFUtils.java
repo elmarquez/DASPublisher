@@ -22,6 +22,8 @@ package ryerson.daspub.utility;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import net.coobird.thumbnailator.Thumbnails;
@@ -61,10 +63,12 @@ public class PDFUtils {
      * @param Width Maximum thumbnail width
      * @param Height Maximum thumbnail height
      * @param Multipage If document has multiple pages, write out a file for each page. Pages are numbered sequentially, in the form filename-#.jpg
+     * @return List of files written
      * @throws IOException
      * @throws PDFException
      */
-    public static void writeJPGImage(File Input, File Output, int Width, int Height, Boolean Multipage) throws PdfException, IOException {
+    public static List<File> writeJPGImage(File Input, File Output, int Width, int Height, Boolean Multipage) throws PdfException, IOException {
+        ArrayList<File> result = new ArrayList<>();
         if (FilenameUtils.isExtension(Input.getName(),"pdf")) {
             // open the file
             pdf.openPdfFile(Input.getAbsolutePath());
@@ -75,26 +79,31 @@ public class PDFUtils {
                     for (int i=0;i<pages;i++) {
                         BufferedImage img = pdf.getPageAsImage(i+1);
                         File output = getIncrementedFileName(Output,i+1);
-                        Thumbnails.of(img).size(Width,Height).outputFormat("jpg").toFile(output);
                         logger.log(Level.INFO,"Writing JPEG image for {0}",output.getName());
+                        Thumbnails.of(img).size(Width,Height).outputFormat("jpg").toFile(output);
+                        result.add(output);
                     }
                 } else if (pages == 1) {
                     BufferedImage img = pdf.getPageAsImage(1);
-                    Thumbnails.of(img).size(Width,Height).outputFormat("jpg").toFile(Output);
                     logger.log(Level.INFO,"Writing JPEG for {0}",Output.getName());
+                    Thumbnails.of(img).size(Width,Height).outputFormat("jpg").toFile(Output);
+                    result.add(Output);
                 }
             } else {
                 // get first page of PDF as an image
                 BufferedImage img = pdf.getPageAsImage(1);
                 // create and write a thumbnail image
-                Thumbnails.of(img).size(Width,Height).outputFormat("jpg").toFile(Output);
                 logger.log(Level.INFO,"Writing JPEG for {0}",Output.getName());
+                Thumbnails.of(img).size(Width,Height).outputFormat("jpg").toFile(Output);
+                result.add(Output);
             }
             // close the file
             pdf.closePdfFile();
         } else {
             logger.log(Level.WARNING,"Could not write PDF thumbnail for {0}. File is not a PDF document.",Input.getAbsolutePath());
         }
+        // return file list
+        return result;
     }
 
 } // end class

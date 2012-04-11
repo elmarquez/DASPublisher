@@ -75,22 +75,9 @@ public class Course {
      */
     public String getCourseCode() {
         String result = "";
-        String[] s = this.getFolderName().split("-");
+        String[] s = this.getFolder().getName().split("-");
         if (s.length > 1) {
             result = s[0];
-        }
-        return result;
-    }
-    
-    /**
-     * Get course name
-     * @return 
-     */
-    public String getCourseName() {
-        String result = "";
-        String[] s = this.getFolderName().split("-");
-        if (s.length > 1) {
-            result = s[1];
         }
         return result;
     }
@@ -116,23 +103,13 @@ public class Course {
      * Get course folder file
      * @return 
      */
-    public File getFile() {
+    public File getFolder() {
         return new File(path);
     }
 
     /**
-     * Get course title. The course title is the folder name.
-     * @return
-     */
-    public String getFolderName() {
-        File dir = new File(path);
-        return dir.getName();
-    }
-
-    /**
      * Get course format
-     * @return 
-     * TODO complete this method
+     * @return Course format description
      */
     public String getFormat() {
         return format;
@@ -140,40 +117,41 @@ public class Course {
 
     /**
      * Get list of instructors
-     * TODO complete this method
      */
     public List<String> getInstructors() {
         return instructors;
     }
-    
+
     /**
-     * Get course folder path
+     * Get course name
      * @return 
      */
-    public String getPath() {
-        return path;
+    public String getName() {
+        String result = "";
+        String[] s = this.getFolder().getName().split("-");
+        if (s.length > 1) {
+            result = s[1];
+        }
+        return result;
     }
-
+    
     /**
-     * Get path safe name.
+     * Get list of SPC criteria that this course fulfills.
+     * @return 
      */
-    public String getPathSafeName() {
-        String name = getFolderName();
-        name = name.replace(" ", "_");
-        name = name.replace(".", "_");
-        name = name.replace("-", "_");
-        return name;
+    public List<String> getSPCFulfilled() {
+        return cacbcriteria;
     }
-
+    
     /**
-     * Get publication status
+     * Get publication status.
      * @return
      */
-    public STATUS getPublicationStatus() {
-        if (!this.hasCourseMetadataFile()) {
+    public STATUS getStatus() {
+        if (!this.hasMetadataFile()) {
             return STATUS.INCOMPLETE;
         }
-        if (!this.hasCourseHandoutFile()) {
+        if (!this.hasSyllabusFile()) {
             return STATUS.INCOMPLETE;
         }
         if (!this.hasAssignments()) {
@@ -183,7 +161,7 @@ public class Course {
         Iterator<Assignment> ita = assignments.iterator();
         while (ita.hasNext()) {
             Assignment a = ita.next();
-            STATUS status = a.getPublicationStatus();
+            STATUS status = a.getStatus();
             if (status == STATUS.PARTIAL) {
                 return STATUS.PARTIAL;
             } else if (status == STATUS.INCOMPLETE ||
@@ -195,24 +173,24 @@ public class Course {
     }
 
     /**
-     * Get list of SPC criteria that this course fulfills.
-     * @return 
+     * Get handout file
+     * @return Returns null if file does not exist.
      */
-    public List<String> getSPCFulfilled() {
-        return cacbcriteria;
+    public File getSyllabusFile() {
+        File file = new File(path,Config.COURSE_SYLLABUS_FILE);
+        if (file.exists()) return file;
+        return null;
     }
     
     /**
-     * Get link to course handout
-     * @return Returns null if there is no syllabus file to link to
+     * Get path safe name.
      */
-    public String getSyllabusRelativePath() {
-        File file = new File(path, Config.COURSE_HANDOUT_FILE);
-        if (file.exists()) {
-            return Config.COURSE_HANDOUT_FILE;
-        } else {
-            return null;
-        }
+    public String getURLSafeName() {
+        String name = this.getFolder().getName();
+        name = name.replace(" ", "_");
+        name = name.replace(".", "_");
+        name = name.replace("-", "_");
+        return name;
     }
 
     /**
@@ -229,8 +207,8 @@ public class Course {
     /**
      * Determine if course has handout file
      */
-    public boolean hasCourseHandoutFile() {
-        File file = new File(path,Config.COURSE_HANDOUT_FILE);
+    public boolean hasSyllabusFile() {
+        File file = new File(path,Config.COURSE_SYLLABUS_FILE);
         return file.exists();
     }
     
@@ -238,7 +216,7 @@ public class Course {
      * Determine if the course has metadata file
      * @return 
      */
-    public boolean hasCourseMetadataFile() {
+    public boolean hasMetadataFile() {
         File file = new File(path,Config.COURSE_METADATA_FILE);
         return file.exists();
     }

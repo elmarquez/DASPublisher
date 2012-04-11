@@ -299,6 +299,16 @@ public class Submission {
     public String getYear() {
         return year;
     }
+    
+    /**
+     * Determine if the source file exists
+     */
+    public boolean hasSourceFile() {
+        if (file != null && file.exists()) {
+            return true;
+        }
+        return false;
+    }
 
     public boolean isImage() {
         return false;
@@ -319,6 +329,7 @@ public class Submission {
     /**
      * Write a JPG image of the file.
      * @param Output Output file
+     * @TODO this is not a method appropriate to a model object ... move to publishing class
      */
     public void writeImage(File Output) {
         logger.log(Level.INFO,"Writing full size image for {0}",file.getName());
@@ -343,6 +354,7 @@ public class Submission {
     /**
      * Write thumbnail to file.
      * @param Output Output file
+     * @TODO this is not a method appropriate to a model object ... move to publishing class
      */
     public void writeThumbnail(File Output) {
         logger.log(Level.INFO,"Writing thumbnail image for {0}",file.getName());

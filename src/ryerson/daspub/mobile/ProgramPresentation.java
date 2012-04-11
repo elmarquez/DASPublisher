@@ -51,7 +51,7 @@ public class ProgramPresentation {
             courses = P.getCourses();
             while (courses.hasNext()) {
                 course = courses.next();
-                courseOutputPath = new File(F, course.getPathSafeName());
+                courseOutputPath = new File(F, course.getURLSafeName());
                 CoursePresentation.Write(course,courseOutputPath);
             }
         } catch (Exception ex) {

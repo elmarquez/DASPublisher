@@ -72,7 +72,7 @@ public class StatusCounter {
                 Iterator<Course> ic = p.getCourses();
                 while (ic.hasNext()) {
                     Course c = ic.next();
-                    STATUS status = c.getPublicationStatus();
+                    STATUS status = c.getStatus();
                     if (hasDuplicateSubmissionID(c) || status == STATUS.ERROR) {
                         status = STATUS.ERROR;
                     } else if (status == STATUS.COMPLETE) {
