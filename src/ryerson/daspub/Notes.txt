@@ -10,6 +10,7 @@ DAS ARCHIVE PUBLISHER
       o Normalize nomenclature across classes, in config files
 
 0.7.0 o Package mobile output as a self-contained app
+      o Review report page to use JQuery Mobile layout
 
 0.6.0 o Thumbnails for video submissions
       o Videos are viewable
@@ -22,13 +23,16 @@ DAS ARCHIVE PUBLISHER
 
 Current Work:
 
-0.5.0 o Convert course and assignment handouts into images, create gallery for
-        handout
-      o Place all assignment submissions into an accordion block, insert 
-        galleries into content block
-      o Create separate assignment indexes for single page submissions, 
+0.5.0 o Create separate assignment indexes for single page submissions, 
         multi-page and videos
-      o Review report page to use JQuery Mobile layout
+
+      O Create appropriate image label for submissions, including multi-page
+        submissions
+
+      x Place all assignment submissions into an accordion block, insert 
+        galleries into content block
+      x Convert course and assignment handouts into images, create gallery for
+        handout
       x Artifact pages have appropriate image label in full screen mode
       x Do not publish artifact pages for submissions that don't have source 
         images available

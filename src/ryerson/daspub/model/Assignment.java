@@ -181,10 +181,14 @@ public class Assignment {
     
     /**
      * Get path safe name.
+     * @TODO put this into a utility class
      */
     public String getURLSafeName() {
         String name = getName();
         name = name.replace(" ", "_");
+        name = name.replace(":", "_");
+        name = name.replace("/", "_");
+        name = name.replace(",", "_");
         name = name.replace(".", "_");
         name = name.replace("-", "_");
         return name;

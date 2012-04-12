@@ -20,13 +20,9 @@ package ryerson.daspub.mobile;
 
 import java.io.File;
 import java.util.Iterator;
-import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang3.exception.ExceptionUtils;
 import ryerson.daspub.model.Archive;
 import ryerson.daspub.Config;
-import ryerson.daspub.utility.NonThumbnailIndexFileFilter;
 
 /**
  * Mobile publication generator.
@@ -71,7 +67,7 @@ public class MobilePublisher implements Runnable {
         Iterator<Archive> archives = Archive.getArchives(Config.ARCHIVE_PATHS);
         while (archives.hasNext()) {
             Archive a = archives.next();
-            ArchivePresentation.Write(a, output);
+            ArchivePage.Write(a, output);
         }
     }
 

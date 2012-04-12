@@ -30,9 +30,9 @@ import ryerson.daspub.model.Archive;
  * Utility class to publish HTML data for an archive.
  * @author dmarques
  */
-public class ArchivePresentation {
+public class ArchivePage {
     
-    private static final Logger logger = Logger.getLogger(ArchivePresentation.class.getName());
+    private static final Logger logger = Logger.getLogger(ArchivePage.class.getName());
 
     //--------------------------------------------------------------------------
     
@@ -51,7 +51,7 @@ public class ArchivePresentation {
             while (programs.hasNext()) {
                 program = programs.next();
                 File programOutPath = new File(archiveOutPath,program.getPathSafeName());
-                ProgramPresentation.Write(program, programOutPath);
+                ProgramPage.Write(program, programOutPath);
             }
         } catch (Exception ex) {
             String stack = ExceptionUtils.getStackTrace(ex);

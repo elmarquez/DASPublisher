@@ -282,18 +282,6 @@ public class Submission {
     }
     
     /**
-     * Get thumbnail file name.
-     * @return 
-     */
-    public String getThumbnailFileName() {
-        String name = "";
-        if (file.exists()) {
-            name = ImageUtils.getJPGFileName(file.getName(),"jpg");
-        }
-        return name;
-    }
-    
-    /**
      * Get submission year.
      */
     public String getYear() {
@@ -324,57 +312,6 @@ public class Submission {
     
     public boolean isVideo() {
         return false;
-    }
-    
-    /**
-     * Write a JPG image of the file.
-     * @param Output Output file
-     * @TODO this is not a method appropriate to a model object ... move to publishing class
-     */
-    public void writeImage(File Output) {
-        logger.log(Level.INFO,"Writing full size image for {0}",file.getName());
-        if (!Output.exists()) {
-            Output.mkdirs();
-        }
-        try {
-            File image = new File(path);
-            File imageOutput = new File(Output,getThumbnailFileName());
-            if (FilenameUtils.isExtension(image.getName(),"pdf")) {
-                PDFUtils.writeJPGImage(image,imageOutput,Config.IMAGE_MAX_WIDTH,Config.IMAGE_MAX_HEIGHT,true);
-            } else {
-                ImageUtils.writeJPGImage(image,imageOutput,Config.IMAGE_MAX_WIDTH,Config.IMAGE_MAX_HEIGHT);
-            }
-        } catch (IOException | PdfException | ImageReadException ex) {
-            String stack = ExceptionUtils.getStackTrace(ex);
-            logger.log(Level.SEVERE,"Could not write thumbnail {0}\n\n{1}",
-                    new Object[]{Output.getAbsolutePath(),stack});
-        }
-    }
-
-    /**
-     * Write thumbnail to file.
-     * @param Output Output file
-     * @TODO this is not a method appropriate to a model object ... move to publishing class
-     */
-    public void writeThumbnail(File Output) {
-        logger.log(Level.INFO,"Writing thumbnail image for {0}",file.getName());
-        if (!Output.exists()) {
-            Output.mkdirs();
-        }
-        File image = new File(path);
-        try {
-            String filename = ImageUtils.getJPGFileName(image.getName(),"jpg");
-            File imageOutput = new File(Output,filename);
-            if (FilenameUtils.isExtension(image.getName(),"pdf")) {
-                PDFUtils.writeJPGImage(image,imageOutput,Config.THUMB_MAX_WIDTH,Config.THUMB_MAX_HEIGHT,false);
-            } else {
-                ImageUtils.writeJPGImage(image,imageOutput,Config.THUMB_MAX_WIDTH,Config.THUMB_MAX_HEIGHT);
-            }
-        } catch (IOException | PdfException | ImageReadException ex) {
-            String stack = ExceptionUtils.getStackTrace(ex);
-            logger.log(Level.SEVERE,"Could not write thumbnail {0}\n\n{1}",
-                    new Object[]{Output.getAbsolutePath(),stack});
-        }
     }
     
 } // end class

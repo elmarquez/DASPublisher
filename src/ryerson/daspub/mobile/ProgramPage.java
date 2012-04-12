@@ -30,9 +30,9 @@ import ryerson.daspub.model.Course;
  * Utility class to publish HTML data for a program
  * @author dmarques
  */
-public class ProgramPresentation {
+public class ProgramPage {
     
-    private static final Logger logger = Logger.getLogger(ProgramPresentation.class.getName());
+    private static final Logger logger = Logger.getLogger(ProgramPage.class.getName());
 
     //--------------------------------------------------------------------------
     
@@ -52,7 +52,7 @@ public class ProgramPresentation {
             while (courses.hasNext()) {
                 course = courses.next();
                 courseOutputPath = new File(F, course.getURLSafeName());
-                CoursePresentation.Write(course,courseOutputPath);
+                CoursePage.Write(course,courseOutputPath);
             }
         } catch (Exception ex) {
             String stack = ExceptionUtils.getStackTrace(ex);

@@ -40,9 +40,9 @@ import ryerson.daspub.utility.PDFUtils;
  * Course presentation.
  * @author dmarques
  */
-public class CoursePresentation {
+public class CoursePage {
  
-    private static final Logger logger = Logger.getLogger(CoursePresentation.class.getName());
+    private static final Logger logger = Logger.getLogger(CoursePage.class.getName());
 
     //--------------------------------------------------------------------------
     
@@ -126,14 +126,14 @@ public class CoursePresentation {
             String title = C.getCourseCode() + " - " + C.getName();
             template = template.replace("${title}", title);
             template = template.replace("${description}", C.getDescription());
-            template = template.replace("${course.format}", C.getFormat());
+            template = template.replace("${format}", C.getFormat());
             if (C.hasSyllabusFile()) {
-                template = template.replace("${course.syllabus}", buildHandoutIndex(C,Output));
+                template = template.replace("${syllabus}", buildHandoutIndex(C,Output));
             } else {
-                template = template.replace("${course.syllabus}", "\n<p>Course syllabus not available.</p>");
+                template = template.replace("${syllabus}", "\n<p>Course syllabus not available.</p>");
             }
-            template = template.replace("${course.instructors}", MarkupParser.getHTMLUnorderedList(C.getInstructors()));
-            template = template.replace("${course.cacb.criteria}", MarkupParser.getHTMLUnorderedList(C.getSPCFulfilled()));
+            template = template.replace("${instructors}", MarkupParser.getHTMLUnorderedList(C.getInstructors()));
+            template = template.replace("${spc}", MarkupParser.getHTMLUnorderedList(C.getSPCFulfilled()));
             // build assignment index
             List<Assignment> la = C.getAssignments();
             Iterator<Assignment> assignments = la.iterator();
@@ -150,10 +150,10 @@ public class CoursePresentation {
                 sb.append("</a></li>");
                 // process assignment output
                 assignmentOutputPath = new File(Output,a.getURLSafeName());
-                AssignmentPresentation.Write(a,assignmentOutputPath);
+                AssignmentPage.Write(a,assignmentOutputPath);
             }
             sb.append("\n</ul>\n");
-            template = template.replace("${course.assignments}",sb.toString());
+            template = template.replace("${assignments}",sb.toString());
             // write index page
             File index = new File(Output.getAbsolutePath(), "index.html");
             FileUtils.write(index, template);

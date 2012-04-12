@@ -188,6 +188,8 @@ public class Course {
     public String getURLSafeName() {
         String name = this.getFolder().getName();
         name = name.replace(" ", "_");
+        name = name.replace("/", "_");
+        name = name.replace(",", "_");
         name = name.replace(".", "_");
         name = name.replace("-", "_");
         return name;
