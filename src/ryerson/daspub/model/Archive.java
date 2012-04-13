@@ -7,7 +7,7 @@
  * of the License, or (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
-exi * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import ryerson.daspub.utility.FolderFileFilter;
+import ryerson.daspub.utility.URLUtils;
 
 /**
  * Archive of academic design work. Contains program folders.
@@ -30,16 +31,16 @@ import ryerson.daspub.utility.FolderFileFilter;
  */
 public class Archive {
     
-    private String path;
+    private File source;
     
     //--------------------------------------------------------------------------
 
     /**
      * Archive constructor
-     * @param Path Path
+     * @param Source Source folder
      */
-    public Archive(String Path) {
-        path = Path;
+    public Archive(File Source) {
+        source = Source;
     }
     
     //--------------------------------------------------------------------------
@@ -49,22 +50,31 @@ public class Archive {
      * @return True if the archive folder exists, false otherwise
      */
     public boolean exists() {
-        File f = new File(path);
-        return f.exists();
+        return source.exists();
     }
 
     /**
      * Get a list of all archives in a given path.
-     * @param Paths
+     * @param Archive paths
      * @return 
      */
-    public static Iterator<Archive> getArchives(List<String> Paths) {
+    public static List<Archive> getArchives(List<String> Paths) {
        ArrayList<Archive> result = new ArrayList<>();
        Iterator<String> itp = Paths.iterator();
        while (itp.hasNext()) {
-           result.add(new Archive(itp.next()));
+           File folder = new File(itp.next());
+           Archive archive = new Archive(folder);
+           result.add(archive);
        }
-       return result.iterator();
+       return result;
+    }
+    
+    /**
+     * Get source folder.
+     * @return 
+     */
+    public File getFile() {
+        return source;
     }
     
     /**
@@ -72,45 +82,32 @@ public class Archive {
      * @return Name
      */
     public String getName() {
-        File f = new File(path);
-        return f.getName();
+        return source.getName();
     }
     
-    /**
-     * Get the archive path
-     * @return Path
-     */
-    public String getPath() {
-        return path;
-    }
-    
-    /**
-     * Get path safe name.
-     */
-    public String getPathSafeName() {
-        String name = getName();
-        name = name.replace(" ", "_");
-        name = name.replace(".", "_");
-        name = name.replace("-", "_");
-        return name;
-    }
-
     /**
      * Get an iterator to the program list
      * @return 
      */
     public Iterator<Program> getPrograms() {
-        File archive = new File(path);
         ArrayList<Program> result = new ArrayList<>();
-        if (archive.exists()) {
-            File[] files = archive.listFiles(new FolderFileFilter());
+        if (source.exists()) {
+            File[] files = source.listFiles(new FolderFileFilter());
             for (int i=0;i<files.length;i++) {
-                File f = files[i];
-                Program p = new Program(f.getAbsolutePath());
+                File folder = files[i];
+                Program p = new Program(folder);
                 result.add(p);
             }
         }
         return result.iterator();
     }
     
+    /**
+     * Get path safe name.
+     */
+    public String getURLSafeName() {
+        String name = getName();
+        return URLUtils.getURLSafeName(name);
+    }
+
 } // end class

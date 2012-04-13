@@ -28,18 +28,19 @@ import ryerson.daspub.Config;
 import ryerson.daspub.Config.STATUS;
 import ryerson.daspub.utility.FolderFileFilter;
 import ryerson.daspub.utility.MarkupParser;
+import ryerson.daspub.utility.URLUtils;
 
 /**
- * Course entity. Lazy loads data from the file system.
+ * Academic course.
  * @author dmarques
  */
 public class Course {
 
-    private String path;    
-    private String description = "";
-    private String format = "";
-    private List<String> instructors = new ArrayList<>();
-    private List<String> cacbcriteria = new ArrayList<>();
+    private File source;                                    // source folder
+    private String description = "";                        // course description
+    private String format = "";                             // course format
+    private List<String> instructors = new ArrayList<>();   // instructors
+    private List<String> spc = new ArrayList<>();           // student performance criteria
     
     private static final Logger logger = Logger.getLogger(Course.class.getName());
 
@@ -47,10 +48,10 @@ public class Course {
     
     /**
      * Course constructor
-     * @param D Directory
+     * @param Path Source folder path
      */
     public Course(String Path) {
-        path = Path;
+        source = new File(Path);
         parseDescriptionFile();
     }
 
@@ -60,9 +61,8 @@ public class Course {
      * Get assignment iterator.
      */
     public List<Assignment> getAssignments() {
-        File dir = new File(path);
         ArrayList<Assignment> items = new ArrayList<>();
-        File[] files = dir.listFiles(new FolderFileFilter());
+        File[] files = source.listFiles(new FolderFileFilter());
         for (int i = 0; i < files.length; i++) {
             Assignment a = new Assignment(files[i]);
             items.add(a);
@@ -104,7 +104,7 @@ public class Course {
      * @return 
      */
     public File getFolder() {
-        return new File(path);
+        return source;
     }
 
     /**
@@ -113,6 +113,14 @@ public class Course {
      */
     public String getFormat() {
         return format;
+    }
+    
+    /**
+     * Get full course folder name.
+     * @return 
+     */
+    public String getFullname() {
+        return source.getName();
     }
 
     /**
@@ -140,7 +148,29 @@ public class Course {
      * @return 
      */
     public List<String> getSPCFulfilled() {
-        return cacbcriteria;
+        return spc;
+    }
+    
+    /**
+     * Get list of SPC criteria codes fulfilled by this course. Assumes that
+     * SPC codes start with the characters "SPC" and are provided in an 
+     * enumerated list within the metadata file.
+     * @return List of SPC codes
+     */
+    public List<String> getSPCFulfilledCodes() {
+        ArrayList<String> codes = new ArrayList<>();
+        Iterator<String> it = spc.iterator();
+        while (it.hasNext()) {
+            String criteria = it.next();
+            String[] items = criteria.split("-");
+            if (items.length>1) {
+                String code = items[0].trim();
+                if (code.toUpperCase().startsWith("SPC")) {
+                    codes.add(code);                    
+                }
+            }
+        }
+        return codes;
     }
     
     /**
@@ -177,7 +207,7 @@ public class Course {
      * @return Returns null if file does not exist.
      */
     public File getSyllabusFile() {
-        File file = new File(path,Config.COURSE_SYLLABUS_FILE);
+        File file = new File(source,Config.COURSE_SYLLABUS_FILE);
         if (file.exists()) return file;
         return null;
     }
@@ -186,13 +216,8 @@ public class Course {
      * Get path safe name.
      */
     public String getURLSafeName() {
-        String name = this.getFolder().getName();
-        name = name.replace(" ", "_");
-        name = name.replace("/", "_");
-        name = name.replace(",", "_");
-        name = name.replace(".", "_");
-        name = name.replace("-", "_");
-        return name;
+        String name = getFullname();
+        return URLUtils.getURLSafeName(name);
     }
 
     /**
@@ -210,7 +235,7 @@ public class Course {
      * Determine if course has handout file
      */
     public boolean hasSyllabusFile() {
-        File file = new File(path,Config.COURSE_SYLLABUS_FILE);
+        File file = new File(source,Config.COURSE_SYLLABUS_FILE);
         return file.exists();
     }
     
@@ -219,7 +244,7 @@ public class Course {
      * @return 
      */
     public boolean hasMetadataFile() {
-        File file = new File(path,Config.COURSE_METADATA_FILE);
+        File file = new File(source,Config.COURSE_METADATA_FILE);
         return file.exists();
     }
     
@@ -227,7 +252,7 @@ public class Course {
      * Parse the course metadata file and assign values to local variables.
      */
     private void parseDescriptionFile() {
-        File file = new File(path,Config.COURSE_METADATA_FILE);
+        File file = new File(source,Config.COURSE_METADATA_FILE);
         if (file.exists()) {
             Map<String,String> vals = MarkupParser.parse(file);
             if (vals.containsKey("Description")) {
@@ -242,7 +267,7 @@ public class Course {
             }
             if (vals.containsKey("CACB Criteria")) {
                 String text = vals.get("CACB Criteria");
-                cacbcriteria = MarkupParser.getList(text, "\\*");
+                spc = MarkupParser.getList(text, "\\*");
             }
         }
     }

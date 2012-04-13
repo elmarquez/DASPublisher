@@ -21,6 +21,7 @@ package ryerson.daspub.utility;
 
 import java.io.File;
 import java.io.FilenameFilter;
+import org.apache.commons.io.FilenameUtils;
 import ryerson.daspub.Config;
 
 /**
@@ -32,24 +33,22 @@ public class ImageFileFilter implements FilenameFilter {
 
     /**
      * Determine if the file is an image file that can be processed.
-     * @param dir
-     * @param name
+     * @param Folder File folder
+     * @param Extension File name extension
      * @return True if the file is an image, false otherwise.
      */
-    public boolean accept(File dir, String name) {
-        int i = name.indexOf(".");
-        if (i == -1) return false;
-        String ext = name.toLowerCase().substring(i+1);
+    public boolean accept(File Folder, String Extension) {
+        String ext = FilenameUtils.getExtension(Extension);
         boolean match = false;
         int j = 0;
-        while (!match && j < Config.IMAGE_TYPES.length) {
-            String type = Config.IMAGE_TYPES[j];
+        while (!match && j < Config.IMAGE_TYPE.length) {
+            String type = Config.IMAGE_TYPE[j];
             if (ext.equals(type)) {
-                match = true;
+                return true;
             }
             j++;
         }
         return match;
     }
 
-}
+} // end class

@@ -57,7 +57,9 @@ public class ProgramPage {
         } catch (Exception ex) {
             String stack = ExceptionUtils.getStackTrace(ex);
             logger.log(Level.SEVERE,"Could not copy archive content from {0} to {1}\n\n{2}", 
-                    new Object[]{P.getPath(), F.getAbsolutePath(), stack});
+                    new Object[]{P.getFile().getAbsolutePath(), 
+                                 F.getAbsolutePath(), 
+                                 stack});
             System.exit(-1);
         }
     }

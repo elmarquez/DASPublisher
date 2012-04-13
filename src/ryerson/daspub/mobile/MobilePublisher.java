@@ -20,6 +20,7 @@ package ryerson.daspub.mobile;
 
 import java.io.File;
 import java.util.Iterator;
+import java.util.List;
 import java.util.logging.Logger;
 import ryerson.daspub.model.Archive;
 import ryerson.daspub.Config;
@@ -64,10 +65,11 @@ public class MobilePublisher implements Runnable {
             output.mkdirs();
         }
         // process the archives
-        Iterator<Archive> archives = Archive.getArchives(Config.ARCHIVE_PATHS);
-        while (archives.hasNext()) {
-            Archive a = archives.next();
-            ArchivePage.Write(a, output);
+        List<Archive> archives = Archive.getArchives(Config.ARCHIVE_PATHS);
+        Iterator<Archive> it = archives.iterator();
+        while (it.hasNext()) {
+            Archive a = it.next();
+            ArchivePage.Write(a,output);
         }
     }
 

@@ -40,12 +40,12 @@ public class ArchiveReport {
      * @return 
      */
     public static String GetHTML(Archive A) {
-        logger.log(Level.INFO,"Building report for archive {0}",A.getPath());
+        logger.log(Level.INFO,"Building report for archive {0}",A.getFile().getAbsolutePath());
         // start report block
         StringBuilder sb = new StringBuilder();
         sb.append("\n\n<div class='archive'>");
         sb.append("\n<h1>");
-        sb.append(A.getPath());
+        sb.append(A.getFile().getAbsolutePath());
         sb.append("</h1>");
         // get program report
         Iterator<Program> programs = A.getPrograms();

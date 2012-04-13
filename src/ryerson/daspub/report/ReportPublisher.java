@@ -76,9 +76,10 @@ public class ReportPublisher implements Runnable {
         output.mkdirs();
         // get report content
         StringBuilder content = new StringBuilder();
-        Iterator<Archive> archives = Archive.getArchives(Config.ARCHIVE_PATHS);
-        while (archives.hasNext()) {
-            Archive archive = archives.next();
+        List<Archive> archives = Archive.getArchives(Config.ARCHIVE_PATHS);
+        Iterator<Archive> it = archives.iterator();
+        while (it.hasNext()) {
+            Archive archive = it.next();
             content.append(ArchiveReport.GetHTML(archive));
         }
         // get total number of complete, partial and incomplete items

@@ -1,6 +1,20 @@
 /*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
+ * Copyright (c) 2011 Davis Marques 
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
+ * 02110-1301, USA.
  */
 package ryerson.daspub.mobile;
 
@@ -27,7 +41,7 @@ import ryerson.daspub.utility.PDFUtils;
  */
 public class AssignmentPage {
     
-    private static String THUMBS = "thumbs/";
+    private static String THUMBS = "thumbs";
     private static String HANDOUT = "handout.jpg";
     private static String HANDOUT_THUMB = "handout-thumb.jpg";
     
@@ -36,12 +50,67 @@ public class AssignmentPage {
     //--------------------------------------------------------------------------
 
     /**
+     * HTML thumbnail index of document Submissions matching the evaluation 
+     * value E.
+     * @param A Assignment
+     * @param E Evaluation value
+     * @param Id Block identifier
+     * @param Title Block title
+     * @return PhotoSwipe gallery index
+     */
+    public static String buildDocumentSubmissionIndex(Assignment A, String E, String Id, String Title) {
+        StringBuilder sb = new StringBuilder();
+        sb.append("\n<script type=\"text/javascript\">");
+        sb.append("\n\t$(document).ready(function(){");
+        sb.append("\n\t\tvar myPhotoSwipe = $(\"#");
+        sb.append(Id);
+        sb.append(" a\").photoSwipe({ enableMouseWheel: false , enableKeyboard: false });");
+        sb.append("\n\t\t});");
+        sb.append("\n</script>");
+
+        sb.append("<div data-role=\"collapsible\" data-collapsed=\"true\">");
+        sb.append("\n\t<h3>");
+        sb.append(Title);
+        sb.append("</h3>");
+        sb.append("\n<ul id=\"");
+        sb.append(Id);
+        sb.append("\" class=\"gallery\">");
+        List<Submission> ls = A.getSubmissions();
+        Iterator<Submission> its = ls.iterator();
+        while (its.hasNext()) {
+            Submission s = its.next();
+            if (s.getEvaluation().toLowerCase().equals(E) &&
+                s.getSourceFile().exists()) {
+                sb.append("\n\t<li>");
+                sb.append("<a href=\"");
+                sb.append(A.getURLSafeName());
+                sb.append("/");
+                sb.append(s.getOutputFileName());
+                sb.append("\" rel=\"external\"><img src=\"");
+                sb.append(A.getURLSafeName());
+                sb.append("/");
+                sb.append(THUMBS);
+                sb.append("/");
+                sb.append(getThumbnailFileName(s));
+                sb.append("\" alt=\"");
+                sb.append(s.getAuthor());
+                sb.append(" - ");
+                sb.append(s.getEvaluation());
+                sb.append("\" /></a></li>");
+            }
+        }
+        sb.append("\n</ul>");
+        // return result
+        return sb.toString();
+    }
+
+    /**
      * HTML thumbnail index of course handout
      * @param A Assignment
      * @param Output Output folder
      * @return PhotoSwipe gallery index
      */
-    public static String buildHandoutIndex(Assignment A, File Output) {
+    public static String buildSyllabusIndex(Assignment A, File Output) {
         StringBuilder sb = new StringBuilder();
         if (A.hasSyllabusFile()) {
             // javascript for gallery
@@ -100,23 +169,23 @@ public class AssignmentPage {
     }    
 
     /**
-     * HTML thumbnail index of document Submissions matching the evaluation 
-     * value E.
+     * HTML thumbnail index of video submissions matching the evaluation value 
+     * E.
      * @param A Assignment
      * @param E Evaluation value
+     * @param Id Block identifier
+     * @param Title Block title
      * @return PhotoSwipe gallery index
      */
-    public static String buildDocumentSubmissionIndex(Assignment A, String E, String Name) {
+    public static String buildVideoSubmissionIndex(Assignment A, String E, String Id, String Title) {
         StringBuilder sb = new StringBuilder();
-        sb.append("\n<script type=\"text/javascript\">");
-        sb.append("\n\t$(document).ready(function(){");
-        sb.append("\n\t\tvar myPhotoSwipe = $(\"#");
-        sb.append(Name);
-        sb.append(" a\").photoSwipe({ enableMouseWheel: false , enableKeyboard: false });");
-        sb.append("\n\t\t});");
-        sb.append("\n</script>");
+        sb.append("<div data-role=\"collapsible\" data-collapsed=\"true\">");
+        sb.append("\n\t<h3>");
+        sb.append(Title);
+        sb.append("</h3>");
+        
         sb.append("\n<ul id=\"");
-        sb.append(Name);
+        sb.append(Id);
         sb.append("\" class=\"gallery\">");
         List<Submission> ls = A.getSubmissions();
         Iterator<Submission> its = ls.iterator();
@@ -124,7 +193,7 @@ public class AssignmentPage {
             Submission s = its.next();
             if (s.getEvaluation().toLowerCase().equals(E) &&
                 s.getSourceFile().exists()) {
-                sb.append("\n\t<li>");
+                sb.append("\n\t\t<li>");
                 sb.append("<a href=\"");
                 sb.append(A.getURLSafeName());
                 sb.append("/");
@@ -133,49 +202,15 @@ public class AssignmentPage {
                 sb.append(A.getURLSafeName());
                 sb.append("/");
                 sb.append(THUMBS);
+                sb.append("/");
                 sb.append(getThumbnailFileName(s));
                 sb.append("\" alt=\"");
                 sb.append(s.getAuthor());
                 sb.append("\" /></a></li>");
             }
         }
-        sb.append("\n</ul>");
-        // return result
-        return sb.toString();
-    }
-
-    /**
-     * HTML thumbnail index of video submissions matching the evaluation value 
-     * E.
-     * @param A Assignment
-     * @param E Evaluation value
-     * @return PhotoSwipe gallery index
-     */
-    public static String buildVideoSubmissionIndex(Assignment A, String E) {
-        StringBuilder sb = new StringBuilder();
-        sb.append("\n<ul id=\"Gallery\" class=\"gallery\">");
-        List<Submission> ls = A.getSubmissions();
-        Iterator<Submission> its = ls.iterator();
-        while (its.hasNext()) {
-            Submission s = its.next();
-            if (s.getEvaluation().toLowerCase().equals(E) &&
-                s.getSourceFile().exists()) {
-                sb.append("\n\t<li>");
-                sb.append("<a href=\"");
-                sb.append(A.getURLSafeName());
-                sb.append("/");
-                sb.append(s.getOutputFileName());
-                sb.append("\" rel=\"external\"><img src=\"");
-                sb.append(A.getURLSafeName());
-                sb.append("/");
-                sb.append(THUMBS);
-                sb.append(getThumbnailFileName(s));
-                sb.append("\" alt=\"");
-                sb.append(s.getAuthor());
-                sb.append("\" /></a></li>");
-            }
-        }
-        sb.append("\n</ul>");
+        sb.append("\n\t</ul>");
+        sb.append("\n</div>");
         // return result
         return sb.toString();
     }
@@ -193,7 +228,7 @@ public class AssignmentPage {
     }
 
     /**
-     * Write HTML output
+     * Write assignment page.
      * @param A Assignment
      * @param Output Output folder
      */
@@ -202,44 +237,33 @@ public class AssignmentPage {
         // create the output folder        
         Output.mkdirs();
         try {
-            // load index page template file
-            String template = FileUtils.readFileToString(new File(Config.ASSIGNMENT_TEMPLATE_PATH));
-            // create assignment index page
-            template = template.replace("${title}", A.getName());
-            template = template.replace("${description}", A.getDescription());
+            // load template
+            String data = FileUtils.readFileToString(new File(Config.ASSIGNMENT_TEMPLATE_PATH));
+            // replace template variable fields
+            data = data.replace("${title}", A.getName());
+            data = data.replace("${description}", A.getDescription());
             if (A.hasSyllabusFile()) {
-                template = template.replace("${syllabus}", buildHandoutIndex(A,Output));
+                data = data.replace("${syllabus}", buildSyllabusIndex(A,Output));
             } else {
-                template = template.replace("${syllabus}", "\n<p>Assignment handout not available.</p>");
+                data = data.replace("${syllabus}", "\n<p>Assignment handout not available.</p>");
             }
-            // create thumbnails and scaled full size images
-            // @TODO move this to buildSubmissionIndex above
-            File thumbnailOutput = new File(Output,THUMBS);
-            List<Submission> ls = A.getSubmissions();
-            Iterator<Submission> its = ls.iterator();
-            while (its.hasNext()) {
-                Submission s = its.next();
-                if (s.getSourceFile().exists()) {
-                    writeImage(s,Output);
-                    writeThumbnail(s,thumbnailOutput);
-                } else {
-                    logger.log(Level.WARNING,"Submission file {0} does not exist. Could not write images.",
-                            s.getSourceFile().getAbsolutePath());
-                }
+            if (A.hasImageSubmissions()) {
+                // build indicies for document submissions
+                String index = buildDocumentSubmissionIndex(A,"high pass","imagesHighPass","Documents - High Pass");
+                index += buildDocumentSubmissionIndex(A,"low pass","imagesLowPass","Documents - Low Pass");
+                data = data.replace("${images}",index);
             }
-            // build indicies for document submissions
-            String index = buildDocumentSubmissionIndex(A,"high pass","documentsHighPass");
-            template = template.replace("${document.highpass}",index);
-            index = buildDocumentSubmissionIndex(A,"low pass","documentsLowPass");
-            template = template.replace("${document.lowpass}",index);
-            // build indicies for video submissions
-            index = buildVideoSubmissionIndex(A,"high pass");
-            template = template.replace("${video.highpass}",index);
-            index = buildVideoSubmissionIndex(A,"low pass");
-            template = template.replace("${video.lowpass}",index);
-            // write html file
+            if (A.hasVideoSubmission()) {
+                // build indicies for video submissions
+                String index = buildVideoSubmissionIndex(A,"high pass","videoHighPass","Animations and Videos - High Pass");
+                index += buildVideoSubmissionIndex(A,"low pass","videoLowPass","Animations and Videos - Low Pass");
+                data = data.replace("${video}",index);
+            }
+            // write thumbnails and full size images to output directory
+            writeImages(A,Output);
+            // write html page
             File html = new File(Output,"index.html");
-            FileUtils.write(html,template);
+            FileUtils.write(html,data);
         } catch (Exception ex) {
             String stack = ExceptionUtils.getStackTrace(ex);
             logger.log(Level.SEVERE,"Could not write assignment {0} to {1}\n\n{2}",
@@ -252,7 +276,7 @@ public class AssignmentPage {
      * @param S Submission
      * @param Output Output file
      */
-    public static void writeImage(Submission S, File Output) {
+    private static void writeImage(Submission S, File Output) {
         logger.log(Level.INFO,"Writing full size image for {0}",S.getSourceFile().getName());
         if (!Output.exists()) {
             Output.mkdirs();
@@ -272,11 +296,32 @@ public class AssignmentPage {
     }
 
     /**
+     * Create thumbnails and scaled full size images.
+     * @param A Assignment 
+     * @param Output Output folder
+     */
+    private static void writeImages(Assignment A, File Output) {
+        File thumbnailOutput = new File(Output,THUMBS);
+        List<Submission> ls = A.getSubmissions();
+        Iterator<Submission> its = ls.iterator();
+        while (its.hasNext()) {
+            Submission s = its.next();
+            if (s.getSourceFile().exists()) {
+                writeImage(s,Output);
+                writeThumbnail(s,thumbnailOutput);
+            } else {
+                logger.log(Level.WARNING,"Submission file {0} does not exist. Could not write images.",
+                        s.getSourceFile().getAbsolutePath());
+            }
+        }          
+    }
+
+    /**
      * Write JPG thumbnail image of submission source file.
      * @param S Submission
      * @param Output Output file
      */
-    public static void writeThumbnail(Submission S, File Output) {
+    private static void writeThumbnail(Submission S, File Output) {
         logger.log(Level.INFO,"Writing thumbnail image for {0}",S.getSourceFile().getName());
         if (!Output.exists()) {
             Output.mkdirs();

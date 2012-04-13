@@ -23,6 +23,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -41,6 +42,7 @@ import ryerson.daspub.utility.AssignmentPDFFileFilter;
 import ryerson.daspub.utility.MarkupParser;
 import ryerson.daspub.utility.SubmissionMetadataFileFilter;
 import ryerson.daspub.utility.MetadataFileFilter;
+import ryerson.daspub.utility.URLUtils;
 
 /**
  * Assignment entity. An assignment has four types of subfiles:
@@ -181,17 +183,10 @@ public class Assignment {
     
     /**
      * Get path safe name.
-     * @TODO put this into a utility class
      */
     public String getURLSafeName() {
         String name = getName();
-        name = name.replace(" ", "_");
-        name = name.replace(":", "_");
-        name = name.replace("/", "_");
-        name = name.replace(",", "_");
-        name = name.replace(".", "_");
-        name = name.replace("-", "_");
-        return name;
+        return URLUtils.getURLSafeName(name);
     }
 
     /**
@@ -237,12 +232,19 @@ public class Assignment {
     }
 
     /**
-     * Determine if the assignment has any submissions with image files.
-     * @return True if the assignment includes on or more submissions with images, false otherwise.
+     * Determine if the assignment has submissions that are images.
+     * @return True if assignment contains an image submission.
      */
-    public boolean hasDocumentSubmission() {
-       return true;
+    public boolean hasImageSubmissions() {
+        List<Submission> submissions = getSubmissions();
+        Iterator<Submission> its = submissions.iterator();
+        while (its.hasNext()) {
+            Submission s = its.next();
+            if (s.isImage()) return true;
+        }
+        return false;
     }
+    
     
     /**
      * Determine if the assignment contains a text file with assignment metadata.
@@ -291,7 +293,12 @@ public class Assignment {
      * @return True if the assignment includes on or more submissions with video, false otherwise.
      */
     public boolean hasVideoSubmission() {
-        // @TODO complete this
+        List<Submission> submissions = getSubmissions();
+        Iterator<Submission> its = submissions.iterator();
+        while (its.hasNext()) {
+            Submission s = its.next();
+            if (s.isVideo()) return true;
+        }
         return false;
     }
     

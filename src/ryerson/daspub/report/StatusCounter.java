@@ -63,9 +63,10 @@ public class StatusCounter {
      * Tabulate values
      */
     public void count() {
-        Iterator<Archive> archives = Archive.getArchives(paths);
-        while (archives.hasNext()) {
-            Archive a = archives.next();
+        List<Archive> archives = Archive.getArchives(paths);
+        Iterator<Archive> ita = archives.iterator();
+        while (ita.hasNext()) {
+            Archive a = ita.next();
             Iterator<Program> ip = a.getPrograms();
             while (ip.hasNext()) {
                 Program p = ip.next();

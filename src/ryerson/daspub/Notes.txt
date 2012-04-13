@@ -1,6 +1,8 @@
 --------------------------------------------------------------------------------
 DAS ARCHIVE PUBLISHER
---------------------------------------------------------------------------------
+
+
+Version History
 
 1.0.0 o Create an information page for tool
       o Package all system items for open source distribution
@@ -23,12 +25,15 @@ DAS ARCHIVE PUBLISHER
 
 Current Work:
 
-0.5.0 o Create separate assignment indexes for single page submissions, 
-        multi-page and videos
-
-      O Create appropriate image label for submissions, including multi-page
+0.5.0 o Create appropriate image label for submissions, including multi-page
         submissions
 
+      - finish up work on document, video accordion blocks
+
+      x Do not show submission content block if no content items are present.
+      x Separate indexes for single page submissions, multi-page and videos.
+      x Assignment should have a query filter for submissions by type
+      x Method to determine submission file type (ex image, single page PDF, multi-page PDF, video)
       x Place all assignment submissions into an accordion block, insert 
         galleries into content block
       x Convert course and assignment handouts into images, create gallery for

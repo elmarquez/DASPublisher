@@ -93,7 +93,8 @@ public class ArtifactPublisher implements Runnable {
         smallDir.mkdirs();
         qrDir.mkdirs();
         // generate static pages for each submission
-        Iterator<Archive> ita = Archive.getArchives(Config.ARCHIVE_PATHS);
+        List<Archive> archives = Archive.getArchives(Config.ARCHIVE_PATHS);
+        Iterator<Archive> ita = archives.iterator();
         while (ita.hasNext()) {
             Archive archive = ita.next();
             Iterator<Program> itp = archive.getPrograms();

@@ -145,7 +145,7 @@ public class CoursePage {
                 // add assignment to index
                 sb.append("\n\t<li><a href=\"");
                 sb.append(a.getURLSafeName());
-                sb.append("\">");
+                sb.append("\" data-transition=\"fade\">");
                 sb.append(a.getName());
                 sb.append("</a></li>");
                 // process assignment output

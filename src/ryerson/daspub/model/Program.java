@@ -22,6 +22,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Iterator;
 import ryerson.daspub.utility.FolderFileFilter;
+import ryerson.daspub.utility.URLUtils;
 
 /**
  * Academic program. Contains course folders.
@@ -29,16 +30,16 @@ import ryerson.daspub.utility.FolderFileFilter;
  */
 public class Program {
     
-    private String path;
+    private File source;
     
     //--------------------------------------------------------------------------
 
     /**
      * Program constructor
-     * @param Path 
+     * @param Source Source folder
      */
-    public Program(String Path) {
-        path = Path;
+    public Program(File Source) {
+        source = Source;
     }
     
     //--------------------------------------------------------------------------
@@ -48,8 +49,7 @@ public class Program {
      * @return True if the program folder exists, false otherwise.
      */
     public boolean exists() {
-        File f = new File(path);
-        return f.exists();
+        return source.exists();
     }
 
     /**
@@ -58,8 +58,7 @@ public class Program {
      */
     public Iterator<Course> getCourses() {
         ArrayList<Course> result = new ArrayList<>();
-        File program = new File(path);
-        File[] files = program.listFiles(new FolderFileFilter());
+        File[] files = source.listFiles(new FolderFileFilter());
         for (int i=0;i<files.length;i++) {
             File f = files[i];
             Course c = new Course(f.getAbsolutePath());
@@ -72,33 +71,22 @@ public class Program {
      * Get source folder file.
      */
     public File getFile() {
-        return new File(path);
+        return source;
     }
     
     /**
      * Get program name.
      */
     public String getName() {
-        File f = new File(path);
-        return f.getName();
+        return source.getName();
     }
 
     /**
-     * Get source path.
-     */
-    public String getPath() {
-        return path;
-    }
-    
-    /**
      * Get path safe name.
      */
-    public String getPathSafeName() {
+    public String getURLSafeName() {
         String name = getName();
-        name = name.replace(" ", "_");
-        name = name.replace(".", "_");
-        name = name.replace("-", "_");
-        return name;
+        return URLUtils.getURLSafeName(name);
     }
 
 } // end class

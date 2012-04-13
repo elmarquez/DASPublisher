@@ -19,20 +19,20 @@
 package ryerson.daspub.model;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import jxl.Cell;
 import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.io.filefilter.SuffixFileFilter;
 import org.apache.commons.lang3.exception.ExceptionUtils;
-import org.apache.sanselan.ImageReadException;
+import org.jpedal.PdfDecoder;
 import org.jpedal.exception.PdfException;
 import ryerson.daspub.Config;
 import ryerson.daspub.utility.ImageUtils;
-import ryerson.daspub.utility.PDFUtils;
+import ryerson.daspub.utility.URLUtils;
 
 /**
- * Student work submission
+ * Student work submission.
  * @author dmarques
  */
 public class Submission {
@@ -48,10 +48,9 @@ public class Submission {
     private String studentName;
     private String numberOfItems;
     private String submissionId;
-    private String path;
     private String evaluation;
     
-    private File file;
+    private File source;
 
     private static final Logger logger = Logger.getLogger(Submission.class.getName());
 
@@ -98,10 +97,8 @@ public class Submission {
         studentName = StudentName;
         numberOfItems = NumberOfItems;
         submissionId = SubmissionId;
-        path = Path;
-        evaluation = Evaluation;
-        
-        file = new File(path);
+        source = new File(Path);
+        evaluation = Evaluation;        
     }
     
     //--------------------------------------------------------------------------
@@ -168,8 +165,8 @@ public class Submission {
      */
     public String getOutputFileName() {
         String name = "";
-        if (file.exists()) {
-            name = ImageUtils.getJPGFileName(file.getName(),"jpg");
+        if (source.exists()) {
+            name = ImageUtils.getJPGFileName(source.getName(),"jpg");
         }
         return name;
     }
@@ -193,7 +190,7 @@ public class Submission {
      * 
      */
     public File getSourceFile() {
-        return file;
+        return source;
     }
     
     /**
@@ -201,8 +198,7 @@ public class Submission {
      * @return 
      */
     public String getSourceFileName() {
-        File f = new File(path);
-        return f.getName();
+        return source.getName();
     }
 
     /**
@@ -282,6 +278,18 @@ public class Submission {
     }
     
     /**
+     * Get path safe name.
+     * @return Empty string if the source file does not exist.
+     */
+    public String getURLSafeName() {
+        if (source.exists()) {
+            String name = source.getName();
+            return URLUtils.getURLSafeName(name);            
+        }
+        return "";
+    }
+    
+    /**
      * Get submission year.
      */
     public String getYear() {
@@ -289,28 +297,96 @@ public class Submission {
     }
     
     /**
-     * Determine if the source file exists
+     * Determine if the source file has been defined and the source file exists.
      */
     public boolean hasSourceFile() {
-        if (file != null && file.exists()) {
+        if (source != null && source.exists()) {
             return true;
         }
         return false;
     }
 
+    /**
+     * Determine if submission is an image file.
+     * @return True if submission is an image, false otherwise.
+     */
     public boolean isImage() {
+        String ext = FilenameUtils.getExtension(source.getName());
+        for (int i=0;i<Config.IMAGE_TYPE.length;i++) {
+            if (ext.equals(Config.IMAGE_TYPE[i])) {
+                return true;
+            }
+        }
         return false;
     }
     
+    /**
+     * Determine if submission is a multi-page PDF file.
+     * @return True if submission is a multi-page PDF, false otherwise.
+     */
     public boolean isMultiPagePDF() {
+        if (isPDF()) {
+            PdfDecoder pdf = new PdfDecoder(true);
+            try {
+                pdf.openPdfFile(source.getAbsolutePath());
+                int count = pdf.getPageCount();
+                if (count > 1) {
+                    return true;
+                }
+            } catch (PdfException ex) {
+                String stack = ExceptionUtils.getStackTrace(ex);
+                logger.log(Level.SEVERE,"Could not read PDF file {0}.\n\n{1}",
+                        new Object[]{source.getAbsolutePath(),stack});
+            }
+        }
         return false;
     }
     
+    /**
+     * Determine if submission is a PDF file.
+     * @return True if submission is a PDF document, false otherwise.
+     */
+    public boolean isPDF() {
+        SuffixFileFilter sff = new SuffixFileFilter("pdf");
+        if (sff.accept(source)) {
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Determine if submission is a single page PDF.
+     * @return True if submission is a single page PDF, false otherwise.
+     */
     public boolean isSinglePagePDF() {
+        if (isPDF()) {
+            PdfDecoder pdf = new PdfDecoder(true);
+            try {
+                pdf.openPdfFile(source.getAbsolutePath());
+                int count = pdf.getPageCount();
+                if (count == 1) {
+                    return true;
+                }
+            } catch (PdfException ex) {
+                String stack = ExceptionUtils.getStackTrace(ex);
+                logger.log(Level.SEVERE,"Could not read PDF file {0}.\n\n{1}",
+                        new Object[]{source.getAbsolutePath(),stack});
+            }
+        }
         return false;
     }
-    
+
+    /**
+     * Determine if submission is a video file.
+     * @return True if submission is a video, false otherwise.
+     */
     public boolean isVideo() {
+        String ext = FilenameUtils.getExtension(source.getName());
+        for (int i=0;i<Config.VIDEO_TYPE.length;i++) {
+            if (ext.equals(Config.VIDEO_TYPE[i])) {
+                return true;
+            }
+        }
         return false;
     }
     

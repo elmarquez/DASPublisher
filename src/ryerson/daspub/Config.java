@@ -44,10 +44,8 @@ public class Config {
     
     // file types
     public static final String PDF_TYPE = "pdf";
-    public static final String[] IMAGE_TYPES = {"bmp","gif","jpg","jpeg","mp4","pdf","png","tif","tiff","webm"};
-    public static final String[] PROCESSABLE_IMAGE_TYPES = {"bmp","gif","jpg","jpeg","png","tif","tiff"};
-    
-    public static final String[] NEAR_IMAGE_TYPES = {"3dm","3ds","avi","doc","docx","dwg","dxf","mov","mpg","odt","ppt","pptx","psd"};
+    public static final String[] IMAGE_TYPE = {"jpg","pdf","png","tif","gif","jpeg","tiff"};
+    public static final String[] VIDEO_TYPE = {"mp4","ogg","webm"};
 
     // parameters
     public static ArrayList<String> ARCHIVE_PATHS = new ArrayList<>();
@@ -66,19 +64,16 @@ public class Config {
     public static String COURSE_TEMPLATE_PATH;
 
     public static String ARTIFACT_BASE_URL = "http://www.myserver.org/";
-    
-    public static int ARTIFACT_IMAGE_MAX_HEIGHT = 640;
-    public static int ARTIFACT_IMAGE_MAX_WIDTH = 640;
+
     public static int ARTIFACT_PREVIEW_MAX_HEIGHT = 640;
     public static int ARTIFACT_PREVIEW_MAX_WIDTH = 640;
-
     public static int ARTIFACT_TAG_WIDTH = 100;
     public static int ARTIFACT_TAG_HEIGHT = 100;
-            
+
     public static int IMAGE_MAX_HEIGHT = 2000;    // full size image maximum height
     public static int IMAGE_MAX_WIDTH = 2000;     // full size image maximum width
     public static int THUMB_MAX_HEIGHT = 120;     // thumbnail image maximum height
-    public static int THUMB_MAX_WIDTH = 90;       // thumbnail image maximum width
+    public static int THUMB_MAX_WIDTH = 120;      // thumbnail image maximum width
 
     private static HashMap<String,String> args = new HashMap<>();
 

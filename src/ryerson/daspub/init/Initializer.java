@@ -74,9 +74,10 @@ public class Initializer implements Runnable {
      */
     public void run() {
         // create a model
-        Iterator<Archive> archives = Archive.getArchives(Config.ARCHIVE_PATHS);
-        while (archives.hasNext()) {
-            Archive a = archives.next();
+        List<Archive> archives = Archive.getArchives(Config.ARCHIVE_PATHS);
+        Iterator<Archive> ita = archives.iterator();
+        while (ita.hasNext()) {
+            Archive a = ita.next();
             Iterator<Program> itp = a.getPrograms();
             while (itp.hasNext()) {
                 Program p = itp.next();

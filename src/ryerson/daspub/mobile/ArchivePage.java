@@ -28,6 +28,7 @@ import ryerson.daspub.model.Archive;
 
 /**
  * Utility class to publish HTML data for an archive.
+ * @TODO should distinguish between writing this class's page, and writing pages for children
  * @author dmarques
  */
 public class ArchivePage {
@@ -45,18 +46,20 @@ public class ArchivePage {
     public static void Write(Archive A, File F) {
         try {
             Program program = null;
-            File archiveOutPath = new File(F,A.getPathSafeName());
+            File archiveOutDir = new File(F,A.getURLSafeName());
             // process programs
             Iterator<Program> programs = A.getPrograms();
             while (programs.hasNext()) {
                 program = programs.next();
-                File programOutPath = new File(archiveOutPath,program.getPathSafeName());
-                ProgramPage.Write(program, programOutPath);
+                File programOutDir = new File(archiveOutDir,program.getURLSafeName());
+                ProgramPage.Write(program, programOutDir);
             }
         } catch (Exception ex) {
             String stack = ExceptionUtils.getStackTrace(ex);
             logger.log(Level.SEVERE,"Could not copy archive content from {0} to {1}\n\n{2}", 
-                    new Object[]{A.getPath(), F.getAbsolutePath(), stack});
+                    new Object[]{A.getFile().getAbsolutePath(), 
+                                 F.getAbsolutePath(), 
+                                 stack});
             System.exit(-1);
         }
     }
