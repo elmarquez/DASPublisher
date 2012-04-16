@@ -41,6 +41,8 @@ public class Config {
 
     // publication status
     public static enum STATUS {COMPLETE, INCOMPLETE, PARTIAL, ERROR};
+    public static enum SUBMISSION_EVALUATION {HIGH_PASS, LOW_PASS, NONE};
+    public static enum SUBMISSION_TYPE {IMAGE, PDF, VIDEO, OTHER};
     
     // file types
     public static final String PDF_TYPE = "pdf";
@@ -81,13 +83,6 @@ public class Config {
 
     //--------------------------------------------------------------------------
     
-    /**
-     * Config constructor
-     */
-    public Config() {}
-
-    //--------------------------------------------------------------------------
-
     /**
      * Get list of metadata file names
      * @return

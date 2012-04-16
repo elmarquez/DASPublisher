@@ -162,7 +162,13 @@ public class ArtifactPublisher implements Runnable {
                 artifact_page = artifact_page.replace("${assignmentDuration}", S.getAssignmentDuration());
                 artifact_page = artifact_page.replace("${studentName}", S.getStudentName());
                 artifact_page = artifact_page.replace("${submissionId}", S.getSubmissionId());
-                artifact_page = artifact_page.replace("${evaluation}", S.getEvaluation());
+                String evaluation = "None";
+                if (S.getEvaluation() == Config.SUBMISSION_EVALUATION.HIGH_PASS) {
+                    evaluation = "High Pass";
+                } else if (S.getEvaluation() == Config.SUBMISSION_EVALUATION.LOW_PASS) {
+                    evaluation = "Low Pass";
+                }
+                artifact_page = artifact_page.replace("${evaluation}", evaluation);
                 String caption = S.getAssignmentName() + " - " +
                                  S.getStudentName() + ", " + 
                                  S.getEvaluation();

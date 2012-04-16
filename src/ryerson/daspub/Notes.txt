@@ -22,13 +22,13 @@ Version History
       o Swap order of height, width in image method calls
       o Status check: count completed metadata versus submitted files, confirm 
         that metadata files actually include data!
+      o Course index page utility, command line option
+      o Application GUI, project file format
 
 Current Work:
 
 0.5.0 o Create appropriate image label for submissions, including multi-page
         submissions
-
-      - finish up work on document, video accordion blocks
 
       x Do not show submission content block if no content items are present.
       x Separate indexes for single page submissions, multi-page and videos.

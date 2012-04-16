@@ -51,6 +51,7 @@ public class Initializer implements Runnable {
     private String buildArtifactScript = "";
     private String buildMobileScript = "";
     private String buildSlideshowScript = "";
+    
     private static final Logger logger = Logger.getLogger(Initializer.class.getName());
 
     //--------------------------------------------------------------------------

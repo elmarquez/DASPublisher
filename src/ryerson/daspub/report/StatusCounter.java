@@ -30,7 +30,8 @@ import ryerson.daspub.model.Program;
 import ryerson.daspub.model.Submission;
 
 /**
- *
+ * Creates a cumulative count of publication states for all courses in the 
+ * archive.
  * @author dmarques
  */
 public class StatusCounter {

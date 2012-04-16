@@ -37,6 +37,8 @@ import jxl.read.biff.BiffException;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import ryerson.daspub.Config;
 import ryerson.daspub.Config.STATUS;
+import ryerson.daspub.Config.SUBMISSION_EVALUATION;
+import ryerson.daspub.Config.SUBMISSION_TYPE;
 import ryerson.daspub.utility.AssignmentMetadataFileFilter;
 import ryerson.daspub.utility.AssignmentPDFFileFilter;
 import ryerson.daspub.utility.MarkupParser;
@@ -140,7 +142,7 @@ public class Assignment {
     }
 
     /**
-     * 
+     * Get submissions.
      * @return 
      */
     public List<Submission> getSubmissions() {
@@ -171,6 +173,43 @@ public class Assignment {
         return items;        
     }
 
+    /**
+     * Get submissions by type.
+     * @param Type
+     * @return 
+     */
+    public List<Submission> getSubmissions(SUBMISSION_TYPE Type) {
+        ArrayList<Submission> result = new ArrayList<>();
+        List<Submission> items = getSubmissions();
+        Iterator<Submission> it = items.iterator();
+        while (it.hasNext()) {
+            Submission s = it.next();
+            if (s.getType() == Type) {
+                result.add(s);
+            }
+        }
+        return result;        
+    }
+    
+    /**
+     * Get submissions by type and evaluation.
+     * @param Type
+     * @param Evaluation
+     * @return 
+     */
+    public List<Submission> getSubmissions(SUBMISSION_TYPE Type, SUBMISSION_EVALUATION Evaluation) {
+        ArrayList<Submission> result = new ArrayList<>();
+        List<Submission> items = getSubmissions(Type);
+        Iterator<Submission> it = items.iterator();
+        while (it.hasNext()) {
+            Submission s = it.next();
+            if (s.getEvaluation() == Evaluation) {
+                result.add(s);
+            }
+        }
+        return result; 
+    }
+        
     /**
      * Get link to assignment syllabus file.
      * @return Returns null if file does not exist.

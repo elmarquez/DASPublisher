@@ -36,7 +36,7 @@ import ryerson.daspub.utility.URLUtils;
  * @author dmarques
  */
 public class Submission {
-    
+
     private String year;
     private String semester;
     private String courseNumber;
@@ -49,7 +49,7 @@ public class Submission {
     private String numberOfItems;
     private String submissionId;
     private String evaluation;
-    
+
     private File source;
 
     private static final Logger logger = Logger.getLogger(Submission.class.getName());
@@ -70,18 +70,18 @@ public class Submission {
      * @param NumberOfItems
      * @param SubmissionId
      * @param Path Absolute path to file
-     * @param Evaluation 
+     * @param Evaluation
      */
-    public Submission(String Year, 
-                      String Semester, 
-                      String CourseNumber, 
-                      String CourseName, 
+    public Submission(String Year,
+                      String Semester,
+                      String CourseNumber,
+                      String CourseName,
                       String StudioMaster,
-                      String Instructor, 
+                      String Instructor,
                       String AssignmentName,
                       String AssignmentDuration,
                       String StudentName,
-                      String NumberOfItems, 
+                      String NumberOfItems,
                       String SubmissionId,
                       String Path,
                       String Evaluation)
@@ -98,62 +98,76 @@ public class Submission {
         numberOfItems = NumberOfItems;
         submissionId = SubmissionId;
         source = new File(Path);
-        evaluation = Evaluation;        
+        evaluation = Evaluation;
     }
-    
+
     //--------------------------------------------------------------------------
 
     /**
      * Get the assignment duration
-     * @return 
+     * @return
      */
     public String getAssignmentDuration() {
         return assignmentDuration;
     }
-    
+
     /**
      * Get the assignment name
-     * @return 
+     * @return
      */
     public String getAssignmentName() {
         return assignmentName;
     }
-    
+
     /**
      * Get submission author name
-     * @return 
+     * @return
      */
     public String getAuthor() {
         return studentName;
     }
-    
+
     /**
      * Get course name
-     * @return 
+     * @return
      */
     public String getCourseName() {
         return courseName;
     }
-    
+
     /**
      * Get course number
-     * @return 
+     * @return
      */
     public String getCourseNumber() {
         return courseNumber;
     }
 
     /**
-     * Get instructor evaluation
-     * @return 
+     * Get evaluation code.
+     * @return
      */
-    public String getEvaluation() {
-        return evaluation;
+    public Config.SUBMISSION_EVALUATION getEvaluation() {
+        switch (evaluation.toLowerCase()) {
+            case "low pass":
+                return Config.SUBMISSION_EVALUATION.LOW_PASS;
+            case "high pass":
+                return Config.SUBMISSION_EVALUATION.HIGH_PASS;
+        }
+        return Config.SUBMISSION_EVALUATION.NONE;
     }
 
     /**
-     * Get instructor name
+     * Get evaluation string.
      * @return 
+     */
+    public String getEvaluationString() {
+        return evaluation;
+    }
+    
+    /**
+     * Get instructor name
+     * @return
      */
     public String getInstructor() {
         return instructor;
@@ -161,7 +175,7 @@ public class Submission {
 
     /**
      * Get the submission output file name
-     * @return 
+     * @return
      */
     public String getOutputFileName() {
         String name = "";
@@ -170,32 +184,32 @@ public class Submission {
         }
         return name;
     }
-    
+
     /**
      * Get number of items in submission
-     * @return 
+     * @return
      */
     public String getNumberOfItems() {
         return numberOfItems;
     }
-    
+
     /**
      * Get submission semester
      */
     public String getSemester() {
         return semester;
     }
-    
+
     /**
-     * 
+     *
      */
     public File getSourceFile() {
         return source;
     }
-    
+
     /**
      * Get the submission file name
-     * @return 
+     * @return
      */
     public String getSourceFileName() {
         return source.getName();
@@ -203,24 +217,24 @@ public class Submission {
 
     /**
      * Get student name
-     * @return 
+     * @return
      */
     public String getStudentName() {
         return studentName;
     }
-    
+
     /**
      * Get studio master
-     * @return 
+     * @return
      */
     public String getStudioMaster() {
         return studioMaster;
     }
-    
+
     /**
-     * Parse spreadsheet row to create a Submission object.  If the row is 
+     * Parse spreadsheet row to create a Submission object.  If the row is
      * missing required data fields, then a null object will be returned.
-     * @param Cells 
+     * @param Cells
      * @param Path Folder where the submission data object is located
      * @return Submission
      * @todo Consider a flexible cell to parameter mapping, using column names instead
@@ -238,45 +252,60 @@ public class Submission {
         String c_assignmentduration = Cells[7].getContents();
         String c_studentname = Cells[8].getContents();
         String c_numberofitems = Cells[9].getContents();
-        String c_id = Cells[10].getContents();        
+        String c_id = Cells[10].getContents();
         String c_filename = Cells[11].getContents();
         String c_evaluation = Cells[12].getContents();
         // if the required cells are not empty, create a new submission object
         if (c_id != null &&
-            c_year != null && 
-            c_coursenumber != null && 
-            c_instructor != null && 
-            c_studentname != null && 
-            c_filename != null) 
+            c_year != null &&
+            c_coursenumber != null &&
+            c_instructor != null &&
+            c_studentname != null &&
+            c_filename != null)
         {
             File f = new File(Path,c_filename);
-            s = new Submission(c_year, 
-                                c_semester, 
-                                c_coursenumber, 
-                                c_coursename, 
-                                c_studiomaster, 
-                                c_instructor, 
-                                c_assignmentname, 
-                                c_assignmentduration, 
-                                c_studentname, 
-                                c_numberofitems, 
-                                c_id, 
-                                f.getAbsolutePath(), 
+            s = new Submission(c_year,
+                                c_semester,
+                                c_coursenumber,
+                                c_coursename,
+                                c_studiomaster,
+                                c_instructor,
+                                c_assignmentname,
+                                c_assignmentduration,
+                                c_studentname,
+                                c_numberofitems,
+                                c_id,
+                                f.getAbsolutePath(),
                                 c_evaluation);
         } else {
             logger.log(Level.WARNING,"Spreadsheet item is missing one of the required values: id, year, course number, instructor, student name, file name.");
         }
         return s;
     }
-    
+
     /**
      * Get submission ID.
-     * @return 
+     * @return
      */
     public String getSubmissionId() {
         return submissionId;
     }
-    
+
+    /**
+     * Get submission type designation.
+     * @return
+     */
+    public Config.SUBMISSION_TYPE getType() {
+        if (isImage()) {
+            return Config.SUBMISSION_TYPE.IMAGE;
+        } else if (isPDF()) {
+            return Config.SUBMISSION_TYPE.PDF;
+        } else if (isVideo()) {
+            return Config.SUBMISSION_TYPE.VIDEO;
+        }
+        return Config.SUBMISSION_TYPE.OTHER;
+    }
+
     /**
      * Get path safe name.
      * @return Empty string if the source file does not exist.
@@ -284,18 +313,18 @@ public class Submission {
     public String getURLSafeName() {
         if (source.exists()) {
             String name = source.getName();
-            return URLUtils.getURLSafeName(name);            
+            return URLUtils.getURLSafeName(name);
         }
         return "";
     }
-    
+
     /**
      * Get submission year.
      */
     public String getYear() {
         return year;
     }
-    
+
     /**
      * Determine if the source file has been defined and the source file exists.
      */
@@ -319,7 +348,7 @@ public class Submission {
         }
         return false;
     }
-    
+
     /**
      * Determine if submission is a multi-page PDF file.
      * @return True if submission is a multi-page PDF, false otherwise.
@@ -341,7 +370,7 @@ public class Submission {
         }
         return false;
     }
-    
+
     /**
      * Determine if submission is a PDF file.
      * @return True if submission is a PDF document, false otherwise.
@@ -389,5 +418,5 @@ public class Submission {
         }
         return false;
     }
-    
+
 } // end class
