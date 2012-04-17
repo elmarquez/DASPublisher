@@ -47,7 +47,7 @@ public class AssignmentPage {
     private static String FULL_DIR = "full";
     private static String THUMB_DIR = "thumb";
     private static String VIDEO_DIR = "video";
-    
+
     private static String HANDOUT_FILENAME = "handout.jpg";
     private static String HANDOUT_THUMB_FILENAME = "handout-thumb.jpg";
 
@@ -127,6 +127,10 @@ public class AssignmentPage {
                         sb.append(s.getAssignmentName());
                         sb.append(", ");
                         sb.append(s.getAuthor());
+                        if (s.isMultiPagePDF()) {
+                            sb.append(", ");
+                            sb.append(getPageNumberLabel(s,f.getName()));                            
+                        }
                         sb.append(" (");
                         sb.append(s.getEvaluationString());
                         sb.append(")\" /></a></li>");
@@ -211,11 +215,11 @@ public class AssignmentPage {
      * @param Output Assignment output folder
      * @return Video gallery index
      */
-    public static String buildVideoSubmissionIndex(Assignment A, 
-                                                   SUBMISSION_EVALUATION Evaluation, 
-                                                   String Id, 
+    public static String buildVideoSubmissionIndex(Assignment A,
+                                                   SUBMISSION_EVALUATION Evaluation,
+                                                   String Id,
                                                    String Title,
-                                                   File Output) 
+                                                   File Output)
     {
         StringBuilder sb = new StringBuilder();
         List<Submission> ls = A.getSubmissions(SUBMISSION_TYPE.VIDEO, Evaluation);
@@ -229,7 +233,7 @@ public class AssignmentPage {
             sb.append(Id);
             sb.append("\" class=\"gallery\">");
             Iterator<Submission> its = ls.iterator();
-            // for each video, create a player and a poster image, copy the 
+            // for each video, create a player and a poster image, copy the
             // source file to the output folder
             while (its.hasNext()) {
                 Submission s = its.next();
@@ -261,6 +265,27 @@ public class AssignmentPage {
             sb.append("\n</div>");
         }
         // return result
+        return sb.toString();
+    }
+
+    /**
+     * Create a page number label from the submission object and file name.
+     * @return
+     */
+    private static String getPageNumberLabel(Submission S, String Name) {
+        // get page number of file
+        int i = Name.indexOf("-");
+        int j = Name.lastIndexOf(".");
+        CharSequence val = Name.subSequence(i+1,j);
+        Integer page = Integer.valueOf(val.toString()); 
+        page += 1; // pages are enumerated on a zero based index
+        // build label
+        int total = S.getPageCount();
+        StringBuilder sb = new StringBuilder();
+        sb.append(" page ");
+        sb.append(String.valueOf(page));
+        sb.append(" of ");
+        sb.append(String.valueOf(total));
         return sb.toString();
     }
 
@@ -300,14 +325,14 @@ public class AssignmentPage {
             // build indicies for high pass and low pass document submissions
             if (A.hasImageSubmissions()) {
                 String index = "\n<div data-role=\"collapsible-set\">";
-                index += buildDocumentSubmissionIndex(A, 
-                                SUBMISSION_EVALUATION.HIGH_PASS, 
-                                "imagesHighPass", 
+                index += buildDocumentSubmissionIndex(A,
+                                SUBMISSION_EVALUATION.HIGH_PASS,
+                                "imagesHighPass",
                                 "Documents - High Pass",
                                 Output);
-                index += buildDocumentSubmissionIndex(A, 
-                                SUBMISSION_EVALUATION.LOW_PASS, 
-                                "imagesLowPass", 
+                index += buildDocumentSubmissionIndex(A,
+                                SUBMISSION_EVALUATION.LOW_PASS,
+                                "imagesLowPass",
                                 "Documents - Low Pass",
                                 Output);
                 index += "\n</div>";
@@ -318,14 +343,14 @@ public class AssignmentPage {
             // build indicies for high pass and low pass video submissions
             if (A.hasVideoSubmission()) {
                 String index = "\n<div data-role=\"collapsible-set\">";
-                index += buildVideoSubmissionIndex(A, 
-                                SUBMISSION_EVALUATION.HIGH_PASS, 
-                                "videoHighPass", 
+                index += buildVideoSubmissionIndex(A,
+                                SUBMISSION_EVALUATION.HIGH_PASS,
+                                "videoHighPass",
                                 "Animations and Videos - High Pass",
                                 Output);
-                index += buildVideoSubmissionIndex(A, 
-                                SUBMISSION_EVALUATION.LOW_PASS, 
-                                "videoLowPass", 
+                index += buildVideoSubmissionIndex(A,
+                                SUBMISSION_EVALUATION.LOW_PASS,
+                                "videoLowPass",
                                 "Animations and Videos - Low Pass",
                                 Output);
                 index += "\n</div>";
@@ -354,7 +379,6 @@ public class AssignmentPage {
      * @return List of output files.
      */
     private static List<File> writeImage(Submission S, File Output, int Width, int Height) {
-        logger.log(Level.INFO, "Writing thumbnail image for {0}", S.getSourceFile().getName());
         // if output is a directory
         File output = Output;
         if (output.isDirectory()) {
@@ -383,12 +407,12 @@ public class AssignmentPage {
             String stack = ExceptionUtils.getStackTrace(ex);
             logger.log(Level.SEVERE,
                     "Could not write thumbnail {0} of {1}\n\n{2}",
-                    new Object[]{output.getAbsolutePath(), 
-                                 input.getAbsolutePath(), 
+                    new Object[]{output.getAbsolutePath(),
+                                 input.getAbsolutePath(),
                                  stack});
         }
         // return list of output files
         return files;
     }
-    
+
 } // end class

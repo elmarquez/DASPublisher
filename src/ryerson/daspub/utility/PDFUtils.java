@@ -143,7 +143,7 @@ public class PDFUtils {
             pdf.openPdfFile(Input.getAbsolutePath());
             if (Page < pdf.getPageCount()) {
                 BufferedImage img = pdf.getPageAsImage(Page+1); // PDF page index starts at 1
-                logger.log(Level.INFO,"Writing JPEG image for {0}", Output.getName());
+                logger.log(Level.INFO,"Writing {0}", Output.getName());
                 Thumbnails.of(img).size(Width,Height).outputFormat("jpg").toFile(Output);
             } else {
                 logger.log(Level.WARNING,
@@ -173,7 +173,7 @@ public class PDFUtils {
             for (int i=0;i<count;i++) {
                 BufferedImage img = pdf.getPageAsImage(i+1); // PDF page index starts at 1
                 File output = getIncrementedFileName(Output,i,"jpg");
-                logger.log(Level.INFO,"Writing JPEG image for {0}",output.getName());
+                logger.log(Level.INFO,"Writing {0}",output.getName());
                 Thumbnails.of(img).size(Width,Height).outputFormat("jpg").toFile(output);
                 files.add(output);
             } 
