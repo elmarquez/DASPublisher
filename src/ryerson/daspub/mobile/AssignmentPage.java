@@ -371,8 +371,7 @@ public class AssignmentPage {
             if (S.isMultiPagePDF()) {
                 files = PDFUtils.writeJPGImageAllPDFPages(input,output,Width,Height);
             } else if (S.isSinglePagePDF()) {
-                PDFUtils.writeJPGImage(input,output,Width,Height);
-                files.add(output);
+                files = PDFUtils.writeJPGImage(input,output,Width,Height);
             } else if (S.isImage()) {
                 ImageUtils.writeJPGImage(input,output,Width,Height);
                 files.add(output);

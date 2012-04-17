@@ -102,18 +102,31 @@ public class PDFUtils {
      * @throws IOException
      * @throws PDFException
      */
-    public static void writeJPGImage(File Input, File Output, int Width, int Height) throws PdfException, IOException {
+    public static List<File> writeJPGImage(File Input, File Output, int Width, int Height) throws PdfException, IOException {
         ArrayList<File> files = new ArrayList<>();
         if (FilenameUtils.isExtension(Input.getName(),"pdf")) {
+            // if output is a directory, change it 
+            File output = Output;
+            if (output.isDirectory()) {
+                output = new File(output,Input.getName());
+            }
+            // if output extension is not jpg, change it
+            if (!FilenameUtils.isExtension(output.getName(),"jpg")) {
+                String basename = FilenameUtils.getBaseName(output.getName()) + ".jpg";
+                output = new File(output.getParentFile(),basename);
+            }
+            // write jpg image
             pdf.openPdfFile(Input.getAbsolutePath());
             BufferedImage img = pdf.getPageAsImage(1);
-            logger.log(Level.INFO,"Writing JPEG for {0}",Output.getName());
-            Thumbnails.of(img).size(Width,Height).outputFormat("jpg").toFile(Output);
-            files.add(Output);
+            logger.log(Level.INFO,"Writing {0}",output.getName());
+            Thumbnails.of(img).size(Width,Height).outputFormat("jpg").toFile(output);
+            files.add(output);
             pdf.closePdfFile();
         } else {
             logger.log(Level.WARNING,"Could not write PDF thumbnail for {0}. File is not a PDF document.",Input.getAbsolutePath());
         }
+        // return result
+        return files;
     }
     
     /**
