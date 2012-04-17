@@ -29,7 +29,6 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.sanselan.ImageReadException;
 import org.jpedal.exception.PdfException;
@@ -134,53 +133,52 @@ public class ArtifactPublisher implements Runnable {
             try {
                 // set output file names
                 String artifact_html = id + ".php";
-                String artifact_medium_jpg = id + ".jpg";
-                String artifact_large_jpg = id + ".jpg";
-                String artifact_qrcode_png = id + ".png";
-                String artifact_thumbnail_jpg = id + ".jpg";
+                String medium_jpg = id + ".jpg";
+                String large_jpg = id + ".jpg";
+                String qrcode_png = id + ".png";
+                String thumbnail_jpg = id + ".jpg";
                 // resize and write image to output folder
-                if (FilenameUtils.isExtension(input.getName(),"pdf")) {
-                    PDFUtils.writeJPGImage(input, new File(smallDir, artifact_thumbnail_jpg), Config.THUMB_MAX_WIDTH, Config.THUMB_MAX_HEIGHT, false);
-                    PDFUtils.writeJPGImage(input, new File(mediumDir, artifact_medium_jpg), Config.ARTIFACT_PREVIEW_MAX_WIDTH, Config.ARTIFACT_PREVIEW_MAX_HEIGHT, false);
-                    PDFUtils.writeJPGImage(input, new File(largeDir, artifact_large_jpg), Config.IMAGE_MAX_WIDTH, Config.IMAGE_MAX_HEIGHT, false);
-                } else {
-                    ImageUtils.writeJPGImage(input, new File(smallDir, artifact_thumbnail_jpg), Config.THUMB_MAX_WIDTH, Config.THUMB_MAX_HEIGHT);
-                    ImageUtils.writeJPGImage(input, new File(mediumDir, artifact_medium_jpg), Config.ARTIFACT_PREVIEW_MAX_WIDTH, Config.ARTIFACT_PREVIEW_MAX_HEIGHT);
-                    ImageUtils.writeJPGImage(input, new File(largeDir, artifact_large_jpg), Config.IMAGE_MAX_WIDTH, Config.IMAGE_MAX_HEIGHT);
+                if (S.isPDF()) {
+                    PDFUtils.writeJPGImage(input, new File(smallDir, thumbnail_jpg), Config.THUMB_MAX_WIDTH, Config.THUMB_MAX_HEIGHT);
+                    PDFUtils.writeJPGImage(input, new File(mediumDir, medium_jpg), Config.ARTIFACT_PREVIEW_MAX_WIDTH, Config.ARTIFACT_PREVIEW_MAX_HEIGHT);
+                    PDFUtils.writeJPGImage(input, new File(largeDir, large_jpg), Config.IMAGE_MAX_WIDTH, Config.IMAGE_MAX_HEIGHT);
+                } else if (S.isImage()) {
+                    ImageUtils.writeJPGImage(input, new File(smallDir, thumbnail_jpg), Config.THUMB_MAX_WIDTH, Config.THUMB_MAX_HEIGHT);
+                    ImageUtils.writeJPGImage(input, new File(mediumDir, medium_jpg), Config.ARTIFACT_PREVIEW_MAX_WIDTH, Config.ARTIFACT_PREVIEW_MAX_HEIGHT);
+                    ImageUtils.writeJPGImage(input, new File(largeDir, large_jpg), Config.IMAGE_MAX_WIDTH, Config.IMAGE_MAX_HEIGHT);
+                } else if (S.isVideo()) {
+                    // not implemented yet
                 }
                 // substitute artifact page template values
-                String artifact_page = new String(template);
-                artifact_page = artifact_page.replace("${imageMedium}", artifact_medium_jpg);
-                artifact_page = artifact_page.replace("${imageLarge}", artifact_large_jpg);
-                artifact_page = artifact_page.replace("${year}", S.getYear());
-                artifact_page = artifact_page.replace("${semester}", S.getSemester());
-                artifact_page = artifact_page.replace("${courseNumber}", S.getCourseNumber());
-                artifact_page = artifact_page.replace("${courseName}", S.getCourseName());
-                artifact_page = artifact_page.replace("${studioMaster}", S.getStudioMaster());
-                artifact_page = artifact_page.replace("${instructor}", S.getInstructor());
-                artifact_page = artifact_page.replace("${assignmentName}", S.getAssignmentName());
-                artifact_page = artifact_page.replace("${assignmentDuration}", S.getAssignmentDuration());
-                artifact_page = artifact_page.replace("${studentName}", S.getStudentName());
-                artifact_page = artifact_page.replace("${submissionId}", S.getSubmissionId());
+                String page = new String(template);
+                page = page.replace("${imageMedium}", medium_jpg);
+                page = page.replace("${imageLarge}", large_jpg);
+                page = page.replace("${year}", S.getYear());
+                page = page.replace("${semester}", S.getSemester());
+                page = page.replace("${courseNumber}", S.getCourseNumber());
+                page = page.replace("${courseName}", S.getCourseName());
+                page = page.replace("${studioMaster}", S.getStudioMaster());
+                page = page.replace("${instructor}", S.getInstructor());
+                page = page.replace("${assignmentName}", S.getAssignmentName());
+                page = page.replace("${assignmentDuration}", S.getAssignmentDuration());
+                page = page.replace("${studentName}", S.getStudentName());
+                page = page.replace("${submissionId}", S.getSubmissionId());
                 String evaluation = "None";
                 if (S.getEvaluation() == Config.SUBMISSION_EVALUATION.HIGH_PASS) {
                     evaluation = "High Pass";
                 } else if (S.getEvaluation() == Config.SUBMISSION_EVALUATION.LOW_PASS) {
                     evaluation = "Low Pass";
                 }
-                artifact_page = artifact_page.replace("${evaluation}", evaluation);
+                page = page.replace("${evaluation}", evaluation);
                 String caption = S.getAssignmentName() + " - " +
                                  S.getStudentName() + ", " + 
                                  S.getEvaluation();
-                artifact_page = artifact_page.replace("${caption}", caption);
-                // substitute image path template values
-                
-                
-                // write artifact page
-                FileUtils.write(new File(Output, artifact_html), artifact_page);
+                page = page.replace("${caption}", caption);
+                // write page
+                FileUtils.write(new File(Output, artifact_html), page);
                 // generate qr code and write to output folder
                 String url = Config.ARTIFACT_BASE_URL + "/" + artifact_html;
-                writeQRTag(url, qrDir, artifact_qrcode_png);
+                writeQRTag(url, qrDir, qrcode_png);
             } catch (ImageReadException | IOException | PdfException | WriterException ex) {
                 String stack = ExceptionUtils.getStackTrace(ex);
                 logger.log(Level.WARNING, "Could not generate artifact record for {0}. Caught exception:\n\n{1}",

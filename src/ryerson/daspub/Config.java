@@ -46,7 +46,7 @@ public class Config {
     
     // file types
     public static final String PDF_TYPE = "pdf";
-    public static final String[] IMAGE_TYPE = {"jpg","pdf","png","tif","gif","jpeg","tiff"};
+    public static final String[] IMAGE_TYPE = {"jpg","pdf","png","tif","gif","jpeg","tiff"}; // pdf needs to be listed to simplify some search functions ... 
     public static final String[] VIDEO_TYPE = {"mp4","ogg","webm"};
 
     // parameters
@@ -77,24 +77,14 @@ public class Config {
     public static int THUMB_MAX_HEIGHT = 120;     // thumbnail image maximum height
     public static int THUMB_MAX_WIDTH = 120;      // thumbnail image maximum width
 
+    public static int VIDEO_WIDTH = 640;
+    public static int VIDEO_HEIGHT = 480;
+    
     private static HashMap<String,String> args = new HashMap<>();
 
     private static final Logger _logger = Logger.getLogger(Config.class.getName());
 
     //--------------------------------------------------------------------------
-    
-    /**
-     * Get list of metadata file names
-     * @return
-     */
-    public static String[] getMetadataFileTypes() {
-        String[] files = {COURSE_METADATA_FILE,
-                            COURSE_SYLLABUS_FILE,
-                            ASSIGNMENT_METADATA_FILE,
-                            ASSIGNMENT_SYLLABUS_FILE,
-                            SUBMISSION_METADATA_FILE};
-        return files;
-    }
     
     /**
      * Load configuration data from a file.

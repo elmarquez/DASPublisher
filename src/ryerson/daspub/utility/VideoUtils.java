@@ -19,8 +19,12 @@
 
 package ryerson.daspub.utility;
 
+import com.itextpdf.text.pdf.PdfException;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import org.apache.sanselan.ImageReadException;
 
 /**
  * Video file utilities.

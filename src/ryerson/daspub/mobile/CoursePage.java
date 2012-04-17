@@ -25,19 +25,16 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.jpedal.exception.PdfException;
 import ryerson.daspub.Config;
 import ryerson.daspub.model.Assignment;
 import ryerson.daspub.model.Course;
-import ryerson.daspub.utility.ImageUtils;
-import ryerson.daspub.utility.MarkupParser;
-import ryerson.daspub.utility.PDFFileFilter;
+import ryerson.daspub.utility.MarkupUtils;
 import ryerson.daspub.utility.PDFUtils;
 
 /**
- * Course presentation.
+ * Course page.
  * @author dmarques
  */
 public class CoursePage {
@@ -62,21 +59,19 @@ public class CoursePage {
             sb.append("\n\t\t});");
             sb.append("\n</script>");
             // gallery
-            File thumbname = new File(Output,"syllabus-thumb.jpg");
-            File fullname = new File(Output,"syllabus.jpg");
+            File thumb = new File(Output,"syllabus-thumb.jpg");
+            File full = new File(Output,"syllabus.jpg");
             try {
                 List<File> thumbs;
                 List<File> images;
-                thumbs = PDFUtils.writeJPGImage(C.getSyllabusFile(),
-                                                thumbname,
+                thumbs = PDFUtils.writeJPGImageAllPDFPages(C.getSyllabusFile(),
+                                                thumb,
                                                 Config.THUMB_MAX_WIDTH,
-                                                Config.THUMB_MAX_HEIGHT,
-                                                true);
-                images = PDFUtils.writeJPGImage(C.getSyllabusFile(),
-                                                fullname,
+                                                Config.THUMB_MAX_HEIGHT);
+                images = PDFUtils.writeJPGImageAllPDFPages(C.getSyllabusFile(),
+                                                full,
                                                 Config.IMAGE_MAX_WIDTH,
-                                                Config.IMAGE_MAX_HEIGHT,
-                                                true);
+                                                Config.IMAGE_MAX_HEIGHT);
                 // for each page of the syllabus, write out an index thumbnail
                 sb.append("\n<ul id=\"syllabus\" class=\"gallery\">");
                 for (int i=0;i<images.size();i++) {
@@ -114,26 +109,20 @@ public class CoursePage {
         try {
             // create the output folder
             Output.mkdirs();
-            // copy course metadata, etc. files to output
-            File sourcePath = C.getFolder();
-            File[] files = sourcePath.listFiles(new PDFFileFilter());
-            for (int i=0;i<files.length;i++) {
-                FileUtils.copyFile(files[i], new File(Output,files[i].getName()));
-            }
             // load index page template file
-            String template = FileUtils.readFileToString(new File(Config.COURSE_TEMPLATE_PATH));
+            String page = FileUtils.readFileToString(new File(Config.COURSE_TEMPLATE_PATH));
             // build index page
             String title = C.getCourseCode() + " - " + C.getName();
-            template = template.replace("${title}", title);
-            template = template.replace("${description}", C.getDescription());
-            template = template.replace("${format}", C.getFormat());
+            page = page.replace("${title}", title);
+            page = page.replace("${description}", C.getDescription());
+            page = page.replace("${format}", C.getFormat());
             if (C.hasSyllabusFile()) {
-                template = template.replace("${syllabus}", buildHandoutIndex(C,Output));
+                page = page.replace("${syllabus}", buildHandoutIndex(C,Output));
             } else {
-                template = template.replace("${syllabus}", "\n<p>Course syllabus not available.</p>");
+                page = page.replace("${syllabus}", "\n<p>Course syllabus not available.</p>");
             }
-            template = template.replace("${instructors}", MarkupParser.getHTMLUnorderedList(C.getInstructors()));
-            template = template.replace("${spc}", MarkupParser.getHTMLUnorderedList(C.getSPCFulfilled()));
+            page = page.replace("${instructors}", MarkupUtils.getHTMLUnorderedList(C.getInstructors()));
+            page = page.replace("${spc}", MarkupUtils.getHTMLUnorderedList(C.getSPCFulfilled()));
             // build assignment index
             List<Assignment> la = C.getAssignments();
             Iterator<Assignment> assignments = la.iterator();
@@ -153,62 +142,16 @@ public class CoursePage {
                 AssignmentPage.Write(a,assignmentOutputPath);
             }
             sb.append("\n</ul>\n");
-            template = template.replace("${assignments}",sb.toString());
+            page = page.replace("${assignments}",sb.toString());
             // write index page
             File index = new File(Output.getAbsolutePath(), "index.html");
-            FileUtils.write(index, template);
+            FileUtils.write(index, page);
         } catch (Exception ex) {
             String stack = ExceptionUtils.getStackTrace(ex);
             logger.log(Level.SEVERE, "Could not copy course {0} to {1}\n\n{2}", 
                     new Object[]{C.getFolder().getAbsolutePath(),
                                  Output.getAbsolutePath(),
                                  stack});
-        }
-    }
-    
-    /**
-     * Write a JPG image of the file.
-     * @param Input Input file
-     * @param Output Output file
-     */
-    public void writeImage(File Input, File Output) {
-        logger.log(Level.INFO,"Writing full size image for {0}",Input.getName());
-        if (!Output.exists()) {
-            Output.mkdirs();
-        }
-        try {
-            String filename = ImageUtils.getJPGFileName(Input.getName(),"jpg");
-            File imageOutput = new File(Output,filename);
-            if (FilenameUtils.isExtension(Input.getName(),"pdf")) {
-                PDFUtils.writeJPGImage(Input,imageOutput,Config.IMAGE_MAX_WIDTH,Config.IMAGE_MAX_HEIGHT,true);
-            } 
-        } catch (IOException | PdfException ex) {
-            String stack = ExceptionUtils.getStackTrace(ex);
-            logger.log(Level.SEVERE,"Could not write thumbnail {0}\n\n{1}",
-                    new Object[]{Output.getAbsolutePath(),stack});
-        }
-    }
-
-    /**
-     * Write thumbnail to file.
-     * @param Input Input file
-     * @param Output Output file
-     */
-    public void writeThumbnail(File Input, File Output) {
-        logger.log(Level.INFO,"Writing thumbnail image for {0}",Input.getName());
-        if (!Output.exists()) {
-            Output.mkdirs();
-        }
-        try {
-            String filename = ImageUtils.getJPGFileName(Input.getName(),"jpg");
-            File imageOutput = new File(Output,filename);
-            if (FilenameUtils.isExtension(Input.getName(),"pdf")) {
-                PDFUtils.writeJPGImage(Input,imageOutput,Config.THUMB_MAX_WIDTH,Config.THUMB_MAX_HEIGHT,false);
-            }
-        } catch (IOException | PdfException ex) {
-            String stack = ExceptionUtils.getStackTrace(ex);
-            logger.log(Level.SEVERE,"Could not write thumbnail {0}\n\n{1}",
-                    new Object[]{Output.getAbsolutePath(),stack});
         }
     }
     

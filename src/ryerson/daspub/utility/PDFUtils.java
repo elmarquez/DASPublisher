@@ -28,6 +28,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import net.coobird.thumbnailator.Thumbnails;
 import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.jpedal.PdfDecoder;
 import org.jpedal.exception.PdfException;
 
@@ -57,53 +58,118 @@ public class PDFUtils {
     }
     
     /**
-     * Extract one or more thumbnail images from a PDF document.
-     * @param Input Input file
+     * Get incremental file name
+     * @param F File
+     * @param I Index
+     * @param E Extension
+     * @return 
+     */
+    private static File getIncrementedFileName(File F, int I, String E) {
+        String filename = FilenameUtils.getBaseName(F.getName());
+        String extension = FilenameUtils.getExtension(F.getName());
+        filename = filename + "-" + String.valueOf(I) + "." + E;
+        File file = new File(F.getParentFile(),filename);
+        return file;
+    }
+
+    /**
+     * Get page count for PDF document.
+     * @param Input
+     * @return 
+     */
+    public static int getPageCount(File Input) {
+        int count = 0;
+        try {
+            pdf.openPdfFile(Input.getAbsolutePath());
+            count = pdf.getPageCount();
+            pdf.closePdfFile();
+        } catch (PdfException ex) {
+            String stack = ExceptionUtils.getStackTrace(ex);
+            logger.log(Level.SEVERE,
+                       "Could not get page count for {0}\n\n{1}", 
+                       new Object[] {Input.getAbsolutePath(),stack});
+        }
+        return count;
+    }
+    
+    /**
+     * Write JPG image of page in a PDF document.  If the document has multiple
+     * pages, only the first page image will be written.
+     * @param Input PDF input file
      * @param Output Output file
      * @param Width Maximum thumbnail width
      * @param Height Maximum thumbnail height
-     * @param Multipage If document has multiple pages, write out a file for each page. Pages are numbered sequentially, in the form filename-#.jpg
-     * @return List of files written
      * @throws IOException
      * @throws PDFException
      */
-    public static List<File> writeJPGImage(File Input, File Output, int Width, int Height, Boolean Multipage) throws PdfException, IOException {
-        ArrayList<File> result = new ArrayList<>();
+    public static void writeJPGImage(File Input, File Output, int Width, int Height) throws PdfException, IOException {
+        ArrayList<File> files = new ArrayList<>();
         if (FilenameUtils.isExtension(Input.getName(),"pdf")) {
-            // open the file
             pdf.openPdfFile(Input.getAbsolutePath());
-            // write images
-            if (Multipage) {
-                int pages = pdf.getPageCount();
-                if (pages > 1) {
-                    for (int i=0;i<pages;i++) {
-                        BufferedImage img = pdf.getPageAsImage(i+1);
-                        File output = getIncrementedFileName(Output,i+1);
-                        logger.log(Level.INFO,"Writing JPEG image for {0}",output.getName());
-                        Thumbnails.of(img).size(Width,Height).outputFormat("jpg").toFile(output);
-                        result.add(output);
-                    }
-                } else if (pages == 1) {
-                    BufferedImage img = pdf.getPageAsImage(1);
-                    logger.log(Level.INFO,"Writing JPEG for {0}",Output.getName());
-                    Thumbnails.of(img).size(Width,Height).outputFormat("jpg").toFile(Output);
-                    result.add(Output);
-                }
-            } else {
-                // get first page of PDF as an image
-                BufferedImage img = pdf.getPageAsImage(1);
-                // create and write a thumbnail image
-                logger.log(Level.INFO,"Writing JPEG for {0}",Output.getName());
-                Thumbnails.of(img).size(Width,Height).outputFormat("jpg").toFile(Output);
-                result.add(Output);
-            }
-            // close the file
+            BufferedImage img = pdf.getPageAsImage(1);
+            logger.log(Level.INFO,"Writing JPEG for {0}",Output.getName());
+            Thumbnails.of(img).size(Width,Height).outputFormat("jpg").toFile(Output);
+            files.add(Output);
             pdf.closePdfFile();
         } else {
             logger.log(Level.WARNING,"Could not write PDF thumbnail for {0}. File is not a PDF document.",Input.getAbsolutePath());
         }
-        // return file list
-        return result;
+    }
+    
+    /**
+     * Write a JPG image of a specific page in a PDF document. If the page 
+     * number does not exist in the document, nothing will be written.
+     * @param Input PDF input file
+     * @param Output Output file
+     * @param Width Maximum thumbnail width
+     * @param Height Maximum thumbnail height
+     * @param Page Page number. Zero based page index.
+     */
+    public static void writeJPGImage(File Input, File Output, int Width, int Height, int Page) throws PdfException, IOException {
+        if (FilenameUtils.isExtension(Input.getName(),"pdf")) {
+            pdf.openPdfFile(Input.getAbsolutePath());
+            if (Page < pdf.getPageCount()) {
+                BufferedImage img = pdf.getPageAsImage(Page+1); // PDF page index starts at 1
+                logger.log(Level.INFO,"Writing JPEG image for {0}", Output.getName());
+                Thumbnails.of(img).size(Width,Height).outputFormat("jpg").toFile(Output);
+            } else {
+                logger.log(Level.WARNING,
+                           "Could not write PDF thumbnail for {0}. Requested page number does not exist.",
+                           Input.getAbsolutePath());
+            }
+            pdf.closePdfFile();
+        } else {
+            logger.log(Level.WARNING,"Could not write PDF thumbnail for {0}.",Input.getAbsolutePath());
+        }
+    }
+
+    /**
+     * Write JPG image of each document page.
+     * @param Input PDF input file
+     * @param Output Output folder or output file name.
+     * @param Width Maximum thumbnail width
+     * @param Height Maximum thumbnail height
+     * @throws PdfException
+     * @throws IOException 
+     */
+    public static List<File> writeJPGImageAllPDFPages(File Input, File Output, int Width, int Height) throws PdfException, IOException {
+        ArrayList<File> files = new ArrayList<>();
+        if (FilenameUtils.isExtension(Input.getName(),"pdf")) {
+            pdf.openPdfFile(Input.getAbsolutePath());
+            int count = pdf.getPageCount();
+            for (int i=0;i<count;i++) {
+                BufferedImage img = pdf.getPageAsImage(i+1); // PDF page index starts at 1
+                File output = getIncrementedFileName(Output,i,"jpg");
+                logger.log(Level.INFO,"Writing JPEG image for {0}",output.getName());
+                Thumbnails.of(img).size(Width,Height).outputFormat("jpg").toFile(output);
+                files.add(output);
+            } 
+            pdf.closePdfFile();
+        } else {
+            logger.log(Level.WARNING,"Could not write JPG for PDF {0}.",Input.getAbsolutePath());
+        }
+        // return result
+        return files;
     }
 
 } // end class

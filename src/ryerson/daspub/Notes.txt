@@ -4,17 +4,18 @@ DAS ARCHIVE PUBLISHER
 
 Version History
 
-1.0.0 o Create an information page for tool
+1.0.0 o Create documentation and web page
       o Package all system items for open source distribution
-      o Archive initializer, updater
+      o Archive initializer, updater?
       
 0.9.0 o Automatic slideshow presentation with QR tag in corner
       o Normalize nomenclature across classes, in config files
 
-0.7.0 o Package mobile output as a self-contained app
+0.8.0 o Package mobile output as a self-contained app
       o Review report page to use JQuery Mobile layout
+      o Application GUI, project file format
 
-0.6.0 o Thumbnails for video submissions
+0.7.0 o Thumbnails for video submissions
       o Videos are viewable
       o Fix problem with colour tinting of images after rescaling
       o Improve image quality for full and thumbnail sized images
@@ -23,13 +24,14 @@ Version History
       o Status check: count completed metadata versus submitted files, confirm 
         that metadata files actually include data!
       o Course index page utility, command line option
-      o Application GUI, project file format
 
 Current Work:
 
-0.5.0 o Create appropriate image label for submissions, including multi-page
+0.6.0 * Multi-page PDF submissions
+      o Create appropriate image label for submissions, including multi-page
         submissions
 
+0.5.0 x Create appropriate image label for submissions
       x Do not show submission content block if no content items are present.
       x Separate indexes for single page submissions, multi-page and videos.
       x Assignment should have a query filter for submissions by type

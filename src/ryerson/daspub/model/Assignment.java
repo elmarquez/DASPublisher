@@ -39,11 +39,7 @@ import ryerson.daspub.Config;
 import ryerson.daspub.Config.STATUS;
 import ryerson.daspub.Config.SUBMISSION_EVALUATION;
 import ryerson.daspub.Config.SUBMISSION_TYPE;
-import ryerson.daspub.utility.AssignmentMetadataFileFilter;
-import ryerson.daspub.utility.AssignmentPDFFileFilter;
-import ryerson.daspub.utility.MarkupParser;
-import ryerson.daspub.utility.SubmissionMetadataFileFilter;
-import ryerson.daspub.utility.MetadataFileFilter;
+import ryerson.daspub.utility.MarkupUtils;
 import ryerson.daspub.utility.URLUtils;
 
 /**
@@ -92,19 +88,6 @@ public class Assignment {
      */
     public File getFolder() {
        return source; 
-    }
-
-    /**
-     * Get submission metadata file.
-     * @return Metadata file. Null if no file is found.
-     */
-    private File getMetadataFile() {
-        File[] files = source.listFiles(new MetadataFileFilter());
-        File file = null;
-        if (files.length>0) {
-            file = files[0];
-        }
-        return file;
     }
 
     /**
@@ -290,9 +273,8 @@ public class Assignment {
      * @return True if file exists, false otherwise.
      */
     public boolean hasMetadataFile() {
-        File[] files = source.listFiles(new AssignmentMetadataFileFilter());
-        if (files.length > 0) return true;
-        return false;
+        File file = new File(source,Config.ASSIGNMENT_METADATA_FILE);
+        return file.exists();
     }
 
     /**
@@ -300,9 +282,8 @@ public class Assignment {
      * @return 
      */
     public boolean hasSubmissionMetadataFile() {
-        File[] files = source.listFiles(new SubmissionMetadataFileFilter());
-        if (files.length > 0) return true;
-        return false;
+        File file = new File(source,Config.SUBMISSION_METADATA_FILE);
+        return file.exists();
     }
     
     /**
@@ -322,9 +303,8 @@ public class Assignment {
      * @return True if file exists, false otherwise.
      */
     public boolean hasSyllabusFile() {
-        File[] files = source.listFiles(new AssignmentPDFFileFilter());
-        if (files.length > 0) return true;
-        return false;
+        File file = new File(source,Config.ASSIGNMENT_SYLLABUS_FILE);
+        return file.exists();
     }
 
     /**
@@ -347,7 +327,7 @@ public class Assignment {
     private void parseMetadataFile() {
         File file = new File(source,Config.ASSIGNMENT_METADATA_FILE);
         if (file.exists()) {
-            Map<String,String> vals = MarkupParser.parse(file);
+            Map<String,String> vals = MarkupUtils.parse(file);
             if (vals.containsKey("Description")) {
                 description = vals.get("Description");
             }

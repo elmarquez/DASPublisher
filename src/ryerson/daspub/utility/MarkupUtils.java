@@ -35,9 +35,9 @@ import org.apache.commons.lang3.exception.ExceptionUtils;
  * HTML blocks.
  * @author dmarques
  */
-public class MarkupParser {
+public class MarkupUtils {
 
-    private static final Logger logger = Logger.getLogger(MarkupParser.class.getName());
+    private static final Logger logger = Logger.getLogger(MarkupUtils.class.getName());
     
     //--------------------------------------------------------------------------
 

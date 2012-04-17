@@ -27,7 +27,7 @@ import java.util.logging.Logger;
 import ryerson.daspub.Config;
 import ryerson.daspub.Config.STATUS;
 import ryerson.daspub.utility.FolderFileFilter;
-import ryerson.daspub.utility.MarkupParser;
+import ryerson.daspub.utility.MarkupUtils;
 import ryerson.daspub.utility.URLUtils;
 
 /**
@@ -254,7 +254,7 @@ public class Course {
     private void parseDescriptionFile() {
         File file = new File(source,Config.COURSE_METADATA_FILE);
         if (file.exists()) {
-            Map<String,String> vals = MarkupParser.parse(file);
+            Map<String,String> vals = MarkupUtils.parse(file);
             if (vals.containsKey("Description")) {
                 description = vals.get("Description");
             }
@@ -263,11 +263,11 @@ public class Course {
             }
             if (vals.containsKey("Instructors")) {
                 String text = vals.get("Instructors");
-                instructors = MarkupParser.getList(text, "\\*");
+                instructors = MarkupUtils.getList(text, "\\*");
             }
             if (vals.containsKey("CACB Criteria")) {
                 String text = vals.get("CACB Criteria");
-                spc = MarkupParser.getList(text, "\\*");
+                spc = MarkupUtils.getList(text, "\\*");
             }
         }
     }

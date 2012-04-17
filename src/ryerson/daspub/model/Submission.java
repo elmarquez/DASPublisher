@@ -28,7 +28,6 @@ import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.jpedal.PdfDecoder;
 import org.jpedal.exception.PdfException;
 import ryerson.daspub.Config;
-import ryerson.daspub.utility.ImageUtils;
 import ryerson.daspub.utility.URLUtils;
 
 /**
@@ -49,7 +48,6 @@ public class Submission {
     private String numberOfItems;
     private String submissionId;
     private String evaluation;
-
     private File source;
 
     private static final Logger logger = Logger.getLogger(Submission.class.getName());
@@ -73,19 +71,18 @@ public class Submission {
      * @param Evaluation
      */
     public Submission(String Year,
-                      String Semester,
-                      String CourseNumber,
-                      String CourseName,
-                      String StudioMaster,
-                      String Instructor,
-                      String AssignmentName,
-                      String AssignmentDuration,
-                      String StudentName,
-                      String NumberOfItems,
-                      String SubmissionId,
-                      String Path,
-                      String Evaluation)
-    {
+            String Semester,
+            String CourseNumber,
+            String CourseName,
+            String StudioMaster,
+            String Instructor,
+            String AssignmentName,
+            String AssignmentDuration,
+            String StudentName,
+            String NumberOfItems,
+            String SubmissionId,
+            String Path,
+            String Evaluation) {
         year = Year;
         semester = Semester;
         courseNumber = CourseNumber;
@@ -159,12 +156,12 @@ public class Submission {
 
     /**
      * Get evaluation string.
-     * @return 
+     * @return
      */
     public String getEvaluationString() {
         return evaluation;
     }
-    
+
     /**
      * Get instructor name
      * @return
@@ -174,23 +171,37 @@ public class Submission {
     }
 
     /**
-     * Get the submission output file name
-     * @return
-     */
-    public String getOutputFileName() {
-        String name = "";
-        if (source.exists()) {
-            name = ImageUtils.getJPGFileName(source.getName(),"jpg");
-        }
-        return name;
-    }
-
-    /**
      * Get number of items in submission
      * @return
      */
     public String getNumberOfItems() {
         return numberOfItems;
+    }
+
+    /**
+     * Get the total number of pages in the submission. If the submission is an
+     * image, the page count will be 1. If the submission does not exist, the
+     * page count will be 0.
+     * @return Page count
+     */
+    public int getPageCount() {
+        int count = 0;
+        if (source.exists()) {
+            if (isPDF()) {
+                PdfDecoder pdf = new PdfDecoder(true);
+                try {
+                    pdf.openPdfFile(source.getAbsolutePath());
+                    count = pdf.getPageCount();
+                } catch (PdfException ex) {
+                    String stack = ExceptionUtils.getStackTrace(ex);
+                    logger.log(Level.SEVERE, "Could not read PDF file {0}.\n\n{1}",
+                            new Object[]{source.getAbsolutePath(), stack});
+                }
+            } else {
+                count = 1; // single page pdf or image
+            }
+        }
+        return count; // does not exist
     }
 
     /**
@@ -256,29 +267,28 @@ public class Submission {
         String c_filename = Cells[11].getContents();
         String c_evaluation = Cells[12].getContents();
         // if the required cells are not empty, create a new submission object
-        if (c_id != null &&
-            c_year != null &&
-            c_coursenumber != null &&
-            c_instructor != null &&
-            c_studentname != null &&
-            c_filename != null)
-        {
-            File f = new File(Path,c_filename);
+        if (c_id != null
+                && c_year != null
+                && c_coursenumber != null
+                && c_instructor != null
+                && c_studentname != null
+                && c_filename != null) {
+            File f = new File(Path, c_filename);
             s = new Submission(c_year,
-                                c_semester,
-                                c_coursenumber,
-                                c_coursename,
-                                c_studiomaster,
-                                c_instructor,
-                                c_assignmentname,
-                                c_assignmentduration,
-                                c_studentname,
-                                c_numberofitems,
-                                c_id,
-                                f.getAbsolutePath(),
-                                c_evaluation);
+                    c_semester,
+                    c_coursenumber,
+                    c_coursename,
+                    c_studiomaster,
+                    c_instructor,
+                    c_assignmentname,
+                    c_assignmentduration,
+                    c_studentname,
+                    c_numberofitems,
+                    c_id,
+                    f.getAbsolutePath(),
+                    c_evaluation);
         } else {
-            logger.log(Level.WARNING,"Spreadsheet item is missing one of the required values: id, year, course number, instructor, student name, file name.");
+            logger.log(Level.WARNING, "Spreadsheet item is missing one of the required values: id, year, course number, instructor, student name, file name.");
         }
         return s;
     }
@@ -341,7 +351,7 @@ public class Submission {
      */
     public boolean isImage() {
         String ext = FilenameUtils.getExtension(source.getName());
-        for (int i=0;i<Config.IMAGE_TYPE.length;i++) {
+        for (int i = 0; i < Config.IMAGE_TYPE.length; i++) {
             if (ext.equals(Config.IMAGE_TYPE[i])) {
                 return true;
             }
@@ -354,19 +364,8 @@ public class Submission {
      * @return True if submission is a multi-page PDF, false otherwise.
      */
     public boolean isMultiPagePDF() {
-        if (isPDF()) {
-            PdfDecoder pdf = new PdfDecoder(true);
-            try {
-                pdf.openPdfFile(source.getAbsolutePath());
-                int count = pdf.getPageCount();
-                if (count > 1) {
-                    return true;
-                }
-            } catch (PdfException ex) {
-                String stack = ExceptionUtils.getStackTrace(ex);
-                logger.log(Level.SEVERE,"Could not read PDF file {0}.\n\n{1}",
-                        new Object[]{source.getAbsolutePath(),stack});
-            }
+        if (isPDF() && getPageCount() > 1) {
+            return true;
         }
         return false;
     }
@@ -398,8 +397,8 @@ public class Submission {
                 }
             } catch (PdfException ex) {
                 String stack = ExceptionUtils.getStackTrace(ex);
-                logger.log(Level.SEVERE,"Could not read PDF file {0}.\n\n{1}",
-                        new Object[]{source.getAbsolutePath(),stack});
+                logger.log(Level.SEVERE, "Could not read PDF file {0}.\n\n{1}",
+                        new Object[]{source.getAbsolutePath(), stack});
             }
         }
         return false;
@@ -411,7 +410,7 @@ public class Submission {
      */
     public boolean isVideo() {
         String ext = FilenameUtils.getExtension(source.getName());
-        for (int i=0;i<Config.VIDEO_TYPE.length;i++) {
+        for (int i = 0; i < Config.VIDEO_TYPE.length; i++) {
             if (ext.equals(Config.VIDEO_TYPE[i])) {
                 return true;
             }
