@@ -27,7 +27,7 @@ Version History
 
 Current Work:
 
-0.6.0 > Create appropriate image label for submissions, including multi-page
+0.6.0 x Create appropriate image label for submissions, including multi-page
         submissions
       x Multi-page PDF submissions
       

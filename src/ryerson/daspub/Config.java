@@ -74,8 +74,8 @@ public class Config {
 
     public static int IMAGE_MAX_HEIGHT = 2000;    // full size image maximum height
     public static int IMAGE_MAX_WIDTH = 2000;     // full size image maximum width
-    public static int THUMB_MAX_HEIGHT = 120;     // thumbnail image maximum height
-    public static int THUMB_MAX_WIDTH = 120;      // thumbnail image maximum width
+    public static int THUMB_MAX_HEIGHT = 200;     // thumbnail image maximum height
+    public static int THUMB_MAX_WIDTH = 200;      // thumbnail image maximum width
 
     public static int VIDEO_WIDTH = 640;
     public static int VIDEO_HEIGHT = 480;

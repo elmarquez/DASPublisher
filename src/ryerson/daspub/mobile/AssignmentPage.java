@@ -128,7 +128,6 @@ public class AssignmentPage {
                         sb.append(", ");
                         sb.append(s.getAuthor());
                         if (s.isMultiPagePDF()) {
-                            sb.append(", ");
                             sb.append(getPageNumberLabel(s,f.getName()));                            
                         }
                         sb.append(" (");
@@ -282,7 +281,7 @@ public class AssignmentPage {
         // build label
         int total = S.getPageCount();
         StringBuilder sb = new StringBuilder();
-        sb.append(" page ");
+        sb.append(". Page ");
         sb.append(String.valueOf(page));
         sb.append(" of ");
         sb.append(String.valueOf(total));
