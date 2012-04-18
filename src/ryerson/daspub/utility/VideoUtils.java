@@ -26,9 +26,7 @@ import it.sauronsoftware.jave.MultimediaInfo;
 import it.sauronsoftware.jave.VideoInfo;
 import java.io.File;
 import java.io.IOException;
-import java.net.URI;
 import java.net.URISyntaxException;
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import ryerson.daspub.Config;
 
@@ -98,7 +96,9 @@ public class VideoUtils {
     /**
      * Get mimetype string for video file.
      * @param Input
-     * @return 
+     * @return Mimetype string
+     * @TODO perhaps this should rely on type flag from submission instead of 
+     * parsing the extension
      */
     public static String getMimeType(File Input) {
         String ext = FilenameUtils.getExtension(Input.getName());

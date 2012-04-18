@@ -28,7 +28,7 @@ import org.apache.commons.cli.Options;
 import org.apache.commons.cli.PosixParser;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import ryerson.daspub.artifact.ArtifactPublisher;
-import ryerson.daspub.artifact.ArtifactTagSheetPublisher;
+import ryerson.daspub.artifact.QRCodeTagSheetPublisher;
 import ryerson.daspub.init.Initializer;
 import ryerson.daspub.mobile.MobilePublisher;
 import ryerson.daspub.report.ReportPublisher;
@@ -146,7 +146,7 @@ public class Main implements Runnable {
                     break;
                 }
                 case OPTION_TAGSHEET: {
-                    ArtifactTagSheetPublisher p = new ArtifactTagSheetPublisher(config, outputPath, outputPath);
+                    QRCodeTagSheetPublisher p = new QRCodeTagSheetPublisher(config, outputPath, outputPath);
                     p.run();
                     break;
                 }

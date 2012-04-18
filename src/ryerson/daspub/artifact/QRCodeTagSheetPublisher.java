@@ -47,7 +47,7 @@ import ryerson.daspub.utility.QRCodeImageFileFilter;
  * Takes a directory containing PNG images of QR barcodes and constructs a 
  * PDF document conforming to an Avery 22806 template.
  */
-public class ArtifactTagSheetPublisher implements Runnable {
+public class QRCodeTagSheetPublisher implements Runnable {
 
     private static final int ITEMS_PER_PAGE = 12;
     private static final float LINE_THICKNESS = 0.25f;
@@ -72,7 +72,7 @@ public class ArtifactTagSheetPublisher implements Runnable {
     private File outputFile;
     private ArrayList<Point> layout = new ArrayList<>();
     
-    private static final Logger logger = Logger.getLogger(ArtifactTagSheetPublisher.class.getName());
+    private static final Logger logger = Logger.getLogger(QRCodeTagSheetPublisher.class.getName());
 
     //--------------------------------------------------------------------------
 
@@ -82,7 +82,7 @@ public class ArtifactTagSheetPublisher implements Runnable {
      * @param Input Input directory with artifact pages and QR code images
      * @param Output Output file
      */
-    public ArtifactTagSheetPublisher(Config Config, File Input, File Output) {
+    public QRCodeTagSheetPublisher(Config Config, File Input, File Output) {
         config = Config;
         inputDir = Input;
         outputDir = Output;
