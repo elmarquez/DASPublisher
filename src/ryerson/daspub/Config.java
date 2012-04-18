@@ -42,7 +42,8 @@ public class Config {
     // publication status
     public static enum STATUS {COMPLETE, INCOMPLETE, PARTIAL, ERROR};
     public static enum SUBMISSION_EVALUATION {HIGH_PASS, LOW_PASS, NONE};
-    public static enum SUBMISSION_TYPE {IMAGE, PDF, VIDEO, OTHER};
+    public static enum SUBMISSION_TYPE {IMAGE, PDF, VIDEO, NONE};
+    public static enum VIDEO { MP4, OGG, WEBM, NONE };
     
     // file types
     public static final String PDF_TYPE = "pdf";

@@ -313,7 +313,7 @@ public class Submission {
         } else if (isVideo()) {
             return Config.SUBMISSION_TYPE.VIDEO;
         }
-        return Config.SUBMISSION_TYPE.OTHER;
+        return Config.SUBMISSION_TYPE.NONE;
     }
 
     /**
