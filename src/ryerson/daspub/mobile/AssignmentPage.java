@@ -18,8 +18,7 @@
  */
 package ryerson.daspub.mobile;
 
-import it.sauronsoftware.jave.EncoderException;
-import it.sauronsoftware.jave.VideoInfo;
+import java.awt.Dimension;
 import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -242,56 +241,56 @@ public class AssignmentPage {
             Iterator<Submission> its = ls.iterator();
             // for each video, create a player and a poster image, copy the
             // source file to the output folder
+            Dimension dim = null;
+            File poster = null;
             while (its.hasNext()) {
                 Submission s = its.next();
-                VideoInfo info = null;
-                File poster = null;
                 if (s.getSourceFile().exists()) {
                     try {
                         // get video metadata
-                        info = VideoUtils.getMetadata(s.getSourceFile());
+                        dim = VideoUtils.getSize(s.getSourceFile());
                         // write poster for video
-                        poster = VideoUtils.writeJPGPosterImage(s.getSourceFile(),output,Config.VIDEO_WIDTH,Config.VIDEO_HEIGHT);
+                        poster = VideoUtils.writePosterImage(s.getSourceFile(),output);
                         // copy the source file to the output folder
                         copyVideo(s.getSourceFile(),output);
-                    } catch (EncoderException | IOException | URISyntaxException ex) {
+                        // write html player
+                        sb.append("\n<li>");
+                        sb.append("\n\t<video id=\"");
+                        sb.append("randomplayerid");
+                        sb.append("\" ");
+                        sb.append("\n\t\tclass=\"video-js vjs-default-skin\" ");
+                        sb.append("\n\t\tcontrols preload=\"none\" ");
+                        sb.append("\n\t\twidth=\"");
+                        sb.append(String.valueOf(dim.getSize().getWidth())); // do you really want to do this or should all video be the same size??
+                        sb.append("\" ");
+                        sb.append("\n\t\theight=\"");
+                        sb.append(String.valueOf(dim.getSize().getHeight()));
+                        sb.append("\" ");
+                        sb.append("\n\t\tposter=\"");
+                        sb.append(A.getURLSafeName());
+                        sb.append("/");
+                        sb.append(VIDEO_DIR);
+                        sb.append("/");
+                        sb.append(poster.getName());
+                        sb.append("\"");
+                        sb.append("\n\t\tdata-setup=\"{}\">");
+                        sb.append("\n\t\t<source src=\"");
+                        sb.append(A.getURLSafeName());
+                        sb.append("/");
+                        sb.append(VIDEO_DIR);
+                        sb.append("/");
+                        sb.append(s.getSourceFileName());
+                        sb.append("\" type=\"");
+                        sb.append(VideoUtils.getMimeType(s.getSourceFile()));
+                        sb.append("\" />");
+                        sb.append("\n\t</video>");
+                        sb.append("\n</li>");
+                    } catch (IOException | URISyntaxException ex) {
                         String stack = ExceptionUtils.getStackTrace(ex);
                         logger.log(Level.SEVERE,
                                    "Could not process video file {0}\n\n{1}",
                                     new Object[]{s.getSourceFile().getAbsolutePath(),stack});
                     }
-                    // write html player
-                    sb.append("\n<li>");
-                    sb.append("\n\t<video id=\"");
-                    sb.append("randomplayerid");
-                    sb.append("\" ");
-                    sb.append("\n\t\tclass=\"video-js vjs-default-skin\" ");
-                    sb.append("\n\t\tcontrols preload=\"none\" ");
-                    sb.append("\n\t\twidth=\"");
-                    sb.append(String.valueOf(info.getSize().getWidth())); // do you really want to do this or should all video be the same size??
-                    sb.append("\" ");
-                    sb.append("\n\t\theight=\"");
-                    sb.append(String.valueOf(info.getSize().getHeight()));
-                    sb.append("\" ");
-                    sb.append("\n\t\tposter=\"");
-                    sb.append(A.getURLSafeName());
-                    sb.append("/");
-                    sb.append(VIDEO_DIR);
-                    sb.append("/");
-                    sb.append(poster.getName());
-                    sb.append("\"");
-                    sb.append("\n\t\tdata-setup=\"{}\">");
-                    sb.append("\n\t\t<source src=\"");
-                    sb.append(A.getURLSafeName());
-                    sb.append("/");
-                    sb.append(VIDEO_DIR);
-                    sb.append("/");
-                    sb.append(s.getSourceFileName());
-                    sb.append("\" type=\"");
-                    sb.append(VideoUtils.getMimeType(s.getSourceFile()));
-                    sb.append("\" />");
-                    sb.append("\n\t</video>");
-                    sb.append("\n</li>");
                 }
             }
             sb.append("\n\t</ul>");
@@ -447,24 +446,16 @@ public class AssignmentPage {
                 ImageUtils.writeJPGImage(input,output,Width,Height);
                 files.add(output);
             } else if (S.isVideo()) {
-                VideoUtils.writeJPGPosterImage(input,output,Width,Height);
+                VideoUtils.writePosterImage(input,output);
                 files.add(output);
             }
-        } catch (IOException | ImageReadException ex) {
+        } catch (IOException | ImageReadException | URISyntaxException ex) {
             String stack = ExceptionUtils.getStackTrace(ex);
             logger.log(Level.SEVERE,
                     "Could not write image {0} for {1}\n\n{2}",
                     new Object[]{output.getAbsolutePath(),
                                  input.getAbsolutePath(),
                                  stack});
-        } catch (EncoderException | URISyntaxException ex) {
-            String stack = ExceptionUtils.getStackTrace(ex);
-            logger.log(Level.SEVERE,
-                    "Could not write image {0} for {1}\n\n{2}",
-                    new Object[]{output.getAbsolutePath(),
-                                 input.getAbsolutePath(),
-                                 stack});
-
         } catch (PdfException ex) {
             String stack = ExceptionUtils.getStackTrace(ex);
             logger.log(Level.SEVERE,

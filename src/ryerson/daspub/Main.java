@@ -42,7 +42,7 @@ public class Main implements Runnable {
 
     public static final int FAIL = -1;
     public static final int SUCCESS = 0;
-    
+
     private static final String CMD_CONFIG = "config";
     private static final String CMD_HELP = "help";
     private static final String CMD_INIT = "init";
@@ -54,15 +54,15 @@ public class Main implements Runnable {
     private static final String OPTION_REPORT = "report";
     private static final String OPTION_SLIDESHOW = "slideshow";
     private static final String OPTION_TAGSHEET = "tagsheet";
-    
+
     private static Options options = new Options();
     private static Config config = null;
     private static CommandLine cmd = null;
-    
+
     private static final Logger logger = Logger.getLogger(Main.class.getName());
 
     //--------------------------------------------------------------------------
-    
+
     /**
      * Main constructor
      * @param args Arguments
@@ -73,7 +73,7 @@ public class Main implements Runnable {
     }
 
     //--------------------------------------------------------------------------
-    
+
     /**
      * Define the command line options.
      */
@@ -119,7 +119,7 @@ public class Main implements Runnable {
             logger.log(Level.SEVERE, "Output path must be specified");
             System.exit(FAIL);
         }
-        // publish
+        // process command
         String option = cmd.getOptionValue(CMD_PUBLISH);
         String output = cmd.getOptionValue(CMD_OUTPUT);
         File outputPath = new File(output);
@@ -206,7 +206,7 @@ public class Main implements Runnable {
                 System.exit(FAIL);
             }
         }
-        // execute commands
+        // process command
         if (cmd.hasOption(CMD_INIT)) {
             executeInit();
         } else if (cmd.hasOption(CMD_PUBLISH)) {
@@ -221,5 +221,5 @@ public class Main implements Runnable {
         HelpFormatter formatter = new HelpFormatter();
         formatter.printHelp("java DASPub.jar ", options, true);
     }
-    
+
 } // end class

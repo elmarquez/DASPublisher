@@ -50,8 +50,8 @@ public class Course {
      * Course constructor
      * @param Path Source folder path
      */
-    public Course(String Path) {
-        source = new File(Path);
+    public Course(File Input) {
+        source = Input;
         parseDescriptionFile();
     }
 

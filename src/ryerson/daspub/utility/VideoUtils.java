@@ -16,14 +16,13 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
  * 02110-1301, USA.
  */
-
 package ryerson.daspub.utility;
 
-import it.sauronsoftware.jave.Encoder;
-import it.sauronsoftware.jave.EncoderException;
-import it.sauronsoftware.jave.InputFormatException;
-import it.sauronsoftware.jave.MultimediaInfo;
-import it.sauronsoftware.jave.VideoInfo;
+import com.xuggle.xuggler.ICodec;
+import com.xuggle.xuggler.IContainer;
+import com.xuggle.xuggler.IStream;
+import com.xuggle.xuggler.IStreamCoder;
+import java.awt.Dimension;
 import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -33,16 +32,21 @@ import ryerson.daspub.Config;
 /**
  * Video file utilities.
  * @author dmarques
- * @see http://krishnabhargav.blogspot.com/2008/02/processing-videos-in-java.html
- * @see http://www.xuggle.com/xuggler/
  * @see http://build.xuggle.com/view/Stable/job/xuggler_jdk5_stable/ws/workingcopy/src/com/xuggle/mediatool/demos/DecodeAndCaptureFrames.java
  */
 public class VideoUtils {
 
+    private static final String IMAGE_EXT = ".png";
+
+    private static final String MIME_MP4 = "video/mp4";
+    private static final String MIME_OGG = "video/ogg";
+    private static final String MIME_WEBM = "video/webm";
+
+    //--------------------------------------------------------------------------
     /**
      * Get video format identifier.
      * @param Input
-     * @return 
+     * @return
      */
     public static Config.VIDEO getFormat(File Input) {
         Config.VIDEO result = Config.VIDEO.NONE;
@@ -62,15 +66,15 @@ public class VideoUtils {
         }
         return result;
     }
-    
+
     /**
      * Change the file name so that it has the new extension
      * @param Filename Current file name
      * @return
      */
-    public static String getJPGFileName(String Filename) {
+    public static String getPNGFileName(String Filename) {
         String name = FilenameUtils.removeExtension(Filename);
-        return name + ".jpg";
+        return name + IMAGE_EXT;
     }
 
     /**
@@ -79,25 +83,16 @@ public class VideoUtils {
      * @param File
      * @return
      */
-    public static String getJPGFileName(File Input) {
+    public static String getPNGFileName(File Input) {
         String filename = FilenameUtils.removeExtension(Input.getName());
-        return filename + ".jpg";
-    }
-    
-    /**
-     * Get video dimensions.
-     */
-    public static VideoInfo getMetadata(File Input) throws InputFormatException, EncoderException {
-        Encoder encoder = new Encoder();
-        MultimediaInfo info = encoder.getInfo(Input);
-        return info.getVideo();
+        return filename + IMAGE_EXT;
     }
 
     /**
      * Get mimetype string for video file.
      * @param Input
      * @return Mimetype string
-     * @TODO perhaps this should rely on type flag from submission instead of 
+     * @TODO perhaps this should rely on type flag from submission instead of
      * parsing the extension
      */
     public static String getMimeType(File Input) {
@@ -105,44 +100,67 @@ public class VideoUtils {
         String mimetype = "unknown"; // default
         switch (ext.toLowerCase()) {
             case "mp4":
-                mimetype = "video/mp4";
+                mimetype = MIME_MP4;
                 break;
             case "ogg":
-                mimetype = "video/ogg";
+                mimetype = MIME_OGG;
                 break;
             case "webm":
-                mimetype = "video/webm";
+                mimetype = MIME_WEBM;
                 break;
         }
         return mimetype;
     }
-    
+
     /**
-     * Write a JPG snapshot 
+     * Get video stream screen dimensions.
+     * @param Input Input video file
+     * @returns Video stream screen dimensions
+     * @throws IllegalArgumentException
+     */
+    public static Dimension getSize(File Input) throws IllegalArgumentException {
+        // Create a Xuggler container object
+        IContainer container = IContainer.make();
+        // Open up the container
+        if (container.open(Input.getAbsolutePath(), IContainer.Type.READ, null) < 0)
+          throw new IllegalArgumentException("Could not open file: " + Input.getAbsolutePath());
+        // get streams
+        int numStreams = container.getNumStreams();
+        // iterate through the streams to find video dimensions
+        Dimension dim = new Dimension();
+        for(int i = 0; i < numStreams; i++) {
+            // find the stream object
+            IStream stream = container.getStream(i);
+            // get the pre-configured decoder that can decode this stream;
+            IStreamCoder coder = stream.getStreamCoder();
+            if (coder.getCodecType() == ICodec.Type.CODEC_TYPE_VIDEO) {
+                dim.setSize(coder.getWidth(),coder.getHeight());
+            }
+        }
+        // return result
+        return dim;
+    }
+
+    /**
+     * Write first video frame as a PNG image file.
      * @param Input
      * @param Output
-     * @param Width
-     * @param Height
      * @throws IOException
      */
-    public static File writeJPGPosterImage(File Input, File Output, int Width, int Height) throws IOException, URISyntaxException, InputFormatException, EncoderException {
+    public static File writePosterImage(File Input, File Output) throws IOException, URISyntaxException {
         File output = Output;
         // make sure the folder exists and file name is set correctly
-        String filename = getJPGFileName(Input);
-        if (Output.isDirectory()) {
-            Output.mkdirs();
-            output = new File(Output,filename);
+        String filename = getPNGFileName(Input);
+        if (output.isDirectory()) {
+            output.mkdirs();
+            output = new File(output, filename);
         } else {
-            Output.getParentFile().mkdirs();
+            output.getParentFile().mkdirs();
         }
-        // get a frame from the video
-        Encoder encoder = new Encoder();
-        MultimediaInfo info = encoder.getInfo(Input);
-
-        // write the video frame
-        
+        // write video frame
+        FrameGrabber d = new FrameGrabber(Input,output);
         // return the written file
         return output;
     }
-    
+
 } // end class

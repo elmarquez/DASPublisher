@@ -28,6 +28,7 @@ import ryerson.daspub.Config;
 /**
  * Slideshow publisher.
  * @author dmarques
+ * @see http://www.pixedelic.com/plugins/camera/
  */
 public class SlideshowPublisher implements Runnable {
 

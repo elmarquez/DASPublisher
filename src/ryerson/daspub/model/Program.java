@@ -61,7 +61,7 @@ public class Program {
         File[] files = source.listFiles(new FolderFileFilter());
         for (int i=0;i<files.length;i++) {
             File f = files[i];
-            Course c = new Course(f.getAbsolutePath());
+            Course c = new Course(f);
             result.add(c);
         }
         return result.iterator();
