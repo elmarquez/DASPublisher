@@ -39,8 +39,8 @@ public class Course {
     private File source;                                    // source folder
     private String description = "";                        // course description
     private String format = "";                             // course format
-    private List<String> instructors = new ArrayList<>();   // instructors
-    private List<String> spc = new ArrayList<>();           // student performance criteria
+    private List<String> instructors = new ArrayList<String>();   // instructors
+    private List<String> spc = new ArrayList<String>();           // student performance criteria
     
     private static final Logger logger = Logger.getLogger(Course.class.getName());
 
@@ -61,7 +61,7 @@ public class Course {
      * Get assignment iterator.
      */
     public List<Assignment> getAssignments() {
-        ArrayList<Assignment> items = new ArrayList<>();
+        ArrayList<Assignment> items = new ArrayList<Assignment>();
         File[] files = source.listFiles(new FolderFileFilter());
         for (int i = 0; i < files.length; i++) {
             Assignment a = new Assignment(files[i]);
@@ -94,7 +94,7 @@ public class Course {
      * @return 
      */
     public List<String> getExams() {
-        ArrayList<String> items = new ArrayList<>();
+        ArrayList<String> items = new ArrayList<String>();
         items.add("Not implemented yet");
         return items;
     }
@@ -158,7 +158,7 @@ public class Course {
      * @return List of SPC codes
      */
     public List<String> getSPCFulfilledCodes() {
-        ArrayList<String> codes = new ArrayList<>();
+        ArrayList<String> codes = new ArrayList<String>();
         Iterator<String> it = spc.iterator();
         while (it.hasNext()) {
             String criteria = it.next();

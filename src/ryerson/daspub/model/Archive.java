@@ -59,7 +59,7 @@ public class Archive {
      * @return 
      */
     public static List<Archive> getArchives(List<String> Paths) {
-       ArrayList<Archive> result = new ArrayList<>();
+       ArrayList<Archive> result = new ArrayList<Archive>();
        Iterator<String> itp = Paths.iterator();
        while (itp.hasNext()) {
            File folder = new File(itp.next());
@@ -90,7 +90,7 @@ public class Archive {
      * @return 
      */
     public Iterator<Program> getPrograms() {
-        ArrayList<Program> result = new ArrayList<>();
+        ArrayList<Program> result = new ArrayList<Program>();
         if (source.exists()) {
             File[] files = source.listFiles(new FolderFileFilter());
             for (int i=0;i<files.length;i++) {

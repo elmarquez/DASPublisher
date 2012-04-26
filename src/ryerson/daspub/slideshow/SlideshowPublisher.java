@@ -19,8 +19,6 @@
 package ryerson.daspub.slideshow;
 
 import java.io.File;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.logging.Logger;
 import org.apache.commons.io.FileUtils;
 import ryerson.daspub.Config;
@@ -58,9 +56,7 @@ public class SlideshowPublisher implements Runnable {
      * @param Dir
      * @throws Exception 
      */
-    private void deleteDirectory(File Dir) throws Exception {
-        Path dir = Dir.toPath();
-        Files.deleteIfExists(dir);
+    private void deleteDirectory(File Dir) {
     }
     
     /**

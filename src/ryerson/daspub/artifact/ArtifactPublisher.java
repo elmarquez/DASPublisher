@@ -30,8 +30,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
-import org.apache.sanselan.ImageReadException;
-import org.jpedal.exception.PdfException;
 import ryerson.daspub.model.Archive;
 import ryerson.daspub.model.Assignment;
 import ryerson.daspub.Config;
@@ -127,7 +125,7 @@ public class ArtifactPublisher implements Runnable {
      */
     private void processSubmission(Submission S, File Output) {
         File input = S.getSourceFile();
-        String id = S.getSubmissionId();
+        String id = S.getId();
         if (id != null) {
             logger.log(Level.FINE, "Processing submission {0}", input.getAbsolutePath());
             try {
@@ -162,7 +160,7 @@ public class ArtifactPublisher implements Runnable {
                 page = page.replace("${assignmentName}", S.getAssignmentName());
                 page = page.replace("${assignmentDuration}", S.getAssignmentDuration());
                 page = page.replace("${studentName}", S.getStudentName());
-                page = page.replace("${submissionId}", S.getSubmissionId());
+                page = page.replace("${submissionId}", S.getId());
                 String evaluation = "None";
                 if (S.getEvaluation() == Config.SUBMISSION_EVALUATION.HIGH_PASS) {
                     evaluation = "High Pass";
@@ -179,7 +177,7 @@ public class ArtifactPublisher implements Runnable {
                 // generate qr code and write to output folder
                 String url = Config.ARTIFACT_BASE_URL + "/" + artifact_html;
                 writeQRTag(url, qrDir, qrcode_png);
-            } catch (ImageReadException | IOException | PdfException | WriterException ex) {
+            } catch (Exception ex) {
                 String stack = ExceptionUtils.getStackTrace(ex);
                 logger.log(Level.WARNING, "Could not generate artifact record for {0}. Caught exception:\n\n{1}",
                         new Object[]{input.getAbsolutePath(), stack});

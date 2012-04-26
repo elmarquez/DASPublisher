@@ -21,7 +21,6 @@ package ryerson.daspub.model;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -33,7 +32,6 @@ import jxl.Cell;
 import jxl.Sheet;
 import jxl.Workbook;
 import jxl.WorkbookSettings;
-import jxl.read.biff.BiffException;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import ryerson.daspub.Config;
 import ryerson.daspub.Config.STATUS;
@@ -129,9 +127,10 @@ public class Assignment {
      * @return 
      */
     public List<Submission> getSubmissions() {
-        ArrayList<Submission> items = new ArrayList<>();
+        ArrayList<Submission> items = new ArrayList<Submission>();
         // load the metadata file
         File file = new File(this.source,Config.SUBMISSION_METADATA_FILE);
+        Submission s = null;
         if (file.exists()) {            
             try {
                 WorkbookSettings ws = new WorkbookSettings();
@@ -142,15 +141,17 @@ public class Assignment {
                 int rows = sheet.getRows();
                 for (int row=1;row<rows;row++) {
                     Cell[] cells = sheet.getRow(row);
-                    Submission s = Submission.getSubmission(cells,source);
+                    s = Submission.getSubmission(cells,source);
                     if (s != null) {
                         items.add(s);
                     }
                 }            
-            } catch (IOException | BiffException | IndexOutOfBoundsException ex) {
+            } catch (Exception ex) {
                 String stack = ExceptionUtils.getStackTrace(ex);
-                logger.log(Level.SEVERE,"Submission metadata for assignment {0} could not be loaded.\n\n{1}",
-                        new Object[]{source.getAbsolutePath(),stack});
+                logger.log(Level.SEVERE,"Submission metadata for assignment {0}, submission {1} could not be loaded.\n\n{2}",
+                        new Object[]{source.getAbsolutePath(),
+                                    s.getId(),
+                                    stack});
             }
         }
         return items;        
@@ -162,7 +163,7 @@ public class Assignment {
      * @return 
      */
     public List<Submission> getSubmissions(SUBMISSION_TYPE Type) {
-        ArrayList<Submission> result = new ArrayList<>();
+        ArrayList<Submission> result = new ArrayList<Submission>();
         List<Submission> items = getSubmissions();
         Iterator<Submission> it = items.iterator();
         while (it.hasNext()) {
@@ -181,7 +182,7 @@ public class Assignment {
      * @return 
      */
     public List<Submission> getSubmissions(SUBMISSION_TYPE Type, SUBMISSION_EVALUATION Evaluation) {
-        ArrayList<Submission> result = new ArrayList<>();
+        ArrayList<Submission> result = new ArrayList<Submission>();
         List<Submission> items = getSubmissions(Type);
         Iterator<Submission> it = items.iterator();
         while (it.hasNext()) {
@@ -225,7 +226,7 @@ public class Assignment {
      * TODO this is duplicate code!! factor it out!
      */
     public boolean hasConformingSubmissionMetadataFile() {
-        ArrayList<Submission> items = new ArrayList<>();
+        ArrayList<Submission> items = new ArrayList<Submission>();
         // load the metadata file
         File file = new File(this.source,Config.SUBMISSION_METADATA_FILE);
         if (file.exists()) {            
@@ -243,7 +244,7 @@ public class Assignment {
                         items.add(s);
                     }
                 }            
-            } catch (IOException | BiffException | IndexOutOfBoundsException ex) {
+            } catch (Exception ex) {
                 String stack = ExceptionUtils.getStackTrace(ex);
                 logger.log(Level.SEVERE,"Submission metadata for assignment {0} could not be loaded.\n\n{1}",
                         new Object[]{source.getAbsolutePath(),stack});

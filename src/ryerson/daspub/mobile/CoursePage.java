@@ -19,14 +19,12 @@
 package ryerson.daspub.mobile;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.Iterator;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
-import org.jpedal.exception.PdfException;
 import ryerson.daspub.Config;
 import ryerson.daspub.model.Assignment;
 import ryerson.daspub.model.Course;
@@ -90,7 +88,7 @@ public class CoursePage {
                     sb.append("\" /></a></li>");
                 }
                 sb.append("\n</ul>");            
-            } catch (PdfException | IOException ex) {
+            } catch (Exception ex) {
                 String stack = ExceptionUtils.getStackTrace(ex);
                 logger.log(Level.SEVERE, "Could not write handout gallery for {0}\n\n{1}", 
                         new Object[]{C.getFolder().getAbsolutePath(),stack});

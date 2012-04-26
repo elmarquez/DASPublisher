@@ -57,7 +57,7 @@ public class Program {
      * @return 
      */
     public Iterator<Course> getCourses() {
-        ArrayList<Course> result = new ArrayList<>();
+        ArrayList<Course> result = new ArrayList<Course>();
         File[] files = source.listFiles(new FolderFileFilter());
         for (int i=0;i<files.length;i++) {
             File f = files[i];

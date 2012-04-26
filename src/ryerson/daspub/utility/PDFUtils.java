@@ -103,7 +103,7 @@ public class PDFUtils {
      * @throws PDFException
      */
     public static List<File> writeJPGImage(File Input, File Output, int Width, int Height) throws PdfException, IOException {
-        ArrayList<File> files = new ArrayList<>();
+        ArrayList<File> files = new ArrayList<File>();
         if (FilenameUtils.isExtension(Input.getName(),"pdf")) {
             // if output is a directory, change it 
             File output = Output;
@@ -166,7 +166,7 @@ public class PDFUtils {
      * @throws IOException 
      */
     public static List<File> writeJPGImageAllPDFPages(File Input, File Output, int Width, int Height) throws PdfException, IOException {
-        ArrayList<File> files = new ArrayList<>();
+        ArrayList<File> files = new ArrayList<File>();
         if (FilenameUtils.isExtension(Input.getName(),"pdf")) {
             pdf.openPdfFile(Input.getAbsolutePath());
             int count = pdf.getPageCount();

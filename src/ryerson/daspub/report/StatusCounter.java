@@ -45,8 +45,8 @@ public class StatusCounter {
     private int total;
     private int percentage;
     
-    private HashMap<String,Submission> unique = new HashMap<>();
-    private ArrayList<Submission> duplicates = new ArrayList<>();
+    private HashMap<String,Submission> unique = new HashMap<String,Submission>();
+    private ArrayList<Submission> duplicates = new ArrayList<Submission>();
     
     //--------------------------------------------------------------------------
 
@@ -164,8 +164,8 @@ public class StatusCounter {
             Iterator<Submission> its = ls.iterator();
             while (its.hasNext()) {
                 Submission s = its.next();
-                if (!unique.containsKey(s.getSubmissionId())) {
-                    unique.put(s.getSubmissionId(), s);
+                if (!unique.containsKey(s.getId())) {
+                    unique.put(s.getId(), s);
                 } else {
                     duplicates.add(s);
                     hasduplicates = true;

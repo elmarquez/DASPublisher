@@ -51,7 +51,7 @@ public class Config {
     public static final String[] VIDEO_TYPE = {"mp4","ogg","webm"};
 
     // parameters
-    public static ArrayList<String> ARCHIVE_PATHS = new ArrayList<>();
+    public static ArrayList<String> ARCHIVE_PATHS = new ArrayList<String>(); 
     public static String ARCHIVE_PATH;
     public static String STATUS_REPORT_CONTENT_ONLY = "true";
     public static String LOGGING_PATH;
@@ -81,7 +81,7 @@ public class Config {
     public static int VIDEO_WIDTH = 640;
     public static int VIDEO_HEIGHT = 480;
     
-    private static HashMap<String,String> args = new HashMap<>();
+    private static HashMap<String,String> args = new HashMap<String,String>();
 
     private static final Logger _logger = Logger.getLogger(Config.class.getName());
 
@@ -104,7 +104,8 @@ public class Config {
     private static HashMap<String,String> parseConfigurationFile(File F) throws Exception {
         _logger.log(Level.INFO,"Parsing configuration file {0}",F.getAbsolutePath());
         StringBuilder text = new StringBuilder();
-        try (Scanner scanner = new Scanner(new FileInputStream(F), "UTF-8")) {
+        try {
+            Scanner scanner = new Scanner(new FileInputStream(F), "UTF-8");
             String line = "";
             while (scanner.hasNextLine()) {
                 line = scanner.nextLine();
@@ -122,6 +123,8 @@ public class Config {
                     }
                 }
             }
+        } catch (Exception ex) {
+            
         }
         return args;
     }
@@ -148,7 +151,7 @@ public class Config {
                     field.set(Config.class,val);
                 }
                 _logger.log(Level.INFO,"Set {0} as {1}",new Object[]{field.getName(),val.toString()});
-            } catch (NoSuchFieldException | SecurityException | IllegalArgumentException | IllegalAccessException ex) {
+            } catch (Exception ex) {
                 String stack = ExceptionUtils.getStackTrace(ex);
                 _logger.log(Level.SEVERE,"Could not find or set field {0}\n\n{1}",
                         new Object[]{name,stack});

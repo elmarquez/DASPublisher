@@ -89,7 +89,7 @@ public class MarkupUtils {
      * Get list from markup items.
      */
     public static List<String> getList(String Markup, String ItemMarker) {
-        ArrayList<String> result = new ArrayList<>();
+        ArrayList<String> result = new ArrayList<String>();
         String[] item = Markup.split(ItemMarker);    
         for (int i=0;i<item.length;i++) {
             if (!item[i].equals("") && !item[i].equals(" ")) {
@@ -106,7 +106,7 @@ public class MarkupUtils {
      * @return 
      */
     public static Map<String, String> parse(File F) {
-        HashMap<String,String> result = new HashMap<>();
+        HashMap<String,String> result = new HashMap<String,String>();
         List<String> lines = null;
         try {
             lines = FileUtils.readLines(F);

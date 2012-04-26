@@ -21,7 +21,6 @@ package ryerson.daspub.mobile;
 import java.awt.Dimension;
 import java.io.File;
 import java.io.IOException;
-import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -29,8 +28,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
-import org.apache.sanselan.ImageReadException;
-import org.jpedal.exception.PdfException;
 import ryerson.daspub.Config;
 import ryerson.daspub.Config.SUBMISSION_EVALUATION;
 import ryerson.daspub.Config.SUBMISSION_TYPE;
@@ -196,7 +193,7 @@ public class AssignmentPage {
                     sb.append("\" /></a></li>");
                 }
                 sb.append("\n</ul>");
-            } catch (PdfException | IOException ex) {
+            } catch (Exception ex) {
                 String stack = ExceptionUtils.getStackTrace(ex);
                 logger.log(Level.SEVERE, "Could not write handout gallery for {0}\n\n{1}",
                         new Object[]{A.getFolder().getAbsolutePath(), stack});
@@ -285,7 +282,7 @@ public class AssignmentPage {
                         sb.append("\" />");
                         sb.append("\n\t</video>");
                         sb.append("\n</li>");
-                    } catch (IOException | URISyntaxException ex) {
+                    } catch (Exception ex) {
                         String stack = ExceptionUtils.getStackTrace(ex);
                         logger.log(Level.SEVERE,
                                    "Could not process video file {0}\n\n{1}",
@@ -436,7 +433,7 @@ public class AssignmentPage {
         }
         // write output file(s)
         File input = S.getSourceFile();
-        List<File> files = new ArrayList<>();
+        List<File> files = new ArrayList<File>();
         try {
             if (S.isMultiPagePDF()) {
                 files = PDFUtils.writeJPGImageAllPDFPages(input,output,Width,Height);
@@ -449,17 +446,10 @@ public class AssignmentPage {
                 VideoUtils.writePosterImage(input,output);
                 files.add(output);
             }
-        } catch (IOException | ImageReadException | URISyntaxException ex) {
+        } catch (Exception ex) {
             String stack = ExceptionUtils.getStackTrace(ex);
             logger.log(Level.SEVERE,
                     "Could not write image {0} for {1}\n\n{2}",
-                    new Object[]{output.getAbsolutePath(),
-                                 input.getAbsolutePath(),
-                                 stack});
-        } catch (PdfException ex) {
-            String stack = ExceptionUtils.getStackTrace(ex);
-            logger.log(Level.SEVERE,
-                    "Could not process PDF {0}\n\n{2}",
                     new Object[]{output.getAbsolutePath(),
                                  input.getAbsolutePath(),
                                  stack});

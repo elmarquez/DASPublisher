@@ -124,32 +124,21 @@ public class Main implements Runnable {
         String output = cmd.getOptionValue(CMD_OUTPUT);
         File outputPath = new File(output);
         try {
-            switch (option) {
-                case OPTION_ARTIFACT: {
-                    ArtifactPublisher p = new ArtifactPublisher(config, outputPath);
-                    p.run();
-                    break;
-                }
-                case OPTION_MOBILE: {
-                    MobilePublisher p = new MobilePublisher(config, outputPath);
-                    p.run();
-                    break;
-                }
-                case OPTION_REPORT: {
-                    ReportPublisher p = new ReportPublisher(config, outputPath);
-                    p.run();
-                    break;
-                }
-                case OPTION_SLIDESHOW: {
-                    SlideshowPublisher p = new SlideshowPublisher(config, outputPath);
-                    p.run();
-                    break;
-                }
-                case OPTION_TAGSHEET: {
-                    QRCodeTagSheetPublisher p = new QRCodeTagSheetPublisher(config, outputPath, outputPath);
-                    p.run();
-                    break;
-                }
+            if (option.equals(OPTION_ARTIFACT)) {
+                ArtifactPublisher p = new ArtifactPublisher(config, outputPath);
+                p.run();
+            } else if (option.equals(OPTION_MOBILE)) {
+                MobilePublisher p = new MobilePublisher(config, outputPath);
+                p.run();
+            } else if (option.equals(OPTION_REPORT)) {
+                ReportPublisher p = new ReportPublisher(config, outputPath);
+                p.run();
+            } else if (option.equals(OPTION_SLIDESHOW)) {
+                SlideshowPublisher p = new SlideshowPublisher(config, outputPath);
+                p.run();
+            } else if (option.equals(OPTION_TAGSHEET)) {
+                QRCodeTagSheetPublisher p = new QRCodeTagSheetPublisher(config, outputPath, outputPath);
+                p.run();
             }
         } catch (Exception ex) {
             String stack = ExceptionUtils.getStackTrace(ex);

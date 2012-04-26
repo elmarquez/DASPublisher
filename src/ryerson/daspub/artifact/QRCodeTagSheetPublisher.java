@@ -70,7 +70,7 @@ public class QRCodeTagSheetPublisher implements Runnable {
     private File inputDir;
     private File outputDir;
     private File outputFile;
-    private ArrayList<Point> layout = new ArrayList<>();
+    private ArrayList<Point> layout = new ArrayList<Point>();
     
     private static final Logger logger = Logger.getLogger(QRCodeTagSheetPublisher.class.getName());
 
@@ -273,7 +273,7 @@ public class QRCodeTagSheetPublisher implements Runnable {
         // write the tag sheet
         try {
             writeTagSheet();
-        } catch (DocumentException | IOException ex) {
+        } catch (Exception ex) {
             String stack = ExceptionUtils.getStackTrace(ex);
             logger.log(Level.SEVERE,"Could not write tag sheet file.\n\n{0}",stack);
         }

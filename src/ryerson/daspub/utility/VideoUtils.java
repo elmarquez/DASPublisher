@@ -52,16 +52,12 @@ public class VideoUtils {
         Config.VIDEO result = Config.VIDEO.NONE;
         if (Input != null) {
             String ext = FilenameUtils.getExtension(Input.getName());
-            switch (ext) {
-                case "mp4":
-                    result = Config.VIDEO.MP4;
-                    break;
-                case "ogg":
-                    result = Config.VIDEO.MP4;
-                    break;
-                case "webm":
-                    result = Config.VIDEO.MP4;
-                    break;
+            if (ext.equals("mp4")) {
+                result = Config.VIDEO.MP4;
+            } else if (ext.equals("ogg")) {
+                result = Config.VIDEO.MP4;
+            } else if (ext.equals("webm")) {
+                result = Config.VIDEO.MP4;
             }
         }
         return result;
@@ -98,16 +94,12 @@ public class VideoUtils {
     public static String getMimeType(File Input) {
         String ext = FilenameUtils.getExtension(Input.getName());
         String mimetype = "unknown"; // default
-        switch (ext.toLowerCase()) {
-            case "mp4":
-                mimetype = MIME_MP4;
-                break;
-            case "ogg":
-                mimetype = MIME_OGG;
-                break;
-            case "webm":
-                mimetype = MIME_WEBM;
-                break;
+        if (ext.toLowerCase().equals("mp4")) {
+            mimetype = MIME_MP4;
+        } else if (ext.toLowerCase().equals("ogg")) {
+            mimetype = MIME_OGG;
+        } else if (ext.toLowerCase().equals("webm")) {
+            mimetype = MIME_WEBM;
         }
         return mimetype;
     }

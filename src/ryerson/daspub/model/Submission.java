@@ -145,11 +145,10 @@ public class Submission {
      * @return
      */
     public Config.SUBMISSION_EVALUATION getEvaluation() {
-        switch (evaluation.toLowerCase()) {
-            case "low pass":
-                return Config.SUBMISSION_EVALUATION.LOW_PASS;
-            case "high pass":
-                return Config.SUBMISSION_EVALUATION.HIGH_PASS;
+        if (evaluation.toLowerCase().equals("low pass")) {
+            return Config.SUBMISSION_EVALUATION.LOW_PASS;
+        } else if (evaluation.toLowerCase().equals("high pass")) {
+            return Config.SUBMISSION_EVALUATION.HIGH_PASS;
         }
         return Config.SUBMISSION_EVALUATION.NONE;
     }
@@ -160,6 +159,14 @@ public class Submission {
      */
     public String getEvaluationString() {
         return evaluation;
+    }
+
+    /**
+     * Get submission ID.
+     * @return
+     */
+    public String getId() {
+        return submissionId;
     }
 
     /**
@@ -245,7 +252,7 @@ public class Submission {
     /**
      * Parse spreadsheet row to create a Submission object.  If the row is
      * missing required data fields, then a null object will be returned.
-     * @param Cells
+     * @param Cells Cells from one spreadsheet row
      * @param Path Folder where the submission data object is located
      * @return Submission
      * @todo Consider a flexible cell to parameter mapping, using column names instead
@@ -294,14 +301,6 @@ public class Submission {
     }
 
     /**
-     * Get submission ID.
-     * @return
-     */
-    public String getSubmissionId() {
-        return submissionId;
-    }
-
-    /**
      * Get submission type designation.
      * @return
      */
@@ -325,7 +324,7 @@ public class Submission {
             String name = source.getName();
             return URLUtils.getURLSafeName(name);
         }
-        return "";
+        return ""; // @TODO this looks like it would be a problem
     }
 
     /**

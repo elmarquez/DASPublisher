@@ -127,7 +127,7 @@ public class ReportPublisher implements Runnable {
                 while (its.hasNext()) {
                     Submission s = its.next();
                     sb2.append("<tr><td>");
-                    sb2.append(s.getSubmissionId());
+                    sb2.append(s.getId());
                     sb2.append("</td><td>in</td><td>");
                     sb2.append(s.getSourceFile().getParent());
                     sb2.append("</td></tr>");
