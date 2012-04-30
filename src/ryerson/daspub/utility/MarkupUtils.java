@@ -37,6 +37,8 @@ import org.apache.commons.lang3.exception.ExceptionUtils;
  */
 public class MarkupUtils {
 
+    private static final String TITLE_DELIMITER = "==";
+    
     private static final Logger logger = Logger.getLogger(MarkupUtils.class.getName());
     
     //--------------------------------------------------------------------------
@@ -119,11 +121,11 @@ public class MarkupUtils {
                     String line = it.next();
                     line = line.trim();
                     if (!line.equals("")) {
-                        if (line.startsWith("==")) {
-                            String newkey = line.replace("==", "");
+                        if (line.startsWith(TITLE_DELIMITER)) {
+                            String newkey = line.replace(TITLE_DELIMITER, "");
                             if (!newkey.equals(key)) {
                                 if (!key.equals("")) {
-                                    result.put(key, value.toString());                                
+                                    result.put(key,value.toString().trim());                                
                                 }
                                 key = newkey;
                                 value = new StringBuilder();

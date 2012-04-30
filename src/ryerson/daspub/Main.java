@@ -33,6 +33,7 @@ import ryerson.daspub.init.Initializer;
 import ryerson.daspub.mobile.MobilePublisher;
 import ryerson.daspub.report.ReportPublisher;
 import ryerson.daspub.slideshow.SlideshowPublisher;
+import ryerson.daspub.ui.ApplicationJFrame;
 
 /**
  * Command line interface to application components.
@@ -45,6 +46,7 @@ public class Main implements Runnable {
 
     private static final String CMD_CONFIG = "config";
     private static final String CMD_HELP = "help";
+    private static final String CMD_GUI = "gui";
     private static final String CMD_INIT = "init";
     private static final String CMD_OUTPUT = "output";
     private static final String CMD_PUBLISH = "publish";
@@ -64,7 +66,7 @@ public class Main implements Runnable {
     //--------------------------------------------------------------------------
 
     /**
-     * Main constructor
+     * Main constructor.
      * @param args Arguments
      */
     public Main(String[] args) {
@@ -79,6 +81,7 @@ public class Main implements Runnable {
      */
     private void defineCommandOptions() {
         options.addOption(CMD_CONFIG, true, "Path to configuration file.");
+        options.addOption(CMD_GUI, false, "Show the application user interface. This option halts execution of additional publishing options.");
         options.addOption(CMD_HELP, false, "Show help message.");
         options.addOption(CMD_INIT, true, "Initialize or update the archive folder(s) with requried metadata files.");
         options.addOption(CMD_OUTPUT, true, "Output path for published files.");
@@ -176,27 +179,38 @@ public class Main implements Runnable {
     /**
      * Execute commands.
      */
+    @Override
     public void run() {
         // show help message
         if (cmd.hasOption(CMD_HELP)) {
             showHelpMessage();
             System.exit(SUCCESS);
         }
+        // show gui
+        if (cmd.hasOption(CMD_GUI)) {
+            ApplicationJFrame frame = ApplicationJFrame.getInstance();
+            frame.setVisible(true);
+        }        
         // load configuration
         if (cmd.hasOption(CMD_CONFIG)) {
             try {
                 String path = cmd.getOptionValue(CMD_CONFIG);
                 File configfile = new File(path);
-                config = new Config();
-                config.load(configfile);
+                config = Config.load(configfile);
             } catch (Exception ex) {
                 String stack = ExceptionUtils.getStackTrace(ex);
                 logger.log(Level.SEVERE, "Could not parse configuration file\n\n{0}", stack);
                 System.exit(FAIL);
             }
         }
-        // process command
-        if (cmd.hasOption(CMD_INIT)) {
+        // show gui or process command line options
+        if (cmd.hasOption(CMD_GUI)) {
+            ApplicationJFrame frame = ApplicationJFrame.getInstance();
+            if (config!=null) {
+                frame.openProject(config);               
+            }
+            frame.setVisible(true);
+        } else if (cmd.hasOption(CMD_INIT)) {
             executeInit();
         } else if (cmd.hasOption(CMD_PUBLISH)) {
             executePublish();

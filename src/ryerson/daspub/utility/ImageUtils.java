@@ -27,6 +27,7 @@ import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import net.coobird.thumbnailator.Thumbnails;
+import net.coobird.thumbnailator.resizers.configurations.ScalingMode;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.sanselan.ImageReadException;
 import org.apache.sanselan.Sanselan;
@@ -34,7 +35,6 @@ import org.apache.sanselan.Sanselan;
 /**
  * Image processing utility methods
  * @author dmarques
- * @see http://im4java.sourceforge.net/
  */
 public class ImageUtils {
 
@@ -75,7 +75,7 @@ public class ImageUtils {
     }
 
     /**
-     * Resize image
+     * Resize image and output as byte array.
      * @param Input Input file
      * @param Width Output width
      * @param Height Output height
@@ -85,7 +85,7 @@ public class ImageUtils {
     public static byte[] resizeImageToByteArray(File Input, int Width, int Height)
            throws IOException {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        Thumbnails.of(Input).size(Width,Height).toOutputStream(baos);
+        Thumbnails.of(Input).outputQuality(100).size(Width,Height).toOutputStream(baos);
         return baos.toByteArray();
     }
 
@@ -109,15 +109,29 @@ public class ImageUtils {
         }
         // write image
         if (FilenameUtils.isExtension(Input.getName(),"jpg")) {
-            Thumbnails.of(Input).size(Width,Height).toFile(output);
+            Thumbnails.of(Input)
+                      .outputQuality(100)
+                      .scalingMode(ScalingMode.BICUBIC)
+                      .size(Width,Height)
+                      .toFile(output);
             logger.log(Level.FINE,"Wrote image {0}", output.getAbsolutePath());
         } else if (FilenameUtils.isExtension(Input.getName(),"gif") ||
                    FilenameUtils.isExtension(Input.getName(),"png")) {
-            Thumbnails.of(Input).size(Width,Height).outputFormat("jpg").toFile(output);
+            Thumbnails.of(Input)
+                      .outputFormat("jpg")
+                      .outputQuality(100)
+                      .scalingMode(ScalingMode.BICUBIC)
+                      .size(Width,Height)
+                      .toFile(output);
             logger.log(Level.FINE,"Wrote image {0}", output.getAbsolutePath());
         } else if (FilenameUtils.isExtension(Input.getName(),"tif")) {
             BufferedImage image = Sanselan.getBufferedImage(Input);
-            Thumbnails.of(image).size(Width,Height).toFile(output);
+            Thumbnails.of(image)
+                      .outputFormat("jpg")
+                      .outputQuality(100)
+                      .scalingMode(ScalingMode.BICUBIC)
+                      .size(Width,Height)
+                      .toFile(output);
         } else {
             logger.log(Level.WARNING,
                        "Could not write JPG for {0}. File is not a processable image.",

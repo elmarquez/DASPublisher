@@ -32,12 +32,14 @@ import org.apache.commons.lang3.exception.ExceptionUtils;
 
 /**
  * A utility class for maintaining configuration data. Defaults are provided in
- * the class. Overriding values can be loaded from a file.  When specifying an
+ * the class. Overriding values can be loaded from a file. When specifying an
  * overriding value, it should match the name of the corresponding variable
  * in the Config class.
  * @author dmarques
  */
 public class Config {
+
+    public static final String APPLICATION_TITLE = "DAS Publisher";
 
     // publication status
     public static enum STATUS {COMPLETE, INCOMPLETE, PARTIAL, ERROR};
@@ -81,9 +83,25 @@ public class Config {
     public static int VIDEO_WIDTH = 640;
     public static int VIDEO_HEIGHT = 480;
     
+    private static File input;
     private static HashMap<String,String> args = new HashMap<String,String>();
 
     private static final Logger _logger = Logger.getLogger(Config.class.getName());
+
+    //--------------------------------------------------------------------------
+
+    /**
+     * Config constructor. Sets default values.
+     */
+    public Config() {}
+
+    /**
+     * Config constructor. Set values using map.
+     * @param Args 
+     */
+    public Config(HashMap<String,String> Args) {
+        setValues(Args);
+    }
 
     //--------------------------------------------------------------------------
     
@@ -91,9 +109,9 @@ public class Config {
      * Load configuration data from a file.
      * @param F Configuration file
      */
-    public static void load(File F) throws Exception {
-        args = parseConfigurationFile(F);
-        setValues(args);
+    public static Config load(File F) throws Exception {
+        HashMap<String,String> vals = parseConfigurationFile(F);
+        return new Config(vals);
     }
     
     /**
@@ -129,6 +147,15 @@ public class Config {
         return args;
     }
 
+    /**
+     * Save the configuration to a file.
+     */
+    public void save() {
+        if (input != null) {
+            
+        }
+    }
+    
     /**
      * Parse arguments and assign variables
      * @param Args
