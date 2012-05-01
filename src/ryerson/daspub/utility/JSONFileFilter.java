@@ -20,22 +20,27 @@ package ryerson.daspub.utility;
 
 import java.io.File;
 import java.io.FileFilter;
+import org.apache.commons.io.FilenameUtils;
 
 /**
- * Directory file filter.
+ * JSON file filter.
  * @author dmarques
  */
-public class FolderFileFilter implements FileFilter {
+public class JSONFileFilter implements FileFilter {
 
+    private final String EXT = "jsn";
+    
     /**
-     * Determine if a file is a directory.
+     * Determine if file is JSON file.
      * @param F File
-     * @return True if the file is a directory, false otherwise.
      */
     @Override
     public boolean accept(File F) {
-        if (F.isDirectory()) return true;
+        String ext = FilenameUtils.getExtension(F.getName());
+        if (EXT.equals(ext)) {
+            return true;
+        }
         return false;
     }
-
+    
 } // end class

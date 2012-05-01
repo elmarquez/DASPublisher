@@ -16,20 +16,23 @@ Version History
 
 0.7.0 o Add filtering column for artifact labels, pages
       o Fix problem with colour tinting of images after rescaling
-      o Improve image quality for full and thumbnail sized images
       o Complete TODO tasks noted in code
       o Status check: count completed metadata versus submitted files, confirm
         that metadata files actually include data!
       o Course index page utility, command line option
-      o Better error reporting for end users
-      x Extract poster image from video
 
 Current Work:
 
-0.6.0 x Create appropriate image label for submissions, including multi-page
+      - Open an existing project file and then run it!
+
+0.6.0 o Create a basic GUI for the application
+      o Improve image quality for full and thumbnail sized images
+      o Better error reporting for end users
+      x Create appropriate image label for submissions, including multi-page
         submissions
       x Multi-page PDF submissions
       x Videos are viewable
+      x Extract poster image from video
       
 0.5.0 x Create appropriate image label for submissions
       x Do not show submission content block if no content items are present.

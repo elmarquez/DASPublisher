@@ -84,9 +84,9 @@ public class Config {
     public static int VIDEO_HEIGHT = 480;
     
     private static File input;
-    private static HashMap<String,String> args = new HashMap<String,String>();
+    private static String data;
 
-    private static final Logger _logger = Logger.getLogger(Config.class.getName());
+    private static final Logger logger = Logger.getLogger(Config.class.getName());
 
     //--------------------------------------------------------------------------
 
@@ -120,40 +120,57 @@ public class Config {
      * @return Map of arguments
      */
     private static HashMap<String,String> parseConfigurationFile(File F) throws Exception {
-        _logger.log(Level.INFO,"Parsing configuration file {0}",F.getAbsolutePath());
-        StringBuilder text = new StringBuilder();
-        try {
-            Scanner scanner = new Scanner(new FileInputStream(F), "UTF-8");
-            String line = "";
-            while (scanner.hasNextLine()) {
-                line = scanner.nextLine();
-                if (!line.startsWith("//") && !line.startsWith(" ") && !line.equals("")) {
-                    line = line.trim();
-                    String[] items = line.split("=");
-                    String key = "";
-                    String val = "";
-                    if (items.length > 0) {
-                        key = items[0].trim();
-                        if (items.length > 1) {
-                            val = items[1].trim();
+        HashMap<String,String> args = new HashMap<String,String>();
+        if (F.exists()) {
+            logger.log(Level.INFO,"Parsing configuration file {0}",F.getAbsolutePath());
+            StringBuilder text = new StringBuilder();
+            try {
+                Scanner scanner = new Scanner(new FileInputStream(F), "UTF-8");
+                String line = "";
+                while (scanner.hasNextLine()) {
+                    line = scanner.nextLine();
+                    if (!line.startsWith("//") && !line.startsWith(" ") && !line.equals("")) {
+                        line = line.trim();
+                        String[] items = line.split("=");
+                        String key = "";
+                        String val = "";
+                        if (items.length > 0) {
+                            key = items[0].trim();
+                            if (items.length > 1) {
+                                val = items[1].trim();
+                            }
+                            args.put(key, val);
                         }
-                        args.put(key, val);
                     }
                 }
+            } catch (Exception ex) {
+
             }
-        } catch (Exception ex) {
-            
+        } else {
+            logger.log(Level.WARNING,"Configuration file does not exist {0}",F.getAbsolutePath());            
         }
-        return args;
+        // return result
+        return args;            
     }
 
     /**
-     * Save the configuration to a file.
+     * Save the configuration.
+     * @return True if file saved, false otherwise.
      */
-    public void save() {
-        if (input != null) {
-            
-        }
+    public boolean save() {
+       return true; 
+    }
+    
+    /**
+     * Save the configuration to a file.
+     * @param C Configuration
+     * @param F File
+     */
+    public static void save(Config C, File F) {
+        Field[] fields = Config.class.getFields();
+        // @TODO complete this
+        logger.log(Level.INFO,"Saved configuration to {0}",F.getAbsolutePath());
+        logger.log(Level.SEVERE,"Could not save configuration to {0}",F.getAbsolutePath());
     }
     
     /**
@@ -177,10 +194,10 @@ public class Config {
                 } else {
                     field.set(Config.class,val);
                 }
-                _logger.log(Level.INFO,"Set {0} as {1}",new Object[]{field.getName(),val.toString()});
+                logger.log(Level.INFO,"Set {0} as {1}",new Object[]{field.getName(),val.toString()});
             } catch (Exception ex) {
                 String stack = ExceptionUtils.getStackTrace(ex);
-                _logger.log(Level.SEVERE,"Could not find or set field {0}\n\n{1}",
+                logger.log(Level.SEVERE,"Could not find or set field {0}\n\n{1}",
                         new Object[]{name,stack});
             }
         }

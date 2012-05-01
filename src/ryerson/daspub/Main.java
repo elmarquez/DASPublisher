@@ -19,8 +19,13 @@
 package ryerson.daspub;
 
 import java.io.File;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
+import java.util.logging.LogManager;
 import java.util.logging.Logger;
+import javax.swing.JTextArea;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.HelpFormatter;
@@ -34,6 +39,8 @@ import ryerson.daspub.mobile.MobilePublisher;
 import ryerson.daspub.report.ReportPublisher;
 import ryerson.daspub.slideshow.SlideshowPublisher;
 import ryerson.daspub.ui.ApplicationJFrame;
+import ryerson.daspub.ui.JTextAreaOutputFormatter;
+import ryerson.daspub.ui.JTextAreaOutputHandler;
 
 /**
  * Command line interface to application components.
@@ -59,8 +66,11 @@ public class Main implements Runnable {
 
     private static Options options = new Options();
     private static Config config = null;
+    private static File configFile = null;
     private static CommandLine cmd = null;
 
+    private static ExecutorService pool = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
+    
     private static final Logger logger = Logger.getLogger(Main.class.getName());
 
     //--------------------------------------------------------------------------
@@ -129,29 +139,52 @@ public class Main implements Runnable {
         try {
             if (option.equals(OPTION_ARTIFACT)) {
                 ArtifactPublisher p = new ArtifactPublisher(config, outputPath);
-                p.run();
+                pool.execute(p);
+                //p.run();
             } else if (option.equals(OPTION_MOBILE)) {
                 MobilePublisher p = new MobilePublisher(config, outputPath);
-                p.run();
+                pool.execute(p);
+                //p.run();
             } else if (option.equals(OPTION_REPORT)) {
                 ReportPublisher p = new ReportPublisher(config, outputPath);
-                p.run();
+                pool.execute(p);
+                //p.run();
             } else if (option.equals(OPTION_SLIDESHOW)) {
                 SlideshowPublisher p = new SlideshowPublisher(config, outputPath);
-                p.run();
+                pool.execute(p);
+                //p.run();
             } else if (option.equals(OPTION_TAGSHEET)) {
                 QRCodeTagSheetPublisher p = new QRCodeTagSheetPublisher(config, outputPath, outputPath);
-                p.run();
+                pool.execute(p);
+                //p.run();
             }
         } catch (Exception ex) {
             String stack = ExceptionUtils.getStackTrace(ex);
             logger.log(Level.SEVERE, "Could not complete publication\n\n{0}", stack);
             System.exit(FAIL);
         }
-        // exit
-        System.exit(SUCCESS);
+        // shutdown the thread pool
+        pool.shutdown();
+        // wait for pool to stop
+        try {
+            while (!pool.isTerminated()) {
+                pool.awaitTermination(10, TimeUnit.SECONDS);
+            }
+        } catch (InterruptedException ex) {
+            logger.log(Level.SEVERE, "Waiting for thread pool termination.\n\n{0}", ex);
+        }
+        // halt
+        System.exit(Main.SUCCESS);
     }
 
+    /**
+     * Get thread pool.
+     * @return 
+     */
+    public static ExecutorService getThreadPool() {
+        return pool;
+    }
+    
     /**
      * Program entry point
      * @param args Command line arguments
@@ -190,13 +223,13 @@ public class Main implements Runnable {
         if (cmd.hasOption(CMD_GUI)) {
             ApplicationJFrame frame = ApplicationJFrame.getInstance();
             frame.setVisible(true);
-        }        
+        }
         // load configuration
         if (cmd.hasOption(CMD_CONFIG)) {
             try {
                 String path = cmd.getOptionValue(CMD_CONFIG);
-                File configfile = new File(path);
-                config = Config.load(configfile);
+                configFile = new File(path);
+                config = Config.load(configFile);
             } catch (Exception ex) {
                 String stack = ExceptionUtils.getStackTrace(ex);
                 logger.log(Level.SEVERE, "Could not parse configuration file\n\n{0}", stack);
@@ -206,9 +239,18 @@ public class Main implements Runnable {
         // show gui or process command line options
         if (cmd.hasOption(CMD_GUI)) {
             ApplicationJFrame frame = ApplicationJFrame.getInstance();
-            if (config!=null) {
-                frame.openProject(config);               
+            // send logging output to jtextarea
+            JTextArea textArea = frame.getLogOutputTextArea();
+            JTextAreaOutputHandler handler = new JTextAreaOutputHandler(textArea);
+            handler.setFormatter(new JTextAreaOutputFormatter());
+            handler.setLevel(Level.ALL);
+            Logger rootlogger = LogManager.getLogManager().getLogger("");
+            rootlogger.addHandler(handler);
+            // load project if specified at command line
+            if (configFile!=null) {
+                frame.openProject(configFile);
             }
+            // display the application frame
             frame.setVisible(true);
         } else if (cmd.hasOption(CMD_INIT)) {
             executeInit();

@@ -11,7 +11,7 @@
 // enclosed in quotes.
 // eg. archive_path = \\host\archive\1, folderName, "folder name"
 
-archive_path = Z:\Student Work\2011-2012
+archive_path = c:\archive\
 
 // ----------------------------------------------------------------------------
 // Metadata Files
@@ -25,15 +25,15 @@ assignment_file_metadata = assignment.xls
 // ----------------------------------------------------------------------------
 // Static Content Files
 
-static_files_path = Z:\Student Work\config\static
+static_files_path = c:\archive\static-content\
 
 // ----------------------------------------------------------------------------
 // Template Files
 
-course_template_path = Z:\Student Work\config\templates\course-template.html
-assignment_template_path = Z:\Student Work\config\templates\assignment-template.html
-artifact_template_path = Z:\Student Work\config\templates\artifact-template.php
-exam_template_path = Z:\Student Work\config\templates\exam-template.html
+course_template_path = c:\archive\templates\course-template.html
+assignment_template_path = c:\archive\templates\assignment-template.html
+artifact_template_path = c:\archive\templates\artifact-template.php
+exam_template_path = c:\archive\templates\exam-template.html
 
 // ----------------------------------------------------------------------------
 // Images and Video
@@ -46,6 +46,6 @@ thumb_max_width = 120
 // ----------------------------------------------------------------------------
 // Artifact Gallery
 
-artifact_base_url = http://www.arch.ryerson.ca/cacb/ag
+artifact_base_url = http://www.mydomain.org/
 artifact_tag_width = 200
 artifact_tag_height = 200

@@ -20,30 +20,27 @@ package ryerson.daspub.ui;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.swing.AbstractAction;
-import ryerson.daspub.Main;
+import ryerson.daspub.Config;
+import ryerson.daspub.report.ReportPublisher;
 
 /**
- * Exit application action.
+ * Publish report content action.
  * @author dmarques
  */
-public class ExitAction extends AbstractAction {
-
-    private static final String LABEL = "Exit";
-    private static final String DESCRIPTION = "Exit application";
-    private static final Integer MNEMONIC = new Integer(KeyEvent.VK_X);
-
-    private static final Logger logger = Logger.getLogger(ExitAction.class.getName());
+public class PublishReportAction extends AbstractAction {
+    
+    private static final String LABEL = "Report";
+    private static final String DESCRIPTION = "Publish Report Content";
+    private static final Integer MNEMONIC = new Integer(KeyEvent.VK_R);
 
     //--------------------------------------------------------------------------
 
     /**
-     * ExitAction constructor
+     * PublishReportAction constructor
      */
-    public ExitAction() {
-        super(LABEL, null);
+    public PublishReportAction() {
+        super(LABEL,null);
         putValue(SHORT_DESCRIPTION, DESCRIPTION);
         putValue(MNEMONIC_KEY,MNEMONIC);
     }
@@ -51,13 +48,15 @@ public class ExitAction extends AbstractAction {
     //--------------------------------------------------------------------------
     
     /**
-     * Handle application exit action.
+     * Handle publish action.
      * @param e 
      */
     @Override
     public void actionPerformed(ActionEvent e) {
-        logger.log(Level.INFO,"Exiting application.");
-        System.exit(Main.SUCCESS);
+        ApplicationJFrame frame = ApplicationJFrame.getInstance();
+        Config config = frame.getConfiguration();
+        ReportPublisher p = new ReportPublisher(config,null);
+        p.run();
     }
     
 } // end class

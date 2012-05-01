@@ -20,7 +20,11 @@ package ryerson.daspub.ui;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
+import java.io.File;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.AbstractAction;
+import javax.swing.JFileChooser;
 
 /**
  * Open project action.
@@ -31,6 +35,8 @@ public class OpenProjectAction extends AbstractAction {
     private static final String LABEL = "Open Project";
     private static final String DESCRIPTION = "Open Project";
     private static final Integer MNEMONIC = new Integer(KeyEvent.VK_O);
+
+    private static final Logger logger = Logger.getLogger(OpenProjectAction.class.getName());
 
     //--------------------------------------------------------------------------
 
@@ -51,8 +57,26 @@ public class OpenProjectAction extends AbstractAction {
      */
     @Override
     public void actionPerformed(ActionEvent e) {
+        // open a file chooser dialog
         ApplicationJFrame frame = ApplicationJFrame.getInstance();
-        // open the file chooser
+        JFileChooser fc = new JFileChooser();
+        fc.setFileSelectionMode(JFileChooser.FILES_ONLY);
+        // check if user has selected a file
+        int returnVal = fc.showOpenDialog(frame);
+        if (returnVal == JFileChooser.APPROVE_OPTION) {
+            // set the current configuration file path
+            File file = fc.getSelectedFile();
+            if (file.exists()) {
+                try {
+                    frame.openProject(file);
+                } catch (Exception ex) {
+                    logger.log(Level.SEVERE,"Could not open project file {0}\n\n{1}", 
+                            new Object[]{file.getAbsolutePath(),ex});
+                }
+            }
+        } else {
+            logger.log(Level.INFO,"Open project file command cancelled by user.");
+        }
     }
     
 } // end class

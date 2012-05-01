@@ -25,6 +25,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.AbstractAction;
 import javax.swing.JFileChooser;
+import ryerson.daspub.Config;
 
 /**
  * New project action.
@@ -58,20 +59,23 @@ public class NewProjectAction extends AbstractAction {
         // open a new dialog box 
         ApplicationJFrame frame = ApplicationJFrame.getInstance();
         JFileChooser fc = new JFileChooser();
-        //In response to a button click:
+        fc.setFileSelectionMode(JFileChooser.FILES_ONLY);
+        // check if user has defined a file
         int returnVal = fc.showOpenDialog(frame);
         if (returnVal == JFileChooser.APPROVE_OPTION) {
             // set the current configuration file path
             File file = fc.getSelectedFile();
-            // open the file
-            String msg = "Opening: " + file.getName() + ".";
-            logger.log(Level.INFO,msg);
+            logger.log(Level.INFO,"Set new project file as {0}",file.getAbsolutePath());
+            // load configuration into application frame
+            try {
+                frame.openProject(file);
+            } catch (Exception ex) {
+                logger.log(Level.SEVERE,"Could not open new project file {0}\n\n{1}", 
+                        new Object[]{file.getAbsolutePath(),ex});
+            }
         } else {
-            logger.log(Level.INFO,"Open command cancelled by user.");
+            logger.log(Level.INFO,"New project file command cancelled by user.");
         }
-        // load configuration into application frame
-        frame.openProject(null);
-        
     }
     
 } // end class

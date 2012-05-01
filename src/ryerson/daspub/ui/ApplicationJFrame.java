@@ -21,8 +21,10 @@ package ryerson.daspub.ui;
 import java.awt.Dimension;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
+import java.io.File;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.JTextArea;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 import org.apache.commons.lang3.exception.ExceptionUtils;
@@ -38,6 +40,7 @@ public class ApplicationJFrame extends javax.swing.JFrame {
     private static ApplicationJFrame instance = null;
 
     // configuration
+    private File configFile;
     private Config config;
 
     // create actions
@@ -50,6 +53,7 @@ public class ApplicationJFrame extends javax.swing.JFrame {
     private PublishArtifactPagesAction publishArtifactAction = new PublishArtifactPagesAction();
     private PublishArtifactQRCodesAction publishQRCodeAction = new PublishArtifactQRCodesAction();
     private PublishSlideshowAction publishSlideshowAction = new PublishSlideshowAction();
+    private PublishReportAction publishReportAction = new PublishReportAction();
     private ShowHelpAction showHelpAction = new ShowHelpAction();
     private ShowAboutAction showAboutAction = new ShowAboutAction();
 
@@ -66,7 +70,7 @@ public class ApplicationJFrame extends javax.swing.JFrame {
         // initialize gui components
         initComponents();
         // set frame title
-        this.setTitle(Config.APPLICATION_TITLE);
+        setTitle(Config.APPLICATION_TITLE);
         // set menu item actions
         jMenuItem1.setAction(newProjectAction);
         jMenuItem2.setAction(openProjectAction);
@@ -78,19 +82,20 @@ public class ApplicationJFrame extends javax.swing.JFrame {
         jMenuItem9.setAction(publishArtifactAction);
         jMenuItem10.setAction(publishQRCodeAction);
         jMenuItem11.setAction(publishSlideshowAction);
+        jMenuItem12.setAction(publishReportAction);
 
         jMenuItem5.setAction(showHelpAction);
         jMenuItem6.setAction(showAboutAction);
         // disable menu items until project is loaded
         setProjectActionsEnabled(false);
         // center the window
-        this.pack();
+        pack();
         Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
         int w = this.getSize().width;
         int h = this.getSize().height;
         int x = (dim.width-w)/2;
         int y = (dim.height-h)/2;
-        this.setLocation(x,y);
+        setLocation(x,y);
     }
 
     //--------------------------------------------------------------------------
@@ -103,6 +108,7 @@ public class ApplicationJFrame extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
+        jComboBox1 = new javax.swing.JComboBox();
         jScrollPane1 = new javax.swing.JScrollPane();
         jScrollPane2 = new javax.swing.JScrollPane();
         jTextArea1 = new javax.swing.JTextArea();
@@ -119,10 +125,13 @@ public class ApplicationJFrame extends javax.swing.JFrame {
         jMenuItem9 = new javax.swing.JMenuItem();
         jMenuItem10 = new javax.swing.JMenuItem();
         jMenuItem11 = new javax.swing.JMenuItem();
+        jMenuItem12 = new javax.swing.JMenuItem();
         jMenu3 = new javax.swing.JMenu();
         jMenuItem5 = new javax.swing.JMenuItem();
         jSeparator2 = new javax.swing.JPopupMenu.Separator();
         jMenuItem6 = new javax.swing.JMenuItem();
+
+        jComboBox1.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DO_NOTHING_ON_CLOSE);
         setMinimumSize(new java.awt.Dimension(640, 480));
@@ -134,33 +143,59 @@ public class ApplicationJFrame extends javax.swing.JFrame {
         });
 
         jTextArea1.setColumns(20);
+        jTextArea1.setFont(new java.awt.Font("Monospaced", 0, 12)); // NOI18N
         jTextArea1.setRows(5);
         jScrollPane2.setViewportView(jTextArea1);
 
         jMenu1.setMnemonic('f');
         jMenu1.setText("File");
+
+        jMenuItem1.setText("New Project");
         jMenu1.add(jMenuItem1);
+
+        jMenuItem2.setText("Open Project");
         jMenu1.add(jMenuItem2);
+
+        jMenuItem3.setText("Save Project");
         jMenu1.add(jMenuItem3);
         jMenu1.add(jSeparator1);
+
+        jMenuItem4.setText("Exit");
         jMenu1.add(jMenuItem4);
 
         jMenuBar1.add(jMenu1);
 
         jMenu2.setMnemonic('p');
         jMenu2.setText("Publish");
+
+        jMenuItem7.setText("All");
         jMenu2.add(jMenuItem7);
+
+        jMenuItem8.setText("Mobile Presentation");
         jMenu2.add(jMenuItem8);
+
+        jMenuItem9.setText("Artifact Pages");
         jMenu2.add(jMenuItem9);
+
+        jMenuItem10.setText("QR Code Label Sheet");
         jMenu2.add(jMenuItem10);
+
+        jMenuItem11.setText("Slideshow");
         jMenu2.add(jMenuItem11);
+
+        jMenuItem12.setText("Report");
+        jMenu2.add(jMenuItem12);
 
         jMenuBar1.add(jMenu2);
 
         jMenu3.setMnemonic('h');
         jMenu3.setText("Help");
+
+        jMenuItem5.setText("Help Documentation");
         jMenu3.add(jMenuItem5);
         jMenu3.add(jSeparator2);
+
+        jMenuItem6.setText("About this Application");
         jMenu3.add(jMenuItem6);
 
         jMenuBar1.add(jMenu3);
@@ -175,10 +210,10 @@ public class ApplicationJFrame extends javax.swing.JFrame {
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                     .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
                         .addContainerGap()
-                        .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 380, Short.MAX_VALUE))
+                        .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 386, Short.MAX_VALUE))
                     .addGroup(layout.createSequentialGroup()
                         .addGap(10, 10, 10)
-                        .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 380, Short.MAX_VALUE)))
+                        .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 386, Short.MAX_VALUE)))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -214,6 +249,14 @@ public class ApplicationJFrame extends javax.swing.JFrame {
     }//GEN-LAST:event_formWindowClosing
 
     /**
+     * Get configuration.
+     * @return 
+     */
+    public Config getConfiguration() {
+        return config;
+    }
+    
+    /**
      * Get singleton instance.
      * @return
      */
@@ -222,6 +265,14 @@ public class ApplicationJFrame extends javax.swing.JFrame {
             instance = new ApplicationJFrame();
         }
         return instance;
+    }
+    
+    /**
+     * Get console output screen.
+     * @return 
+     */
+    public JTextArea getLogOutputTextArea() {
+        return jTextArea1;
     }
 
     /**
@@ -255,6 +306,7 @@ public class ApplicationJFrame extends javax.swing.JFrame {
          * Create and display the form
          */
         java.awt.EventQueue.invokeLater(new Runnable() {
+            @Override
             public void run() {
                 new ApplicationJFrame().setVisible(true);
             }
@@ -265,10 +317,16 @@ public class ApplicationJFrame extends javax.swing.JFrame {
      * Open project configuration file.
      * @param C Project configuration
      */
-    public void openProject(Config C) {
-        config = C;
-        setProjectActionsEnabled(true);
-        updateInterface();
+    public void openProject(File F) {
+        try {
+            config = Config.load(F);
+            setProjectActionsEnabled(true);
+            updateInterface();            
+        } catch (Exception ex) {
+            String stack = ExceptionUtils.getStackTrace(ex);
+            logger.log(Level.SEVERE, "Could not open new project file {0}\n\n{1}", 
+                    new Object[] {F.getAbsolutePath(),stack});
+        }
     }
 
     /**
@@ -295,6 +353,15 @@ public class ApplicationJFrame extends javax.swing.JFrame {
             System.exit(Main.FAIL);
         }
     }
+    
+    /**
+     * Save the currently loaded project.
+     */
+    public void saveProject() {
+        if (configFile != null && config != null) {
+            Config.save(config, configFile);
+        }
+    }
 
     /**
      * Set project menu item state.
@@ -307,6 +374,7 @@ public class ApplicationJFrame extends javax.swing.JFrame {
         this.publishMobileAction.setEnabled(State);
         this.publishQRCodeAction.setEnabled(State);
         this.publishSlideshowAction.setEnabled(State);
+        this.publishReportAction.setEnabled(State);
     }
 
     /**
@@ -317,6 +385,7 @@ public class ApplicationJFrame extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JComboBox jComboBox1;
     private javax.swing.JMenu jMenu1;
     private javax.swing.JMenu jMenu2;
     private javax.swing.JMenu jMenu3;
@@ -324,6 +393,7 @@ public class ApplicationJFrame extends javax.swing.JFrame {
     private javax.swing.JMenuItem jMenuItem1;
     private javax.swing.JMenuItem jMenuItem10;
     private javax.swing.JMenuItem jMenuItem11;
+    private javax.swing.JMenuItem jMenuItem12;
     private javax.swing.JMenuItem jMenuItem2;
     private javax.swing.JMenuItem jMenuItem3;
     private javax.swing.JMenuItem jMenuItem4;
@@ -338,4 +408,5 @@ public class ApplicationJFrame extends javax.swing.JFrame {
     private javax.swing.JPopupMenu.Separator jSeparator2;
     private javax.swing.JTextArea jTextArea1;
     // End of variables declaration//GEN-END:variables
+
 } // end class

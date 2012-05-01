@@ -59,6 +59,7 @@ public class MobilePublisher implements Runnable {
     /**
      * Run 
      */
+    @Override
     public void run() {
         // make the output directory if it does not exist
         if (!output.exists()) {

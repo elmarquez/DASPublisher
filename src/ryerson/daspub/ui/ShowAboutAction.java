@@ -20,6 +20,8 @@ package ryerson.daspub.ui;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.AbstractAction;
 import javax.swing.JOptionPane;
 
@@ -42,6 +44,8 @@ public class ShowAboutAction extends AbstractAction {
             + "Ryerson University\n"
             + "http://www.arch.ryerson.ca";
 
+    private static final Logger logger = Logger.getLogger(NewProjectAction.class.getName());
+    
     //--------------------------------------------------------------------------
     
     /**
@@ -62,6 +66,7 @@ public class ShowAboutAction extends AbstractAction {
     @Override
     public void actionPerformed(ActionEvent e) {
         ApplicationJFrame parent = ApplicationJFrame.getInstance();
+        logger.log(Level.INFO,"Opening 'About this Application' dialog.");
         JOptionPane.showMessageDialog(parent, DIALOG_MESSAGE, DIALOG_TITLE, JOptionPane.NO_OPTION);
     }
     

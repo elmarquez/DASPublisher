@@ -27,6 +27,7 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import net.coobird.thumbnailator.Thumbnails;
+import net.coobird.thumbnailator.resizers.configurations.ScalingMode;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.jpedal.PdfDecoder;
@@ -40,14 +41,14 @@ public class PDFUtils {
 
     private static PdfDecoder pdf = new PdfDecoder(true);
     private static final Logger logger = Logger.getLogger(PDFUtils.class.getName());
-    
+
     //--------------------------------------------------------------------------
 
     /**
      * Get incremental file name
      * @param F File
      * @param I Index
-     * @return 
+     * @return
      */
     private static File getIncrementedFileName(File F, int I) {
         String filename = FilenameUtils.getBaseName(F.getName());
@@ -56,13 +57,13 @@ public class PDFUtils {
         File file = new File(F.getParentFile(),filename);
         return file;
     }
-    
+
     /**
      * Get incremental file name
      * @param F File
      * @param I Index
      * @param E Extension
-     * @return 
+     * @return
      */
     private static File getIncrementedFileName(File F, int I, String E) {
         String filename = FilenameUtils.getBaseName(F.getName());
@@ -75,7 +76,7 @@ public class PDFUtils {
     /**
      * Get page count for PDF document.
      * @param Input
-     * @return 
+     * @return
      */
     public static int getPageCount(File Input) {
         int count = 0;
@@ -86,12 +87,12 @@ public class PDFUtils {
         } catch (PdfException ex) {
             String stack = ExceptionUtils.getStackTrace(ex);
             logger.log(Level.SEVERE,
-                       "Could not get page count for {0}\n\n{1}", 
+                       "Could not get page count for {0}\n\n{1}",
                        new Object[] {Input.getAbsolutePath(),stack});
         }
         return count;
     }
-    
+
     /**
      * Write JPG image of page in a PDF document.  If the document has multiple
      * pages, only the first page image will be written.
@@ -102,10 +103,11 @@ public class PDFUtils {
      * @throws IOException
      * @throws PDFException
      */
-    public static List<File> writeJPGImage(File Input, File Output, int Width, int Height) throws PdfException, IOException {
+    public static List<File> writeJPGImage(File Input, File Output, int Width, int Height) 
+            throws PdfException, IOException {
         ArrayList<File> files = new ArrayList<File>();
         if (FilenameUtils.isExtension(Input.getName(),"pdf")) {
-            // if output is a directory, change it 
+            // if output is a directory, change it
             File output = Output;
             if (output.isDirectory()) {
                 output = new File(output,Input.getName());
@@ -119,7 +121,12 @@ public class PDFUtils {
             pdf.openPdfFile(Input.getAbsolutePath());
             BufferedImage img = pdf.getPageAsImage(1);
             logger.log(Level.INFO,"Writing {0}",output.getName());
-            Thumbnails.of(img).size(Width,Height).outputFormat("jpg").toFile(output);
+            Thumbnails.of(img)
+                      .outputFormat("jpg")
+                      .outputQuality(1.0f)
+                      .scalingMode(ScalingMode.BICUBIC)
+                      .size(Width,Height)
+                      .toFile(output);
             files.add(output);
             pdf.closePdfFile();
         } else {
@@ -128,9 +135,9 @@ public class PDFUtils {
         // return result
         return files;
     }
-    
+
     /**
-     * Write a JPG image of a specific page in a PDF document. If the page 
+     * Write a JPG image of a specific page in a PDF document. If the page
      * number does not exist in the document, nothing will be written.
      * @param Input PDF input file
      * @param Output Output file
@@ -138,13 +145,18 @@ public class PDFUtils {
      * @param Height Maximum thumbnail height
      * @param Page Page number. Zero based page index.
      */
-    public static void writeJPGImage(File Input, File Output, int Width, int Height, int Page) throws PdfException, IOException {
+    public static void writeJPGImage(File Input, File Output, int Width, int Height, int Page) 
+            throws PdfException, IOException {
         if (FilenameUtils.isExtension(Input.getName(),"pdf")) {
             pdf.openPdfFile(Input.getAbsolutePath());
             if (Page < pdf.getPageCount()) {
                 BufferedImage img = pdf.getPageAsImage(Page+1); // PDF page index starts at 1
                 logger.log(Level.INFO,"Writing {0}", Output.getName());
-                Thumbnails.of(img).size(Width,Height).outputFormat("jpg").toFile(Output);
+                Thumbnails.of(img)
+                          .outputFormat("jpg")
+                          .outputQuality(1.0f)
+                          .scalingMode(ScalingMode.BICUBIC)
+                          .toFile(Output);
             } else {
                 logger.log(Level.WARNING,
                            "Could not write PDF thumbnail for {0}. Requested page number does not exist.",
@@ -163,9 +175,10 @@ public class PDFUtils {
      * @param Width Maximum thumbnail width
      * @param Height Maximum thumbnail height
      * @throws PdfException
-     * @throws IOException 
+     * @throws IOException
      */
-    public static List<File> writeJPGImageAllPDFPages(File Input, File Output, int Width, int Height) throws PdfException, IOException {
+    public static List<File> writeJPGImageAllPDFPages(File Input, File Output, int Width, int Height) 
+            throws PdfException, IOException {
         ArrayList<File> files = new ArrayList<File>();
         if (FilenameUtils.isExtension(Input.getName(),"pdf")) {
             pdf.openPdfFile(Input.getAbsolutePath());
@@ -174,9 +187,14 @@ public class PDFUtils {
                 BufferedImage img = pdf.getPageAsImage(i+1); // PDF page index starts at 1
                 File output = getIncrementedFileName(Output,i,"jpg");
                 logger.log(Level.INFO,"Writing {0}",output.getName());
-                Thumbnails.of(img).size(Width,Height).outputFormat("jpg").toFile(output);
+                Thumbnails.of(img)
+                          .outputFormat("jpg")
+                          .outputQuality(1.0f)
+                          .scalingMode(ScalingMode.BICUBIC)
+                          .size(Width,Height)
+                          .toFile(output);                
                 files.add(output);
-            } 
+            }
             pdf.closePdfFile();
         } else {
             logger.log(Level.WARNING,"Could not write JPG for PDF {0}.",Input.getAbsolutePath());

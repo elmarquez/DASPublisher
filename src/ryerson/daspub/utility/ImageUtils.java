@@ -85,7 +85,7 @@ public class ImageUtils {
     public static byte[] resizeImageToByteArray(File Input, int Width, int Height)
            throws IOException {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        Thumbnails.of(Input).outputQuality(100).size(Width,Height).toOutputStream(baos);
+        Thumbnails.of(Input).outputQuality(1.0f).size(Width,Height).toOutputStream(baos);
         return baos.toByteArray();
     }
 
@@ -110,7 +110,7 @@ public class ImageUtils {
         // write image
         if (FilenameUtils.isExtension(Input.getName(),"jpg")) {
             Thumbnails.of(Input)
-                      .outputQuality(100)
+                      .outputQuality(1.0f)
                       .scalingMode(ScalingMode.BICUBIC)
                       .size(Width,Height)
                       .toFile(output);
@@ -119,7 +119,7 @@ public class ImageUtils {
                    FilenameUtils.isExtension(Input.getName(),"png")) {
             Thumbnails.of(Input)
                       .outputFormat("jpg")
-                      .outputQuality(100)
+                      .outputQuality(1.0f)
                       .scalingMode(ScalingMode.BICUBIC)
                       .size(Width,Height)
                       .toFile(output);
@@ -128,7 +128,7 @@ public class ImageUtils {
             BufferedImage image = Sanselan.getBufferedImage(Input);
             Thumbnails.of(image)
                       .outputFormat("jpg")
-                      .outputQuality(100)
+                      .outputQuality(1.0f)
                       .scalingMode(ScalingMode.BICUBIC)
                       .size(Width,Height)
                       .toFile(output);

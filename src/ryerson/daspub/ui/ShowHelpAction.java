@@ -69,6 +69,7 @@ public class ShowHelpAction extends AbstractAction {
         } else {
             try {
                 URI uri = new java.net.URI(DOCUMENTATION_URL);
+                logger.log(Level.INFO, "Opening desktop browser to documentation site {0}", DOCUMENTATION_URL);
                 desktop.browse(uri);
             } catch (URISyntaxException ex) {
                 logger.log(Level.SEVERE, "Could not open URL {0}", ex);
