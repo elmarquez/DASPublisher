@@ -19,6 +19,7 @@
 package ryerson.daspub.slideshow;
 
 import java.io.File;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.apache.commons.io.FileUtils;
 import ryerson.daspub.Config;
@@ -28,25 +29,24 @@ import ryerson.daspub.Config;
  * @author dmarques
  * @see http://www.pixedelic.com/plugins/camera/
  */
-public class SlideshowPublisher implements Runnable {
+public class PublishSlideshowTask implements Runnable {
 
     private Config config;                      // configuration
     private File output;                        // publication directory
     private String slideshow_template = "";     // slideshow template
     
-    private static final Logger _logger = Logger.getLogger(SlideshowPublisher.class.getName());
+    private static final Logger logger = Logger.getLogger(PublishSlideshowTask.class.getName());
 
     //--------------------------------------------------------------------------
     
     /**
      * Publisher constructor
-     * @param Config Configuration
+     * @param Configuration Configuration
      * @param Output Output directory
      */
-    public SlideshowPublisher(Config Config, File Output) throws Exception {
-        config = Config;
-        output = Output;
-        loadTemplates();
+    public PublishSlideshowTask(Config Configuration) {
+        config = Configuration;
+        output = new File(Config.OUTPUT_SLIDESHOW_PATH);
     }
 
     //--------------------------------------------------------------------------
@@ -67,9 +67,11 @@ public class SlideshowPublisher implements Runnable {
     }
 
     /**
-     * Run the publisher.
+     * Run task.
      */
+    @Override
     public void run() {
+        logger.log(Level.INFO,"DONE publish slideshow presentation task");
     }
 
 } // end class

@@ -74,7 +74,7 @@ public class ApplicationJFrame extends javax.swing.JFrame {
         // set menu item actions
         jMenuItem1.setAction(newProjectAction);
         jMenuItem2.setAction(openProjectAction);
-        jMenuItem3.setAction(saveProjectAction);
+        // jMenuItem3.setAction(saveProjectAction);
         jMenuItem4.setAction(exitAction);
 
         jMenuItem7.setAction(publishAllAction);
@@ -109,14 +109,12 @@ public class ApplicationJFrame extends javax.swing.JFrame {
     private void initComponents() {
 
         jComboBox1 = new javax.swing.JComboBox();
-        jScrollPane1 = new javax.swing.JScrollPane();
         jScrollPane2 = new javax.swing.JScrollPane();
         jTextArea1 = new javax.swing.JTextArea();
         jMenuBar1 = new javax.swing.JMenuBar();
         jMenu1 = new javax.swing.JMenu();
         jMenuItem1 = new javax.swing.JMenuItem();
         jMenuItem2 = new javax.swing.JMenuItem();
-        jMenuItem3 = new javax.swing.JMenuItem();
         jSeparator1 = new javax.swing.JPopupMenu.Separator();
         jMenuItem4 = new javax.swing.JMenuItem();
         jMenu2 = new javax.swing.JMenu();
@@ -135,7 +133,6 @@ public class ApplicationJFrame extends javax.swing.JFrame {
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DO_NOTHING_ON_CLOSE);
         setMinimumSize(new java.awt.Dimension(640, 480));
-        setResizable(false);
         addWindowListener(new java.awt.event.WindowAdapter() {
             public void windowClosing(java.awt.event.WindowEvent evt) {
                 formWindowClosing(evt);
@@ -155,9 +152,6 @@ public class ApplicationJFrame extends javax.swing.JFrame {
 
         jMenuItem2.setText("Open Project");
         jMenu1.add(jMenuItem2);
-
-        jMenuItem3.setText("Save Project");
-        jMenu1.add(jMenuItem3);
         jMenu1.add(jSeparator1);
 
         jMenuItem4.setText("Exit");
@@ -206,23 +200,16 @@ public class ApplicationJFrame extends javax.swing.JFrame {
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
-                        .addContainerGap()
-                        .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 386, Short.MAX_VALUE))
-                    .addGroup(layout.createSequentialGroup()
-                        .addGap(10, 10, 10)
-                        .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 386, Short.MAX_VALUE)))
+            .addGroup(layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 386, Short.MAX_VALUE)
                 .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 213, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 127, Short.MAX_VALUE)
+                .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 346, Short.MAX_VALUE)
                 .addContainerGap())
         );
 
@@ -233,8 +220,8 @@ public class ApplicationJFrame extends javax.swing.JFrame {
      * Close project.
      */
     public void closeProject() {
-        config = null;
         setProjectActionsEnabled(false);
+        config = null;
         updateInterface();
     }
 
@@ -250,12 +237,12 @@ public class ApplicationJFrame extends javax.swing.JFrame {
 
     /**
      * Get configuration.
-     * @return 
+     * @return
      */
     public Config getConfiguration() {
         return config;
     }
-    
+
     /**
      * Get singleton instance.
      * @return
@@ -266,10 +253,10 @@ public class ApplicationJFrame extends javax.swing.JFrame {
         }
         return instance;
     }
-    
+
     /**
      * Get console output screen.
-     * @return 
+     * @return
      */
     public JTextArea getLogOutputTextArea() {
         return jTextArea1;
@@ -316,17 +303,12 @@ public class ApplicationJFrame extends javax.swing.JFrame {
     /**
      * Open project configuration file.
      * @param C Project configuration
+     * @throws Exception Could not open project file
      */
-    public void openProject(File F) {
-        try {
-            config = Config.load(F);
-            setProjectActionsEnabled(true);
-            updateInterface();            
-        } catch (Exception ex) {
-            String stack = ExceptionUtils.getStackTrace(ex);
-            logger.log(Level.SEVERE, "Could not open new project file {0}\n\n{1}", 
-                    new Object[] {F.getAbsolutePath(),stack});
-        }
+    public void openProject(File F) throws Exception {
+        config = Config.load(F);
+        setProjectActionsEnabled(true);
+        updateInterface();
     }
 
     /**
@@ -353,7 +335,7 @@ public class ApplicationJFrame extends javax.swing.JFrame {
             System.exit(Main.FAIL);
         }
     }
-    
+
     /**
      * Save the currently loaded project.
      */
@@ -368,7 +350,7 @@ public class ApplicationJFrame extends javax.swing.JFrame {
      * @param State True if items enabled, false otherwise.
      */
     private void setProjectActionsEnabled(Boolean State) {
-        this.saveProjectAction.setEnabled(State);
+        // this.saveProjectAction.setEnabled(State);
         this.publishAllAction.setEnabled(State);
         this.publishArtifactAction.setEnabled(State);
         this.publishMobileAction.setEnabled(State);
@@ -378,10 +360,10 @@ public class ApplicationJFrame extends javax.swing.JFrame {
     }
 
     /**
-     * Update the interface form.
+     * Update the interface.
      */
     private void updateInterface() {
-        // @TODO update the project details form
+        // @TODO update any interface components here
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
@@ -395,14 +377,12 @@ public class ApplicationJFrame extends javax.swing.JFrame {
     private javax.swing.JMenuItem jMenuItem11;
     private javax.swing.JMenuItem jMenuItem12;
     private javax.swing.JMenuItem jMenuItem2;
-    private javax.swing.JMenuItem jMenuItem3;
     private javax.swing.JMenuItem jMenuItem4;
     private javax.swing.JMenuItem jMenuItem5;
     private javax.swing.JMenuItem jMenuItem6;
     private javax.swing.JMenuItem jMenuItem7;
     private javax.swing.JMenuItem jMenuItem8;
     private javax.swing.JMenuItem jMenuItem9;
-    private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JPopupMenu.Separator jSeparator1;
     private javax.swing.JPopupMenu.Separator jSeparator2;

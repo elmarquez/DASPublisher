@@ -20,7 +20,15 @@ package ryerson.daspub.ui;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
+import java.io.File;
+import java.util.concurrent.ExecutorService;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.AbstractAction;
+import ryerson.daspub.Config;
+import ryerson.daspub.Main;
+import ryerson.daspub.artifact.PublishArtifactPagesTask;
+import ryerson.daspub.utility.CopyFilesTask;
 
 /**
  * Publish artifact pages content action.
@@ -31,6 +39,8 @@ public class PublishArtifactPagesAction extends AbstractAction {
     private static final String LABEL = "Artifact Pages";
     private static final String DESCRIPTION = "Publish Artifact Pages";
     private static final Integer MNEMONIC = new Integer(KeyEvent.VK_A);
+
+    private static final Logger logger = Logger.getLogger(PublishArtifactPagesAction.class.getName());
 
     //--------------------------------------------------------------------------
 
@@ -51,6 +61,18 @@ public class PublishArtifactPagesAction extends AbstractAction {
      */
     @Override
     public void actionPerformed(ActionEvent e) {
+        // get the configuration info
+        ApplicationJFrame frame = ApplicationJFrame.getInstance();
+        Config config = frame.getConfiguration();
+        // create tasks
+        File input = new File(Config.STATIC_ARTIFACT_CONTENT);
+        File output = new File(Config.OUTPUT_ARTIFACT_PAGES_PATH);
+        CopyFilesTask copyArtifactFilesTask = new CopyFilesTask(input,output);
+        PublishArtifactPagesTask makeArtifactPagesTask = new PublishArtifactPagesTask(config);
+        // execute tasks in parallel
+        ExecutorService pool = Main.getThreadPool();
+        pool.execute(copyArtifactFilesTask);
+        pool.execute(makeArtifactPagesTask);
     }
     
 } // end class

@@ -21,6 +21,7 @@ package ryerson.daspub.mobile;
 import java.io.File;
 import java.util.Iterator;
 import java.util.List;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 import ryerson.daspub.model.Archive;
 import ryerson.daspub.Config;
@@ -29,7 +30,7 @@ import ryerson.daspub.Config;
  * Mobile publication generator.
  * @author dmarques
  */
-public class MobilePublisher implements Runnable {
+public class PublishMobilePresentationTask implements Runnable {
 
     private Config config;                      // configuration
     private File output;                        // output publication directory
@@ -39,28 +40,27 @@ public class MobilePublisher implements Runnable {
     private String assignment_template = "";    // assignment page
     private String exam_template = "";          // exam page
     
-    private static final Logger logger = Logger.getLogger(MobilePublisher.class.getName());
+    private static final Logger logger = Logger.getLogger(PublishMobilePresentationTask.class.getName());
 
     //--------------------------------------------------------------------------
     
     /**
      * Publisher constructor
-     * @param Config Configuration
-     * @param Output Output directory
-     * @throws Exception
+     * @param Configuration Configuration
      */
-    public MobilePublisher(Config Config, File Output) throws Exception {
-        config = Config;
-        output = Output;
+    public PublishMobilePresentationTask(Config Configuration) {
+        config = Configuration;
+        output = new File(Config.OUTPUT_MOBILE_PATH);
     }
 
     //--------------------------------------------------------------------------
     
     /**
-     * Run 
+     * Run task.
      */
     @Override
     public void run() {
+        logger.log(Level.INFO,"STARTING publish mobile presentation task");
         // make the output directory if it does not exist
         if (!output.exists()) {
             output.mkdirs();
@@ -71,7 +71,8 @@ public class MobilePublisher implements Runnable {
         while (it.hasNext()) {
             Archive a = it.next();
             ArchivePage.Write(a,output);
-        }
+        }        
+        logger.log(Level.INFO,"DONE publish mobile presentation task");
     }
 
 } // end class

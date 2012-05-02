@@ -32,12 +32,12 @@ import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.PosixParser;
 import org.apache.commons.lang3.exception.ExceptionUtils;
-import ryerson.daspub.artifact.ArtifactPublisher;
-import ryerson.daspub.artifact.QRCodeTagSheetPublisher;
+import ryerson.daspub.artifact.PublishArtifactPagesTask;
+import ryerson.daspub.artifact.PublishQRTagSheetTask;
 import ryerson.daspub.init.Initializer;
-import ryerson.daspub.mobile.MobilePublisher;
-import ryerson.daspub.report.ReportPublisher;
-import ryerson.daspub.slideshow.SlideshowPublisher;
+import ryerson.daspub.mobile.PublishMobilePresentationTask;
+import ryerson.daspub.report.PublishReportTask;
+import ryerson.daspub.slideshow.PublishSlideshowTask;
 import ryerson.daspub.ui.ApplicationJFrame;
 import ryerson.daspub.ui.JTextAreaOutputFormatter;
 import ryerson.daspub.ui.JTextAreaOutputHandler;
@@ -90,11 +90,10 @@ public class Main implements Runnable {
      * Define the command line options.
      */
     private void defineCommandOptions() {
-        options.addOption(CMD_CONFIG, true, "Path to configuration file.");
+        options.addOption(CMD_CONFIG, true, "Path to project configuration file.");
         options.addOption(CMD_GUI, false, "Show the application user interface. This option halts execution of additional publishing options.");
-        options.addOption(CMD_HELP, false, "Show help message.");
-        options.addOption(CMD_INIT, true, "Initialize or update the archive folder(s) with requried metadata files.");
-        options.addOption(CMD_OUTPUT, true, "Output path for published files.");
+        options.addOption(CMD_HELP, false, "Show command line help message.");
+        options.addOption(CMD_INIT, true, "Create a new archive with sample course folders and metadata files or, update an existing archive with required files. Requires specification of an archive path.");
         options.addOption(CMD_PUBLISH, true, "Publish content. Available options are artifact, mobile, report, slideshow, tagsheet. Requires specification of output path.");
     }
 
@@ -102,15 +101,8 @@ public class Main implements Runnable {
      * Initialize the archive
      */
     private void executeInit() {
-        // preconditions
-        if (!cmd.hasOption(CMD_OUTPUT)) {
-            logger.log(Level.SEVERE, "Output path must be specified");
-            System.exit(FAIL);
-        }
-        // initialize archive
         try {
-            File path = new File(cmd.getOptionValue(CMD_OUTPUT));
-            Initializer init = new Initializer();
+            Initializer init = new Initializer(config);
             init.run();
         } catch (Exception ex) {
             String stack = ExceptionUtils.getStackTrace(ex);
@@ -123,40 +115,23 @@ public class Main implements Runnable {
      * Publish content
      */
     private void executePublish() {
-        // preconditions
-        if (config == null) {
-            logger.log(Level.SEVERE, "Configuration file must be specified");
-            System.exit(FAIL);
-        }
-        if (!cmd.hasOption(CMD_OUTPUT)) {
-            logger.log(Level.SEVERE, "Output path must be specified");
-            System.exit(FAIL);
-        }
-        // process command
         String option = cmd.getOptionValue(CMD_PUBLISH);
-        String output = cmd.getOptionValue(CMD_OUTPUT);
-        File outputPath = new File(output);
         try {
             if (option.equals(OPTION_ARTIFACT)) {
-                ArtifactPublisher p = new ArtifactPublisher(config, outputPath);
+                PublishArtifactPagesTask p = new PublishArtifactPagesTask(config);
                 pool.execute(p);
-                //p.run();
             } else if (option.equals(OPTION_MOBILE)) {
-                MobilePublisher p = new MobilePublisher(config, outputPath);
+                PublishMobilePresentationTask p = new PublishMobilePresentationTask(config);
                 pool.execute(p);
-                //p.run();
             } else if (option.equals(OPTION_REPORT)) {
-                ReportPublisher p = new ReportPublisher(config, outputPath);
+                PublishReportTask p = new PublishReportTask(config);
                 pool.execute(p);
-                //p.run();
             } else if (option.equals(OPTION_SLIDESHOW)) {
-                SlideshowPublisher p = new SlideshowPublisher(config, outputPath);
+                PublishSlideshowTask p = new PublishSlideshowTask(config);
                 pool.execute(p);
-                //p.run();
             } else if (option.equals(OPTION_TAGSHEET)) {
-                QRCodeTagSheetPublisher p = new QRCodeTagSheetPublisher(config, outputPath, outputPath);
+                PublishQRTagSheetTask p = new PublishQRTagSheetTask(config);
                 pool.execute(p);
-                //p.run();
             }
         } catch (Exception ex) {
             String stack = ExceptionUtils.getStackTrace(ex);
@@ -168,10 +143,10 @@ public class Main implements Runnable {
         // wait for pool to stop
         try {
             while (!pool.isTerminated()) {
-                pool.awaitTermination(10, TimeUnit.SECONDS);
+                pool.awaitTermination(10,TimeUnit.SECONDS);
             }
         } catch (InterruptedException ex) {
-            logger.log(Level.SEVERE, "Waiting for thread pool termination.\n\n{0}", ex);
+            logger.log(Level.SEVERE, "Exception while waiting for thread pool termination.\n\n{0}", ex);
         }
         // halt
         System.exit(Main.SUCCESS);
@@ -219,11 +194,6 @@ public class Main implements Runnable {
             showHelpMessage();
             System.exit(SUCCESS);
         }
-        // show gui
-        if (cmd.hasOption(CMD_GUI)) {
-            ApplicationJFrame frame = ApplicationJFrame.getInstance();
-            frame.setVisible(true);
-        }
         // load configuration
         if (cmd.hasOption(CMD_CONFIG)) {
             try {
@@ -248,10 +218,17 @@ public class Main implements Runnable {
             rootlogger.addHandler(handler);
             // load project if specified at command line
             if (configFile!=null) {
-                frame.openProject(configFile);
+                try {
+                    frame.openProject(configFile);                    
+                } catch (Exception ex) {
+                    String stack = ExceptionUtils.getStackTrace(ex);
+                    logger.log(Level.SEVERE, "Could not load configuration file {0}\n\n{1}", 
+                            new Object[] {configFile.getAbsolutePath(),stack});
+                }
             }
             // display the application frame
             frame.setVisible(true);
+            logger.log(Level.INFO,"Ready");
         } else if (cmd.hasOption(CMD_INIT)) {
             executeInit();
         } else if (cmd.hasOption(CMD_PUBLISH)) {

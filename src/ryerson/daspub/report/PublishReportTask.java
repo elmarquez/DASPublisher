@@ -39,37 +39,37 @@ import ryerson.daspub.model.Submission;
  * Writes HTML status report for a content archive.
  * @author dmarques
  */
-public class ReportPublisher implements Runnable {
+public class PublishReportTask implements Runnable {
 
     private final String htmlFileName = "index.html";
     private final String[] supportFiles = {"animatedcollapse.js",
                                            "styles.css"};
 
     private Config config;
-    private String path;
+    private File output;
     
-    private static final Logger logger = Logger.getLogger(ReportPublisher.class.getName());
+    private static final Logger logger = Logger.getLogger(PublishReportTask.class.getName());
 
     //--------------------------------------------------------------------------
 
     /**
      * Report publisher 
      * @param Configuration Configuration
-     * @param Output Output directory
      */
-    public ReportPublisher(Config Configuration, File Output) {
+    public PublishReportTask(Config Configuration) {
         config = Configuration;
-        path = Output.getAbsolutePath();
+        output = new File(Config.OUTPUT_REPORT_PATH);
     }
 
     //--------------------------------------------------------------------------
 
     /**
-     * Generate report.
+     * Run task.
      */
+    @Override
     public void run() {
+        logger.log(Level.INFO,"STARTING publish report task");
         // delete existing report file
-        File output = new File(path);
         if (output.exists()) {
             output.delete();
         }
@@ -99,7 +99,7 @@ public class ReportPublisher implements Runnable {
         try {
             // write html
             file = new File(output,htmlFileName);
-            InputStream is = ReportPublisher.class.getResourceAsStream(htmlFileName);
+            InputStream is = PublishReportTask.class.getResourceAsStream(htmlFileName);
             data = IOUtils.toString(is);
             DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
             Date date = new Date();
@@ -139,23 +139,24 @@ public class ReportPublisher implements Runnable {
                 data = data.replace("${duplicates}", " ");
             }
             
-            logger.log(Level.INFO,"Writing report file {0}",file.getAbsolutePath());
+            logger.log(Level.INFO,"Writing report file \"{0}\"",file.getAbsolutePath());
             FileUtils.write(file, data);
             
             // write support files
             // if the file is a binary file, we need to modify this code
             for (int i=0;i<supportFiles.length;i++) {
                 file = new File(output,supportFiles[i]);
-                is = ReportPublisher.class.getResourceAsStream(supportFiles[i]);
+                is = PublishReportTask.class.getResourceAsStream(supportFiles[i]);
                 data = IOUtils.toString(is);
-                logger.log(Level.INFO,"Writing support file {0}",file.getAbsolutePath());
+                logger.log(Level.INFO,"Writing support file \"{0}\"",file.getAbsolutePath());
                 FileUtils.write(file,data);                
             }
         } catch (Exception ex) {
             String stack = ExceptionUtils.getStackTrace(ex);
-            logger.log(Level.SEVERE,"Could not create output file {0}.\n\n{1}",new Object[]{file.getAbsolutePath(),stack});
+            logger.log(Level.SEVERE,"Could not create output file \"{0}\"\n\n{1}",new Object[]{file.getAbsolutePath(),stack});
             System.exit(-1);
-        }
+        }                
+        logger.log(Level.INFO,"DONE publish report task");
     }
 
 } // end class

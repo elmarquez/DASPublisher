@@ -20,6 +20,7 @@ package ryerson.daspub;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.IOException;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -28,6 +29,7 @@ import java.util.Scanner;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 
 /**
@@ -40,6 +42,7 @@ import org.apache.commons.lang3.exception.ExceptionUtils;
 public class Config {
 
     public static final String APPLICATION_TITLE = "DAS Publisher";
+    public static final String APPLICATION_SHORT_TITLE = "DASPub";
 
     // publication status
     public static enum STATUS {COMPLETE, INCOMPLETE, PARTIAL, ERROR};
@@ -52,37 +55,48 @@ public class Config {
     public static final String[] IMAGE_TYPE = {"jpg","pdf","png","tif","gif","jpeg","tiff"}; // pdf needs to be listed to simplify some search functions ... 
     public static final String[] VIDEO_TYPE = {"mp4","ogg","webm"};
 
-    // parameters
+    // output paths
+    public static String OUTPUT_ARTIFACT_PAGES_PATH = "c:\\daspublisher\\output\\artifact\\";
+    public static String OUTPUT_MOBILE_PATH = "c:\\daspublisher\\output\\mobile\\";
+    public static String OUTPUT_QR_LABELSHEET_PATH = "c:\\daspublisher\\output\\artifact\\qr\\";
+    public static String OUTPUT_REPORT_PATH = "c:\\daspublisher\\output\\report\\";
+    public static String OUTPUT_SLIDESHOW_PATH = "c:\\daspublisher\\output\\slideshow\\";
+
+    // templates
+    public static String ARTIFACT_TEMPLATE_PATH = "c:\\daspublisher\\template\\artifact.php";
+    public static String ASSIGNMENT_TEMPLATE_PATH = "c:\\daspublisher\\static\\assignment.txt";
+    public static String COURSE_TEMPLATE_PATH = "c:\\daspublisher\\static\\course.txt";
+
+    // static content
+    public static String STATIC_ARTIFACT_CONTENT = "c:\\daspublisher\\static\\artifact\\";
+    public static String STATIC_MOBILE_CONTENT = "c:\\daspublisher\\static\\mobile\\";
+    public static String STATIC_REPORT_CONTENT = "c:\\daspublisher\\static\\report\\";
+    public static String STATIC_SLIDESHOW_CONTENT = "c:\\daspublisher\\static\\slideshow\\";
+
+    // archive
     public static ArrayList<String> ARCHIVE_PATHS = new ArrayList<String>(); 
     public static String ARCHIVE_PATH;
-    public static String STATUS_REPORT_CONTENT_ONLY = "true";
-    public static String LOGGING_PATH;
     
+    // output properties
     public static String COURSE_METADATA_FILE = "course.txt";
     public static String COURSE_SYLLABUS_FILE = "course.pdf";
     public static String ASSIGNMENT_METADATA_FILE = "assignment.txt";
     public static String ASSIGNMENT_SYLLABUS_FILE = "assignment.pdf";
     public static String SUBMISSION_METADATA_FILE = "assignment.xls";
 
-    public static String ARTIFACT_TEMPLATE_PATH;
-    public static String ASSIGNMENT_TEMPLATE_PATH;
-    public static String COURSE_TEMPLATE_PATH;
-
-    public static String ARTIFACT_BASE_URL = "http://www.myserver.org/";
-
-    public static int ARTIFACT_PREVIEW_MAX_HEIGHT = 640;
-    public static int ARTIFACT_PREVIEW_MAX_WIDTH = 640;
-    public static int ARTIFACT_TAG_WIDTH = 100;
-    public static int ARTIFACT_TAG_HEIGHT = 100;
-
     public static int IMAGE_MAX_HEIGHT = 2000;    // full size image maximum height
     public static int IMAGE_MAX_WIDTH = 2000;     // full size image maximum width
-    public static int THUMB_MAX_HEIGHT = 200;     // thumbnail image maximum height
-    public static int THUMB_MAX_WIDTH = 200;      // thumbnail image maximum width
-
-    public static int VIDEO_WIDTH = 640;
-    public static int VIDEO_HEIGHT = 480;
+    public static int THUMB_MAX_HEIGHT = 300;     // thumbnail image maximum height
+    public static int THUMB_MAX_WIDTH = 300;      // thumbnail image maximum width
+    public static int VIDEO_MAX_WIDTH = 640;      // maximum video width
+    public static int VIDEO_MAX_HEIGHT = 480;     // maximum video height
     
+    public static String ARTIFACT_BASE_URL = "http://www.myserver.org/";
+    public static int ARTIFACT_PREVIEW_MAX_HEIGHT = 640;
+    public static int ARTIFACT_PREVIEW_MAX_WIDTH = 640;
+    public static int ARTIFACT_TAG_WIDTH = 200;
+    public static int ARTIFACT_TAG_HEIGHT = 200;
+
     private static File input;
     private static String data;
 
@@ -91,10 +105,10 @@ public class Config {
     //--------------------------------------------------------------------------
 
     /**
-     * Config constructor. Sets default values.
+     * Config constructor. Uses default values.
      */
     public Config() {}
-
+    
     /**
      * Config constructor. Set values using map.
      * @param Args 
@@ -106,10 +120,26 @@ public class Config {
     //--------------------------------------------------------------------------
     
     /**
+     * Get the artifact template.
+     * @return 
+     */
+    public String getArtifactTemplate() {
+        File template = new File(Config.ARTIFACT_TEMPLATE_PATH);
+        try {
+            return FileUtils.readFileToString(template);
+        } catch (IOException ex) {
+            logger.log(Level.SEVERE, "Could not load artifact template {0}", 
+                    new Object[] {template.getAbsolutePath(),ex});
+            return "";
+        }
+    }
+    
+    /**
      * Load configuration data from a file.
      * @param F Configuration file
      */
     public static Config load(File F) throws Exception {
+        logger.log(Level.INFO,"Loading configuration file \"{0}\"",F.getAbsolutePath());
         HashMap<String,String> vals = parseConfigurationFile(F);
         return new Config(vals);
     }
@@ -122,7 +152,6 @@ public class Config {
     private static HashMap<String,String> parseConfigurationFile(File F) throws Exception {
         HashMap<String,String> args = new HashMap<String,String>();
         if (F.exists()) {
-            logger.log(Level.INFO,"Parsing configuration file {0}",F.getAbsolutePath());
             StringBuilder text = new StringBuilder();
             try {
                 Scanner scanner = new Scanner(new FileInputStream(F), "UTF-8");
@@ -158,7 +187,7 @@ public class Config {
      * @return True if file saved, false otherwise.
      */
     public boolean save() {
-       return true; 
+        throw new UnsupportedOperationException("Save has not been implemented for the Config class");
     }
     
     /**
@@ -167,10 +196,7 @@ public class Config {
      * @param F File
      */
     public static void save(Config C, File F) {
-        Field[] fields = Config.class.getFields();
-        // @TODO complete this
-        logger.log(Level.INFO,"Saved configuration to {0}",F.getAbsolutePath());
-        logger.log(Level.SEVERE,"Could not save configuration to {0}",F.getAbsolutePath());
+        throw new UnsupportedOperationException("Save has not been implemented for the Config class");
     }
     
     /**
@@ -194,10 +220,10 @@ public class Config {
                 } else {
                     field.set(Config.class,val);
                 }
-                logger.log(Level.INFO,"Set {0} as {1}",new Object[]{field.getName(),val.toString()});
+                logger.log(Level.INFO,"Set \"{0}\" as \"{1}\"",new Object[]{field.getName(),val.toString()});
             } catch (Exception ex) {
                 String stack = ExceptionUtils.getStackTrace(ex);
-                logger.log(Level.SEVERE,"Could not find or set field {0}\n\n{1}",
+                logger.log(Level.SEVERE,"Could not find or set field \"{0}\"\n\n{1}",
                         new Object[]{name,stack});
             }
         }

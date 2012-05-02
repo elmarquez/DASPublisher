@@ -350,7 +350,7 @@ public class AssignmentPage {
      * @param Output Output folder
      */
     public static void Write(Assignment A, File Output) {
-        logger.log(Level.INFO, "Writing assignment folder {0}", A.getFolder().getAbsolutePath());
+        logger.log(Level.INFO, "Writing assignment folder \"{0}\"", Output.getAbsolutePath());
         // create the output folder
         Output.mkdirs();
         try {
@@ -403,6 +403,7 @@ public class AssignmentPage {
             }
             // write assignment html page
             File html = new File(Output,"index.html");
+            logger.log(Level.INFO,"Writing assignment page \"{0}\"",html.getAbsolutePath());
             FileUtils.write(html, page);
         } catch (Exception ex) {
             String stack = ExceptionUtils.getStackTrace(ex);

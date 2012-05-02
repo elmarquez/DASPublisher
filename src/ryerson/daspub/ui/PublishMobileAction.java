@@ -20,7 +20,15 @@ package ryerson.daspub.ui;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
+import java.io.File;
+import java.util.concurrent.ExecutorService;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.AbstractAction;
+import ryerson.daspub.Config;
+import ryerson.daspub.Main;
+import ryerson.daspub.mobile.PublishMobilePresentationTask;
+import ryerson.daspub.utility.CopyFilesTask;
 
 /**
  * Publish mobile content action.
@@ -31,6 +39,8 @@ public class PublishMobileAction extends AbstractAction {
     private static final String LABEL = "Mobile";
     private static final String DESCRIPTION = "Publish Mobile Content";
     private static final Integer MNEMONIC = new Integer(KeyEvent.VK_M);
+
+    private static final Logger logger = Logger.getLogger(PublishMobileAction.class.getName());
 
     //--------------------------------------------------------------------------
 
@@ -51,6 +61,18 @@ public class PublishMobileAction extends AbstractAction {
      */
     @Override
     public void actionPerformed(ActionEvent e) {
+        // get the configuration info
+        ApplicationJFrame frame = ApplicationJFrame.getInstance();
+        Config config = frame.getConfiguration();
+        // create tasks
+        File input = new File(Config.STATIC_MOBILE_CONTENT);
+        File output = new File(Config.OUTPUT_MOBILE_PATH);
+        CopyFilesTask copyMobileFilesTask = new CopyFilesTask(input,output);
+        PublishMobilePresentationTask makeMobileTask = new PublishMobilePresentationTask(config);
+        // execute tasks in parallel
+        ExecutorService pool = Main.getThreadPool();
+        pool.execute(copyMobileFilesTask);
+        pool.execute(makeMobileTask);
     }
     
 } // end class

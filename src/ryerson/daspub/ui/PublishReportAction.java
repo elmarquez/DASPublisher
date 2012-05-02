@@ -20,9 +20,16 @@ package ryerson.daspub.ui;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
+import java.io.File;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Future;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.AbstractAction;
 import ryerson.daspub.Config;
-import ryerson.daspub.report.ReportPublisher;
+import ryerson.daspub.Main;
+import ryerson.daspub.report.PublishReportTask;
+import ryerson.daspub.utility.CopyFilesTask;
 
 /**
  * Publish report content action.
@@ -33,6 +40,8 @@ public class PublishReportAction extends AbstractAction {
     private static final String LABEL = "Report";
     private static final String DESCRIPTION = "Publish Report Content";
     private static final Integer MNEMONIC = new Integer(KeyEvent.VK_R);
+
+    private static final Logger logger = Logger.getLogger(PublishReportAction.class.getName());
 
     //--------------------------------------------------------------------------
 
@@ -53,10 +62,18 @@ public class PublishReportAction extends AbstractAction {
      */
     @Override
     public void actionPerformed(ActionEvent e) {
+        // get the configuration info
         ApplicationJFrame frame = ApplicationJFrame.getInstance();
         Config config = frame.getConfiguration();
-        ReportPublisher p = new ReportPublisher(config,null);
-        p.run();
+        // create tasks
+        File input = new File(Config.STATIC_REPORT_CONTENT);
+        File output = new File(Config.OUTPUT_REPORT_PATH);
+        CopyFilesTask copyReportFilesTask = new CopyFilesTask(input,output);
+        PublishReportTask makeReportTask = new PublishReportTask(config);
+        // execute tasks in parallel
+        ExecutorService pool = Main.getThreadPool();
+        pool.execute(copyReportFilesTask);
+        pool.execute(makeReportTask);
     }
     
 } // end class

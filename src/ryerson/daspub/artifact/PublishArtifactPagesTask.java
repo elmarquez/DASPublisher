@@ -42,7 +42,7 @@ import ryerson.daspub.utility.PDFUtils;
 /**
  * Artifact web gallery generator.
  */
-public class ArtifactPublisher implements Runnable {
+public class PublishArtifactPagesTask implements Runnable {
 
     private Config config = null;
     private File output;
@@ -52,34 +52,33 @@ public class ArtifactPublisher implements Runnable {
     private File mediumDir;
     private File smallDir;
     private File qrDir;
-    
-    private static final Logger logger = Logger.getLogger(ArtifactPublisher.class.getName());
+
+    private static final Logger logger = Logger.getLogger(PublishArtifactPagesTask.class.getName());
 
     //--------------------------------------------------------------------------
-    
+
     /**
      * ArtifactTagGenerator constructor
-     * @param Config Configuration
-     * @param Output Output directory
+     * @param Configuration Configuration
      */
-    public ArtifactPublisher(Config Config, File Output) throws Exception {
-        config = Config;
-        output = Output;
+    public PublishArtifactPagesTask(Config Configuration) {
+        config = Configuration;
+        output = new File(Config.OUTPUT_ARTIFACT_PAGES_PATH);
         largeDir = new File(output,"large");
         mediumDir = new File(output,"medium");
         smallDir = new File(output,"small");
-        qrDir = new File(output,"qr");        
-        //@TODO consider storing and loading it from the JAR instead
-        template = FileUtils.readFileToString(new File(Config.ARTIFACT_TEMPLATE_PATH));
+        qrDir = new File(output,"qr");
+        template = config.getArtifactTemplate();
     }
 
     //--------------------------------------------------------------------------
-    
+
     /**
-     * Run 
+     * Run
      */
     @Override
     public void run() {
+        logger.log(Level.INFO,"STARTING publish artifact pages task");
         // make the output directory if it does not exist
         if (!output.exists()) {
             output.mkdirs();
@@ -109,18 +108,19 @@ public class ArtifactPublisher implements Runnable {
                         while (its.hasNext()) {
                             Submission submission = its.next();
                             if (submission.hasSourceFile()) {
-                                processSubmission(submission, output);                                
+                                processSubmission(submission, output);
                             }
                         }
                     }
                 }
             }
         }
+        logger.log(Level.INFO,"DONE publish artifact pages task");
     }
 
     /**
      * Process the submission
-     * @param S 
+     * @param S
      * @param Output
      */
     private void processSubmission(Submission S, File Output) {
@@ -169,11 +169,13 @@ public class ArtifactPublisher implements Runnable {
                 }
                 page = page.replace("${evaluation}", evaluation);
                 String caption = S.getAssignmentName() + " - " +
-                                 S.getStudentName() + ", " + 
+                                 S.getStudentName() + ", " +
                                  S.getEvaluation();
                 page = page.replace("${caption}", caption);
                 // write page
-                FileUtils.write(new File(Output, artifact_html), page);
+                File artifactPageFile = new File(Output, artifact_html);
+                logger.log(Level.INFO,"Writing artifact page \"{0}\"",artifactPageFile.getAbsolutePath());
+                FileUtils.write(artifactPageFile, page);
                 // generate qr code and write to output folder
                 String url = Config.ARTIFACT_BASE_URL + "/" + artifact_html;
                 writeQRTag(url, qrDir, qrcode_png);
@@ -204,9 +206,9 @@ public class ArtifactPublisher implements Runnable {
         int w = Config.ARTIFACT_TAG_WIDTH;
         com.google.zxing.Writer writer = new QRCodeWriter();
         // write code to image
+        logger.log(Level.INFO, "Writing QR tag image \"{0}\"", file.getAbsolutePath());
         matrix = writer.encode(Url, com.google.zxing.BarcodeFormat.QR_CODE, w, h);
         MatrixToImageWriter.writeToFile(matrix, "PNG", file);
-        logger.log(Level.INFO, "Wrote QR code tag {0}.", file.getAbsolutePath());
     }
-    
+
 } // end class

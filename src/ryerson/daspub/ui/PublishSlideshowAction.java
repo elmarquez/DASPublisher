@@ -20,7 +20,15 @@ package ryerson.daspub.ui;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
+import java.io.File;
+import java.util.concurrent.ExecutorService;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.AbstractAction;
+import ryerson.daspub.Config;
+import ryerson.daspub.Main;
+import ryerson.daspub.slideshow.PublishSlideshowTask;
+import ryerson.daspub.utility.CopyFilesTask;
 
 /**
  * Publish slideshow content action.
@@ -31,6 +39,8 @@ public class PublishSlideshowAction extends AbstractAction {
     private static final String LABEL = "Slideshow";
     private static final String DESCRIPTION = "Publish Slideshow Content";
     private static final Integer MNEMONIC = new Integer(KeyEvent.VK_S);
+
+    private static final Logger logger = Logger.getLogger(PublishSlideshowAction.class.getName());
 
     //--------------------------------------------------------------------------
 
@@ -51,6 +61,18 @@ public class PublishSlideshowAction extends AbstractAction {
      */
     @Override
     public void actionPerformed(ActionEvent e) {
+        // get the configuration info
+        ApplicationJFrame frame = ApplicationJFrame.getInstance();
+        Config config = frame.getConfiguration();
+        // create tasks
+        File input = new File(Config.STATIC_SLIDESHOW_CONTENT);
+        File output = new File(Config.OUTPUT_SLIDESHOW_PATH);
+        CopyFilesTask copySlideshowFilesTask = new CopyFilesTask(input,output);
+        PublishSlideshowTask makeSlideshowTask = new PublishSlideshowTask(config);
+        // execute tasks in parallel
+        ExecutorService pool = Main.getThreadPool();
+        pool.execute(copySlideshowFilesTask);
+        pool.execute(makeSlideshowTask);
     }
     
 } // end class

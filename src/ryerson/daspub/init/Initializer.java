@@ -41,6 +41,8 @@ import ryerson.daspub.model.Program;
  */
 public class Initializer implements Runnable {
 
+    private Config config;
+    
     private String configurationFile = "";
     private String archiveMetadataFile = "";
     private String programMetadataFile = "";
@@ -54,6 +56,16 @@ public class Initializer implements Runnable {
     
     private static final Logger logger = Logger.getLogger(Initializer.class.getName());
 
+    //--------------------------------------------------------------------------
+
+    /**
+     * Initializer constructor
+     * @param C Configuration
+     */
+    public Initializer(Config C) {
+        config = C;
+    }
+    
     //--------------------------------------------------------------------------
     /** 
      * Load default metadata files

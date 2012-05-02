@@ -104,10 +104,11 @@ public class CourseIndexPublisher implements Runnable {
         }
         // write file
         try {
+            logger.log(Level.INFO,"Writing course index \"{0}\"",output.getAbsolutePath());
             FileUtils.write(output,sb.toString());
         } catch (IOException ex) {
             String stack = ExceptionUtils.getStackTrace(ex);
-            logger.log(Level.SEVERE,"Could not write course index {0}\n\n{1}",
+            logger.log(Level.SEVERE,"Could not write course index \"{0}\"\n\n{1}",
                     new Object[]{output.getAbsolutePath(),
                                  stack});
             System.exit(-1);

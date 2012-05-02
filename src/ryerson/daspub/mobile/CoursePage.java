@@ -103,7 +103,7 @@ public class CoursePage {
      * @param Output Output folder
      */
     public static void Write(Course C, File Output) {
-        logger.log(Level.INFO, "Writing course folder {0}", C.getFolder().getAbsolutePath());
+        logger.log(Level.INFO, "Writing course folder \"{0}\"", Output.getAbsolutePath());
         try {
             // create the output folder
             Output.mkdirs();
@@ -143,6 +143,7 @@ public class CoursePage {
             page = page.replace("${assignments}",sb.toString());
             // write index page
             File index = new File(Output.getAbsolutePath(), "index.html");
+            logger.log(Level.INFO,"Writing course page \"{0}\"",index.getAbsolutePath());
             FileUtils.write(index, page);
         } catch (Exception ex) {
             String stack = ExceptionUtils.getStackTrace(ex);

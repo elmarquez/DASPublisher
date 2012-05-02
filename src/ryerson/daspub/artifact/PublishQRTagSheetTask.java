@@ -47,7 +47,7 @@ import ryerson.daspub.utility.QRCodeImageFileFilter;
  * Takes a directory containing PNG images of QR barcodes and constructs a 
  * PDF document conforming to an Avery 22806 template.
  */
-public class QRCodeTagSheetPublisher implements Runnable {
+public class PublishQRTagSheetTask implements Runnable {
 
     private static final int ITEMS_PER_PAGE = 12;
     private static final float LINE_THICKNESS = 0.25f;
@@ -72,21 +72,19 @@ public class QRCodeTagSheetPublisher implements Runnable {
     private File outputFile;
     private ArrayList<Point> layout = new ArrayList<Point>();
     
-    private static final Logger logger = Logger.getLogger(QRCodeTagSheetPublisher.class.getName());
+    private static final Logger logger = Logger.getLogger(PublishQRTagSheetTask.class.getName());
 
     //--------------------------------------------------------------------------
 
     /**
      * QRTagSheetPublisher constructor.
-     * @param Config Output configuration
-     * @param Input Input directory with artifact pages and QR code images
-     * @param Output Output file
+     * @param Configuration Output configuration
      */
-    public QRCodeTagSheetPublisher(Config Config, File Input, File Output) {
-        config = Config;
-        inputDir = Input;
-        outputDir = Output;
-        outputFile = new File(Output, "tagsheet-avery-22806.pdf");
+    public PublishQRTagSheetTask(Config Configuration) {
+        config = Configuration;
+        inputDir = new File(Config.OUTPUT_QR_LABELSHEET_PATH);
+        outputDir = new File(Config.OUTPUT_QR_LABELSHEET_PATH);
+        outputFile = new File(outputDir,"tagsheet-avery-22806.pdf");
     }
 
     //--------------------------------------------------------------------------
@@ -254,6 +252,7 @@ public class QRCodeTagSheetPublisher implements Runnable {
      */
     @Override
     public void run() {
+        logger.log(Level.INFO,"STARTING publish QR tag sheet task");
         // define the standard sticker layout points
         layout.add(new Point(45,601));
         layout.add(new Point(234,601));
@@ -277,6 +276,7 @@ public class QRCodeTagSheetPublisher implements Runnable {
             String stack = ExceptionUtils.getStackTrace(ex);
             logger.log(Level.SEVERE,"Could not write tag sheet file.\n\n{0}",stack);
         }
+        logger.log(Level.INFO,"DONE publish QR tag sheet task");
     }
     
     /**
@@ -293,6 +293,7 @@ public class QRCodeTagSheetPublisher implements Runnable {
         File[] files = inputDir.listFiles(new QRCodeImageFileFilter());
         if (files != null && files.length > 0) {
             // create a new PDF document
+            logger.log(Level.INFO,"Writing tag sheet \"{0}\"",outputFile.getAbsolutePath());
             Document document = new Document(PageSize.LETTER);
             PdfWriter writer = PdfWriter.getInstance(document,new FileOutputStream(outputFile));
             document.addTitle("Artifact QR Code Labels");

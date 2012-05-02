@@ -87,7 +87,7 @@ public class PDFUtils {
         } catch (PdfException ex) {
             String stack = ExceptionUtils.getStackTrace(ex);
             logger.log(Level.SEVERE,
-                       "Could not get page count for {0}\n\n{1}",
+                       "Could not get page count for \"{0}\"\n\n{1}",
                        new Object[] {Input.getAbsolutePath(),stack});
         }
         return count;
@@ -120,7 +120,7 @@ public class PDFUtils {
             // write jpg image
             pdf.openPdfFile(Input.getAbsolutePath());
             BufferedImage img = pdf.getPageAsImage(1);
-            logger.log(Level.INFO,"Writing {0}",output.getName());
+            logger.log(Level.INFO,"Writing JPG image \"{0}\"",output.getAbsolutePath());
             Thumbnails.of(img)
                       .outputFormat("jpg")
                       .outputQuality(1.0f)
@@ -151,7 +151,7 @@ public class PDFUtils {
             pdf.openPdfFile(Input.getAbsolutePath());
             if (Page < pdf.getPageCount()) {
                 BufferedImage img = pdf.getPageAsImage(Page+1); // PDF page index starts at 1
-                logger.log(Level.INFO,"Writing {0}", Output.getName());
+                logger.log(Level.INFO,"Writing JPG image \"{0}\"", Output.getAbsolutePath());
                 Thumbnails.of(img)
                           .outputFormat("jpg")
                           .outputQuality(1.0f)
@@ -159,7 +159,7 @@ public class PDFUtils {
                           .toFile(Output);
             } else {
                 logger.log(Level.WARNING,
-                           "Could not write PDF thumbnail for {0}. Requested page number does not exist.",
+                           "Could not write PDF thumbnail for \"{0}\". Requested page number does not exist.",
                            Input.getAbsolutePath());
             }
             pdf.closePdfFile();
@@ -186,7 +186,7 @@ public class PDFUtils {
             for (int i=0;i<count;i++) {
                 BufferedImage img = pdf.getPageAsImage(i+1); // PDF page index starts at 1
                 File output = getIncrementedFileName(Output,i,"jpg");
-                logger.log(Level.INFO,"Writing {0}",output.getName());
+                logger.log(Level.INFO,"Writing JPG image \"{0}\"",output.getAbsolutePath());
                 Thumbnails.of(img)
                           .outputFormat("jpg")
                           .outputQuality(1.0f)
@@ -197,7 +197,7 @@ public class PDFUtils {
             }
             pdf.closePdfFile();
         } else {
-            logger.log(Level.WARNING,"Could not write JPG for PDF {0}.",Input.getAbsolutePath());
+            logger.log(Level.WARNING,"Could not write JPG images for PDF {0}.",Input.getAbsolutePath());
         }
         // return result
         return files;

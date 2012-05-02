@@ -10,6 +10,9 @@ Version History
       
 0.9.0 o Automatic slideshow presentation with QR tag in corner
       o Normalize nomenclature across classes, in config files
+      o Status check: count completed metadata versus submitted files, confirm
+        that metadata files actually include data!
+      o Course index page utility, command line option
 
 0.8.0 o Package mobile output as a self-contained app
       o Review report page to use JQuery Mobile layout
@@ -17,17 +20,14 @@ Version History
 0.7.0 o Add filtering column for artifact labels, pages
       o Fix problem with colour tinting of images after rescaling
       o Complete TODO tasks noted in code
-      o Status check: count completed metadata versus submitted files, confirm
-        that metadata files actually include data!
-      o Course index page utility, command line option
+      o Config should be revised to make all variables local to the class
+      x Better error reporting for end users
 
 Current Work:
 
-      - Open an existing project file and then run it!
-
-0.6.0 o Create a basic GUI for the application
-      o Improve image quality for full and thumbnail sized images
-      o Better error reporting for end users
+0.6.0 o Improve image quality for full and thumbnail sized images
+      x Open an existing project file and then run it!
+      x Create a basic GUI for the application
       x Create appropriate image label for submissions, including multi-page
         submissions
       x Multi-page PDF submissions
