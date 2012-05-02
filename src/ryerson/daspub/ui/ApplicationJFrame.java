@@ -72,7 +72,7 @@ public class ApplicationJFrame extends javax.swing.JFrame {
         // set frame title
         setTitle(Config.APPLICATION_TITLE);
         // set menu item actions
-        jMenuItem1.setAction(newProjectAction);
+        // jMenuItem1.setAction(newProjectAction);
         jMenuItem2.setAction(openProjectAction);
         // jMenuItem3.setAction(saveProjectAction);
         jMenuItem4.setAction(exitAction);
@@ -113,7 +113,6 @@ public class ApplicationJFrame extends javax.swing.JFrame {
         jTextArea1 = new javax.swing.JTextArea();
         jMenuBar1 = new javax.swing.JMenuBar();
         jMenu1 = new javax.swing.JMenu();
-        jMenuItem1 = new javax.swing.JMenuItem();
         jMenuItem2 = new javax.swing.JMenuItem();
         jSeparator1 = new javax.swing.JPopupMenu.Separator();
         jMenuItem4 = new javax.swing.JMenuItem();
@@ -140,15 +139,12 @@ public class ApplicationJFrame extends javax.swing.JFrame {
         });
 
         jTextArea1.setColumns(20);
-        jTextArea1.setFont(new java.awt.Font("Monospaced", 0, 12)); // NOI18N
+        jTextArea1.setFont(new java.awt.Font("Monospaced", 0, 12));
         jTextArea1.setRows(5);
         jScrollPane2.setViewportView(jTextArea1);
 
         jMenu1.setMnemonic('f');
         jMenu1.setText("File");
-
-        jMenuItem1.setText("New Project");
-        jMenu1.add(jMenuItem1);
 
         jMenuItem2.setText("Open Project");
         jMenu1.add(jMenuItem2);
@@ -372,7 +368,6 @@ public class ApplicationJFrame extends javax.swing.JFrame {
     private javax.swing.JMenu jMenu2;
     private javax.swing.JMenu jMenu3;
     private javax.swing.JMenuBar jMenuBar1;
-    private javax.swing.JMenuItem jMenuItem1;
     private javax.swing.JMenuItem jMenuItem10;
     private javax.swing.JMenuItem jMenuItem11;
     private javax.swing.JMenuItem jMenuItem12;
