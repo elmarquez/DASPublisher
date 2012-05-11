@@ -58,6 +58,7 @@ public class Config {
     // output paths
     public static String OUTPUT_ARTIFACT_PAGES_PATH = "c:\\daspublisher\\output\\artifact\\";
     public static String OUTPUT_MOBILE_PATH = "c:\\daspublisher\\output\\mobile\\";
+    public static String OUTPUT_MOBILE_WORK_PATH = "c:\\daspublisher\\output\\mobile\\work\\";
     public static String OUTPUT_QR_LABELSHEET_PATH = "c:\\daspublisher\\output\\artifact\\qr\\";
     public static String OUTPUT_REPORT_PATH = "c:\\daspublisher\\output\\report\\";
     public static String OUTPUT_SLIDESHOW_PATH = "c:\\daspublisher\\output\\slideshow\\";

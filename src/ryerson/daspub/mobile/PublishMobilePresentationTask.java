@@ -50,7 +50,7 @@ public class PublishMobilePresentationTask implements Runnable {
      */
     public PublishMobilePresentationTask(Config Configuration) {
         config = Configuration;
-        output = new File(Config.OUTPUT_MOBILE_PATH);
+        output = new File(Config.OUTPUT_MOBILE_WORK_PATH);
     }
 
     //--------------------------------------------------------------------------

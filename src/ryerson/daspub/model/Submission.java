@@ -21,7 +21,6 @@ package ryerson.daspub.model;
 import java.io.File;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import jxl.Cell;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.filefilter.SuffixFileFilter;
 import org.apache.commons.lang3.exception.ExceptionUtils;
@@ -49,7 +48,8 @@ public class Submission {
     private String submissionId;
     private String evaluation;
     private File source;
-
+    private boolean isPresentedPhysically = false;
+    
     private static final Logger logger = Logger.getLogger(Submission.class.getName());
 
     //--------------------------------------------------------------------------
@@ -249,56 +249,56 @@ public class Submission {
         return studioMaster;
     }
 
-    /**
-     * Parse spreadsheet row to create a Submission object.  If the row is
-     * missing required data fields, then a null object will be returned.
-     * @param Cells Cells from one spreadsheet row
-     * @param Path Folder where the submission data object is located
-     * @return Submission
-     * @todo Consider a flexible cell to parameter mapping, using column names instead
-     */
-    public static Submission getSubmission(Cell[] Cells, File Path) {
-        Submission s = null;
-        // map cell values to new submission object
-        String c_year = Cells[0].getContents();
-        String c_semester = Cells[1].getContents();
-        String c_coursenumber = Cells[2].getContents();
-        String c_coursename = Cells[3].getContents();
-        String c_studiomaster = Cells[4].getContents();
-        String c_instructor = Cells[5].getContents();
-        String c_assignmentname = Cells[6].getContents();
-        String c_assignmentduration = Cells[7].getContents();
-        String c_studentname = Cells[8].getContents();
-        String c_numberofitems = Cells[9].getContents();
-        String c_id = Cells[10].getContents();
-        String c_filename = Cells[11].getContents();
-        String c_evaluation = Cells[12].getContents();
-        // if the required cells are not empty, create a new submission object
-        if (c_id != null
-                && c_year != null
-                && c_coursenumber != null
-                && c_instructor != null
-                && c_studentname != null
-                && c_filename != null) {
-            File f = new File(Path, c_filename);
-            s = new Submission(c_year,
-                    c_semester,
-                    c_coursenumber,
-                    c_coursename,
-                    c_studiomaster,
-                    c_instructor,
-                    c_assignmentname,
-                    c_assignmentduration,
-                    c_studentname,
-                    c_numberofitems,
-                    c_id,
-                    f.getAbsolutePath(),
-                    c_evaluation);
-        } else {
-            logger.log(Level.WARNING, "Spreadsheet item is missing one of the required values: id, year, course number, instructor, student name, file name.");
-        }
-        return s;
-    }
+//    /**
+//     * Parse spreadsheet row to create a Submission object.  If the row is
+//     * missing required data fields, then a null object will be returned.
+//     * @param Cells Cells from one spreadsheet row
+//     * @param Path Folder where the submission data object is located
+//     * @return Submission
+//     * @todo Consider a flexible cell to parameter mapping, using column names instead
+//     */
+//    public static Submission getSubmission(Cell[] Cells, File Path) {
+//        Submission s = null;
+//        // map cell values to new submission object
+//        String c_year = Cells[0].getContents();
+//        String c_semester = Cells[1].getContents();
+//        String c_coursenumber = Cells[2].getContents();
+//        String c_coursename = Cells[3].getContents();
+//        String c_studiomaster = Cells[4].getContents();
+//        String c_instructor = Cells[5].getContents();
+//        String c_assignmentname = Cells[6].getContents();
+//        String c_assignmentduration = Cells[7].getContents();
+//        String c_studentname = Cells[8].getContents();
+//        String c_numberofitems = Cells[9].getContents();
+//        String c_id = Cells[10].getContents();
+//        String c_filename = Cells[11].getContents();
+//        String c_evaluation = Cells[12].getContents();
+//        // if the required cells are not empty, create a new submission object
+//        if (c_id != null
+//                && c_year != null
+//                && c_coursenumber != null
+//                && c_instructor != null
+//                && c_studentname != null
+//                && c_filename != null) {
+//            File f = new File(Path, c_filename);
+//            s = new Submission(c_year,
+//                    c_semester,
+//                    c_coursenumber,
+//                    c_coursename,
+//                    c_studiomaster,
+//                    c_instructor,
+//                    c_assignmentname,
+//                    c_assignmentduration,
+//                    c_studentname,
+//                    c_numberofitems,
+//                    c_id,
+//                    f.getAbsolutePath(),
+//                    c_evaluation);
+//        } else {
+//            logger.log(Level.WARNING, "Spreadsheet item is missing one of the required values: id, year, course number, instructor, student name, file name.");
+//        }
+//        return s;
+//    }
 
     /**
      * Get submission type designation.
@@ -335,7 +335,8 @@ public class Submission {
     }
 
     /**
-     * Determine if the source file has been defined and the source file exists.
+     * Determines if the source file has been defined and exists.
+     * @return True if source file exists, false otherwise.
      */
     public boolean hasSourceFile() {
         if (source != null && source.exists()) {

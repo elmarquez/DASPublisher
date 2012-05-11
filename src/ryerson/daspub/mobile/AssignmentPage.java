@@ -317,7 +317,7 @@ public class AssignmentPage {
      */
     private static String getPageNumberLabel(Submission S, String Name) {
         // get page number of file
-        int i = Name.indexOf("-");
+        int i = Name.lastIndexOf("-");
         int j = Name.lastIndexOf(".");
         CharSequence val = Name.subSequence(i+1,j);
         Integer page = Integer.valueOf(val.toString());

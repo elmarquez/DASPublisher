@@ -117,6 +117,11 @@ public class PDFUtils {
                 String basename = FilenameUtils.getBaseName(output.getName()) + ".jpg";
                 output = new File(output.getParentFile(),basename);
             }
+            // @TODO configure JPedal to improve output settings
+            // exception will be thrown if invalid value passed
+//            Map mapValues = new HashMap();
+//            mapValues.put(JPedalSettings.IMAGE_HIRES,Boolean.TRUE);
+            
             // write jpg image
             pdf.openPdfFile(Input.getAbsolutePath());
             BufferedImage img = pdf.getPageAsImage(1);

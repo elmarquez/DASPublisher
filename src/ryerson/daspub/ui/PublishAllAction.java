@@ -73,7 +73,7 @@ public class PublishAllAction extends AbstractAction {
         File artifactinput = new File(Config.STATIC_ARTIFACT_CONTENT);
         File artifactoutput = new File(Config.OUTPUT_ARTIFACT_PAGES_PATH);
         File mobileinput = new File(Config.STATIC_MOBILE_CONTENT);
-        File mobileoutput = new File(Config.OUTPUT_MOBILE_PATH);
+        File mobileoutput = new File(Config.OUTPUT_MOBILE_WORK_PATH);
         File reportinput = new File(Config.STATIC_REPORT_CONTENT);
         File reportoutput = new File(Config.OUTPUT_REPORT_PATH);
         File slideinput = new File(Config.STATIC_SLIDESHOW_CONTENT);

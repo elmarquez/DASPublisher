@@ -20,34 +20,29 @@
 package ryerson.daspub.model;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import jxl.Cell;
-import jxl.Sheet;
-import jxl.Workbook;
-import jxl.WorkbookSettings;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import ryerson.daspub.Config;
 import ryerson.daspub.Config.STATUS;
 import ryerson.daspub.Config.SUBMISSION_EVALUATION;
 import ryerson.daspub.Config.SUBMISSION_TYPE;
 import ryerson.daspub.utility.MarkupUtils;
+import ryerson.daspub.utility.SubmissionSpreadsheetAdapter;
 import ryerson.daspub.utility.URLUtils;
 
 /**
  * Assignment entity. An assignment has four types of subfiles:
- * 
+ *
  * - a text file containing metadata describing the assignment
  * - a PDF file representing the handout that students received for the assignment
  * - student submissions (images, PDFs, videos)
  * - an Excel spreadsheet with metadata for all student submissions
- * 
+ *
  * @author dmarques
  */
 public class Assignment {
@@ -56,7 +51,7 @@ public class Assignment {
     private String description = "";
 
     private static final Logger logger = Logger.getLogger(Assignment.class.getName());
-    
+
     //--------------------------------------------------------------------------
 
     /**
@@ -67,7 +62,7 @@ public class Assignment {
         source = F;
         parseMetadataFile();
     }
-   
+
     //--------------------------------------------------------------------------
 
     /**
@@ -82,10 +77,10 @@ public class Assignment {
 
     /**
      * Get path
-     * @return 
+     * @return
      */
     public File getFolder() {
-       return source; 
+       return source;
     }
 
     /**
@@ -124,43 +119,25 @@ public class Assignment {
 
     /**
      * Get submissions.
-     * @return 
+     * @return List of submissions.
      */
     public List<Submission> getSubmissions() {
-        ArrayList<Submission> items = new ArrayList<Submission>();
-        // load the metadata file
         File file = new File(this.source,Config.SUBMISSION_METADATA_FILE);
-        Submission s = null;
-        if (file.exists()) {            
-            try {
-                WorkbookSettings ws = new WorkbookSettings();
-                ws.setLocale(new Locale("en","EN"));
-                FileInputStream fis = new FileInputStream(file);
-                Workbook workbook = Workbook.getWorkbook(fis,ws);
-                Sheet sheet = workbook.getSheet(0);
-                int rows = sheet.getRows();
-                for (int row=1;row<rows;row++) {
-                    Cell[] cells = sheet.getRow(row);
-                    s = Submission.getSubmission(cells,source);
-                    if (s != null) {
-                        items.add(s);
-                    }
-                }            
-            } catch (Exception ex) {
-                String stack = ExceptionUtils.getStackTrace(ex);
-                logger.log(Level.SEVERE,"Submission metadata for assignment {0}, submission {1} could not be loaded.\n\n{2}",
-                        new Object[]{source.getAbsolutePath(),
-                                    s.getId(),
-                                    stack});
-            }
+        try {
+            SubmissionSpreadsheetAdapter adapter = new SubmissionSpreadsheetAdapter(file);
+            return adapter.getSubmissions();
+        } catch (Exception ex) {
+            String stack = ExceptionUtils.getStackTrace(ex);
+            logger.log(Level.SEVERE,"Could not load submissions from \"{0}\".\n\n{1}",
+                    new Object[]{file.getAbsolutePath(),stack});
         }
-        return items;        
+        return new ArrayList<Submission>();
     }
 
     /**
      * Get submissions by type.
      * @param Type
-     * @return 
+     * @return
      */
     public List<Submission> getSubmissions(SUBMISSION_TYPE Type) {
         ArrayList<Submission> result = new ArrayList<Submission>();
@@ -172,14 +149,14 @@ public class Assignment {
                 result.add(s);
             }
         }
-        return result;        
+        return result;
     }
-    
+
     /**
      * Get submissions by type and evaluation.
      * @param Type
      * @param Evaluation
-     * @return 
+     * @return
      */
     public List<Submission> getSubmissions(SUBMISSION_TYPE Type, SUBMISSION_EVALUATION Evaluation) {
         ArrayList<Submission> result = new ArrayList<Submission>();
@@ -191,9 +168,9 @@ public class Assignment {
                 result.add(s);
             }
         }
-        return result; 
+        return result;
     }
-        
+
     /**
      * Get link to assignment syllabus file.
      * @return Returns null if file does not exist.
@@ -203,7 +180,7 @@ public class Assignment {
         if (file.exists()) return file;
         return null;
      }
-    
+
     /**
      * Get path safe name.
      */
@@ -217,41 +194,18 @@ public class Assignment {
      */
     public boolean hasCompleteSubmissionMetadata() {
        logger.log(Level.WARNING,"Assignment.hasCompleteSubmissionMetadata is not implemented and does not return correct results.");
-       return true; 
+       return true;
     }
-    
+
     /**
      * Determine if the submission metadata file conforms to the requirements
      * for parsing.
-     * TODO this is duplicate code!! factor it out!
+     * @returns True if submission metadata conforms to requirement, false otherwise.
      */
     public boolean hasConformingSubmissionMetadataFile() {
-        ArrayList<Submission> items = new ArrayList<Submission>();
-        // load the metadata file
         File file = new File(this.source,Config.SUBMISSION_METADATA_FILE);
-        if (file.exists()) {            
-            try {
-                WorkbookSettings ws = new WorkbookSettings();
-                ws.setLocale(new Locale("en","EN"));
-                FileInputStream fis = new FileInputStream(file);
-                Workbook workbook = Workbook.getWorkbook(fis,ws);
-                Sheet sheet = workbook.getSheet(0);
-                int rows = sheet.getRows();
-                for (int row=1;row<rows;row++) {
-                    Cell[] cells = sheet.getRow(row);
-                    Submission s = Submission.getSubmission(cells,source);
-                    if (s != null) {
-                        items.add(s);
-                    }
-                }            
-            } catch (Exception ex) {
-                String stack = ExceptionUtils.getStackTrace(ex);
-                logger.log(Level.SEVERE,"Submission metadata for assignment {0} could not be loaded.\n\n{1}",
-                        new Object[]{source.getAbsolutePath(),stack});
-                return false;
-            }
-        }
-       return true;
+        SubmissionSpreadsheetAdapter adapter = new SubmissionSpreadsheetAdapter(file);
+        return adapter.hasConformingSubmissionMetadataFile();
     }
 
     /**
@@ -263,12 +217,12 @@ public class Assignment {
         Iterator<Submission> its = submissions.iterator();
         while (its.hasNext()) {
             Submission s = its.next();
-            if (s.isImage()) return true;
+            if (s.isImage() && s.hasSourceFile()) return true;
         }
         return false;
     }
-    
-    
+
+
     /**
      * Determine if the assignment contains a text file with assignment metadata.
      * @return True if file exists, false otherwise.
@@ -280,16 +234,16 @@ public class Assignment {
 
     /**
      * Determine if the assignment has a submission metadata file
-     * @return 
+     * @return
      */
     public boolean hasSubmissionMetadataFile() {
         File file = new File(source,Config.SUBMISSION_METADATA_FILE);
         return file.exists();
     }
-    
+
     /**
      * Determine if the assignment has student submissions
-     * @return 
+     * @return
      */
     public boolean hasSubmissions() {
         List<Submission> items = getSubmissions();
@@ -321,7 +275,7 @@ public class Assignment {
         }
         return false;
     }
-    
+
     /**
      * Parse the metadata file.
      */
@@ -334,5 +288,5 @@ public class Assignment {
             }
         }
     }
-    
+
 } // end class
